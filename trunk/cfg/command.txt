@@ -1,0 +1,76 @@
+###########################
+# COMMAND ACCESS SETTINGS #
+###########################
+
+// sample configuration
+//
+// 0	no access
+// 1	member
+// 2	
+// 3	game host
+// 4	moderator
+// 5	manager
+// 6	admin
+// 7
+// 8
+// 9
+// 10	full access
+
+
+// user / access
+add = 10
+del = 10
+count = 5
+access = 1
+
+// ban
+addban = 6
+ban = 6
+delban = 6
+unban = 6
+checkban = 1
+countbans = 5
+
+// channel
+channel = 10
+say = 5
+saycommand = 6
+kick = 5
+designate = 10
+rejoin = 10
+
+// clan
+invite = 5
+remove = 10
+motd = 5
+peon = 10
+grunt = 10
+shaman = 10
+
+// management
+dbstatus = 10
+wardenstatus = 10
+lastwhisper = 5
+lw = 5
+getclan = 6
+getfriends = 6
+exit = 10
+quit = 10
+uptime = 5
+reload = 6
+
+// misc
+seen = 1
+version = 1
+ping = 1
+owner = 10
+
+// stats
+stats = 0
+statsdota = 0
+
+// fun
+slap = 1
+ask8ball = 1
+addquote = 5
+quote = 1
