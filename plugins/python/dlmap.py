@@ -10,7 +10,7 @@ allowed_exts = ('.w3x', '.w3m')
 min_access = 5
 
 #path to maps from pychop++ working direcotry
-mappath = "../ghost/maps/"
+mappath = "maps/"
 
 import os.path
 import host
@@ -162,9 +162,8 @@ def get_map(reply, payload):
 								reply('Downloading...')
 								downloadedname = download_map( payload, mappath )
 								reply('Successfully downloaded map {0}'.format(downloadedname))
-						except:
-								reply( 'Error downloading map' )
-								raise
+						except Exception as E:
+								reply( 'Error downloading map: {0}'.format(str(E)))
 								
 def init():
 		'''Initializes this plugin, by registering a bunch of handlers'''
