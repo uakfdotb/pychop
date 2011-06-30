@@ -43,7 +43,7 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 {
 	try	
 	{ 
-		EXECUTE_HANDLER("ProcessCommand", true, boost::ref(this), boost::ref(User), command, payload, type) 
+		EXECUTE_HANDLER("ProcessCommand", true, boost::ref(this), boost::ref(User), command, payload, type)
 	}
 	catch(...) 
 	{ 
@@ -73,14 +73,8 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 	}
 	else if( i < 0 )
 	{
-		// output unknown command if user has access and hostbot is not in the channel to stop spam
-		// a GHost++ has some commands that ChOP++ doesn't
-		if( !m_GHostIsInChannel && Access > 0 ) {
-			return m_ChOP->m_Language->UnknownCommand( command );
-		    	
-		}
-		else
-			return "";
+		// unknown command, ignore
+		return "";
 	}
 	else
 		CommandAccess = i;
