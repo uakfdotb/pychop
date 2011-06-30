@@ -61,8 +61,6 @@ def onTalk(bnet, username, message):
 	if trivia_enabled and trivia_state > 0:
 		userAnswer = message.lower()
 		
-		print("[" + userAnswer + "] [" + trivia_answer[0] + "]")
-		
 		if userAnswer in trivia_answer:
 			say("The answer was: " + userAnswer + "; user " + username + " got it correct!");
 			# reset
