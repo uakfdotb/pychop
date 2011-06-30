@@ -14,7 +14,7 @@ conn = MySQLdb.connect(host = "localhost", user = "user", passwd = "pass", db = 
 cursor = conn.cursor()
 
 def init():
-	host.registerHandler('ProcessCommand', onCommand)
+	host.registerHandler('ProcessCommand', onCommand, True)
 	
 def deinit():
 	host.unregisterHandler(onCommand)
@@ -25,13 +25,19 @@ def onCommand(bnet, user, command, payload, nType):
 		result_set = cursor.fetchall()
 		result_string = "Current games: "
 		
+		num_games = 0
+		
 		for row in result_set:
 			if row[0] != "":
-				result_string += row[0] + " (" + row[1] + "/" + row[2] + "), "
+				result_string += str(row[0]) + " (" + str(row[1]) + "/" + str(row[2]) + "), "
+				num_games++
 		
-		if len(result_string) > 0:
+		if num_games > 0:
 			result_string = result_string[:-2]
 		else:
 			result_string += "none"
 		
 		bnet.queueChatCommand(result_string, user.getName(), nType == 1)
+		return False
+		
+	return True

@@ -65,7 +65,7 @@ extern map< string, vector<boost::python::object> > gHandlersSecond;
 				{																								\
 					bool Val = boost::python::extract<bool>( (*i)( __VA_ARGS__ ) );								\
 																												\
-					if( Val = false )																			\
+					if( !Val )																				\
 						AllSucceeded = false;																	\
 				}																								\
 				catch(...)																						\
@@ -76,7 +76,7 @@ extern map< string, vector<boost::python::object> > gHandlersSecond;
 			}																									\
 																												\
 			if( !AllSucceeded && throw_if_not_all_succeeded )													\
-				throw;																							\
+				throw 5;																						\
 		}																										\
 	}	
 
