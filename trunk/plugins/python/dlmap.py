@@ -11,7 +11,7 @@ min_access = 5
 
 import os.path
 import host
-from host import GHost
+from host import ChOP
 import re
 import random
 
@@ -133,7 +133,7 @@ def get_map(reply, payload):
                 reply('getmap <url OR dota [ver]>')
                 
         else:
-                mappath = GHost.mapPath
+                mappath = ChOP.mapPath
                 
                 # !getmap dota 6.66b
                 if 'dota' in payload.lower():
@@ -170,7 +170,7 @@ def get_map(reply, payload):
 def init():
         '''Initializes this plugin, by registering a bunch of handlers'''
         import host
-        from host import GHost
+        from host import ChOP
         host.registerHandler("ProcessCommand", onCommand)
 
 def deinit():
