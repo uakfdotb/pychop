@@ -593,6 +593,10 @@ CChOP :: ~CChOP( )
 
 bool CChOP :: Update( long usecBlock )
 {
+	// notify plugins of update
+	
+	EXECUTE_HANDLER("Update", false, boost::ref(this))
+
 	// todotodo: do we really want to shutdown if there's a database error? is there any way to recover from this?
 
 	if( m_DB->HasError( ) )

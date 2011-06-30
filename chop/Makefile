@@ -1,7 +1,7 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
-C++ = g++ -g
-CC = gcc -g
+C++ = g++
+CC = gcc
 DFLAGS = -Dchop_MYSQL
 OFLAGS = -O3
 LFLAGS = -L. -L../bncsutil/src/bncsutil/ -L../StormLib/stormlib/ -lbncsutil -lpthread -ldl -lz -lStorm -lmysqlclient_r -lboost_date_time-mt -lboost_thread-mt -lboost_system-mt -lpython2.7 -lboost_python
