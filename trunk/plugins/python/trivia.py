@@ -12,7 +12,7 @@ trivia_bnet = 0
 trivia_enabled = False
 trivia_question_delay = 6000  # millisecond delay after answered
 trivia_delay = 8000  # millisecond delay between each answer stage
-trivia_difficulty = 1
+trivia_difficulty = -1  # -1 means no difficulty
 trivia_category = -1  # -1 means no category
 
 # these are dynamic during a trivia session
@@ -106,7 +106,7 @@ def uncover():
 	global trivia_uncover
 	# calculate how many to uncover; note that we might uncover same one twice
 	# this formula ensures that we don't uncover too many
-	num_uncover = int(round(.16 * len(trivia_uncover)))
+	num_uncover = int(round(.21 * len(trivia_uncover)))
 	
 	for i in range(num_uncover):
 		index = random.randint(0, len(trivia_uncover) - 1)
@@ -141,7 +141,8 @@ def addQuestions():
 	targetURL = "http://snapnjacks.com/getq.php?client=plugins/pychop/trivia"
 	
 	# quote custom parameters to replace with %XX
-	targetURL += "&dif=" + urllib2.quote(str(trivia_difficulty))
+	if trivia_difficulty != -1:
+		targetURL += "&dif=" + urllib2.quote(str(trivia_difficulty))
 	
 	if trivia_category != -1:
 		targetURL += "&ctg=" + urllib2.quote(trivia_category)
@@ -206,6 +207,10 @@ def onCommand(bnet, user, command, payload, nType):
 			# clear questions since we changed the type
 			trivia_questions = deque([])
 		elif parts[0] == "difficulty" and len(parts) >= 2:
-			trivia_difficulty = parts[1]
+			if len(parts) >= 2:
+				trivia_difficulty = parts[1]
+			else:
+				trivia_difficulty = -1
+
 			# clear questions since we changed the type
 			trivia_questions = deque([])
