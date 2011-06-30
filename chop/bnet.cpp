@@ -411,26 +411,30 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 	// refresh the user list every 5 minutes
 
-	if( !m_CallableUserList && GetTime( ) >= m_LastUserRefreshTime + 300 ) {
+	if( !m_CallableUserList && GetTime( ) >= m_LastUserRefreshTime + 60 ) {
 		m_CallableUserList = m_ChOP->m_DB->ThreadedUserList( m_Server );
 		m_LastUserRefreshTime = GetTime();
 	}
 
 	if( m_CallableUserList && m_CallableUserList->GetReady( ) )
 	{
-		// CONSOLE_Print( "[BNET: " + m_ServerAlias + "] refreshed user list (" + UTIL_ToString( m_Users.size( ) ) + " -> " + UTIL_ToString( m_CallableUserList->GetResult( ).size( ) ) + " users with access)" );
+		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] refreshed user list (" + UTIL_ToString( m_Users.size( ) ) + " -> " + UTIL_ToString( m_CallableUserList->GetResult( ).size( ) ) + " users with access)" );
 
-		for( map<string, CUser *> :: iterator i = m_Users.begin( ); i != m_Users.end( ); i++ )
-			delete (*i).second;
-
+		map<string, CUser *> tmpUsers = m_Users;
 		m_Users = m_CallableUserList->GetResult( );
+
+		// delete from user list while making sure channel list gets recreated
 		
-		// we have deleted from m_Users; now we must re-create the channel list or it'll point to freed memory!
-		
-		for( map<string, CUser *> :: iterator i = m_Channel.begin( ); i != m_Channel.end( ); i++ ) {
-			if(!(*i).second) { // true if channel member is on user list
-				(*i).second = m_Users[(*i).first];
+		for( map<string, CUser *> :: iterator i = tmpUsers.begin( ); i != tmpUsers.end( ); i++ ) {
+			map<string, CUser *> :: iterator channelIndex = m_Channel.find( (*i).first );
+			if( channelIndex != m_Channel.end( ) ) {
+				m_Channel.erase(channelIndex);
+				
+				// replace with userlist's first
+				m_Channel[(*i).first] = m_Users[(*i).first];
 			}
+			
+			delete (*i).second;
 		}
 		
 		m_ChOP->m_DB->RecoverCallable( m_CallableUserList );
@@ -442,6 +446,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 	// refresh the ban list every 60 minutes
 
 	if( !m_CallableBanList && GetTime( ) >= m_LastBanRefreshTime + 3600 )
+
 		m_CallableBanList = m_ChOP->m_DB->ThreadedBanList( m_Server );
 
 	if( m_CallableBanList && m_CallableBanList->GetReady( ) )
