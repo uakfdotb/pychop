@@ -31,7 +31,7 @@ import urlparse
 has_httplib2 = False
 
 try:
-		import httplib2.httplib2 as hl2
+		import httplib2 as hl2
 		http_con = hl2.Http(".cache")
 		has_httplib2 = True
 except ImportError:

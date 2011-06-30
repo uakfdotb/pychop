@@ -6,62 +6,206 @@
 # help = Use !trivia on to enable trivia, and !trivia off to disable it. !trivia delay X changes the delay after asking a question. !trivia difficulty X changes the difficulty (1-5). !trivia category disables categories, and !trivia category X sets the category to X.
 
 commands = ("trivia", "plugins/pychop/trivia")
+trivia_minaccess = 6
 
 trivia_bnet = 0
 trivia_enabled = False
-trivia_question_delay = 3000  # millisecond delay after answered
-trivia_delay = 10000
+trivia_question_delay = 6000  # millisecond delay after answered
+trivia_delay = 8000  # millisecond delay between each answer stage
 trivia_difficulty = 1
 trivia_category = -1  # -1 means no category
 
-trivia_state = 0  # next operations: 0 = ask question, 1 = get answer or show answer
+# these are dynamic during a trivia session
+
+# depending on state next operation should be:
+# 0: display the question
+# 1: display ???? (# characters in answer)
+# 2: display ?a?a (stage2 answer)
+# 3: display aa?a (stage3 answer)
+# 4: display aaaa (display answer) and -> 0
+trivia_state = 0
 trivia_lasttime = 0
 
+# list of acceptable answers
 trivia_answer = 0
-trivia_answer_user = ""  # user who answered the question correctly
+
+# uncovered list version of trivia_answer[0] (???? -> ?a?a -> etc)
+trivia_uncover = 0
+
+# user who answered the question correctly
+trivia_answer_user = ""
 
 import host
-import datetime
+import time
+from collections import deque
+import urllib2
+import urlparse
+import random
+
+trivia_questions = deque([]) # this will be populated with question/answer pairs later
 
 def init():
 	host.registerHandler('ProcessCommand', onCommand)
+	host.registerHandler('ChatReceived', onTalk)
 	host.registerHandler('Update', onUpdate)
 	
 def deinit():
 	host.unregisterHandler(onCommand)
 	host.unregisterHandler(onUpdate)
+	host.unregisterHandler(onTalk)
+
+def onTalk(bnet, username, message):
+	global trivia_lasttime, trivia_state, trivia_enabled
+	
+	# are we waiting for an answer?
+	if trivia_enabled and trivia_state > 0:
+		userAnswer = message.lower()
+		
+		print("[" + userAnswer + "] [" + trivia_answer[0] + "]")
+		
+		if userAnswer in trivia_answer:
+			say("The answer was: " + userAnswer + "; user " + username + " got it correct!");
+			# reset
+			trivia_lasttime = gettime()
+			trivia_state = 0
 
 def onUpdate(chop) :
+	global trivia_lasttime, trivia_answer_user, trivia_state, trivia_enabled, trivia_answer, trivia_uncover
+	
 	if trivia_enabled:
 		if trivia_state == 0:
 			if gettime() - trivia_lasttime > trivia_question_delay:
-				
+				# it's time to ask a question
+				askQuestion()
+				# reset some things
+				trivia_lasttime = gettime()
+				trivia_answer_user = ""
+				trivia_state = 1
+		elif trivia_state == 1:
+			if gettime() - trivia_lasttime > trivia_delay:
+				say("Hint: " + "".join(trivia_uncover))
+				# reset some things
+				trivia_lasttime = gettime()
+				trivia_state = 2
+		elif trivia_state == 2 or trivia_state == 3:
+			if gettime() - trivia_lasttime > trivia_delay:
+				uncover()
+				say("Hint: " + "".join(trivia_uncover))
+				# reset some things
+				trivia_lasttime = gettime()
+				trivia_state = trivia_state + 1
+		elif trivia_state == 4:
+			if gettime() - trivia_lasttime > trivia_delay:
+				# no one answered; let's show them the answer
+				say("The answer was: " + trivia_answer[0]);
+				# reset some things
+				trivia_lasttime = gettime()
+				trivia_state = 0
+
+def uncover():
+	global trivia_uncover
+	# calculate how many to uncover; note that we might uncover same one twice
+	# this formula ensures that we don't uncover too many
+	num_uncover = int(round(.16 * len(trivia_uncover)))
+	
+	for i in range(num_uncover):
+		index = random.randint(0, len(trivia_uncover) - 1)
+		trivia_uncover[index] = trivia_answer[0][index]
+
+def askQuestion():
+	global trivia_answer, trivia_uncover, trivia_questions
+	
+	# make sure there are questions available
+	if len(trivia_questions) == 0:
+		addQuestions()
+	
+	# pair will now contain (question, answer)
+	pair = trivia_questions.popleft()
+	trivia_answer = pair[1]
+	
+	# generate trivia_uncover
+	trivia_uncover = []
+	for i in range(len(trivia_answer[0])):
+		if trivia_answer[0][i] != " ":
+			trivia_uncover.append("?")
+		else:
+			trivia_uncover.append(trivia_answer[0][i])
+	
+	say(pair[0] + " (category: " + pair[2] + ")")
+
+def say(message):
+	trivia_bnet.queueChatCommand(message)
+
+def addQuestions():
+	global trivia_enabled, trivia_questions
+	targetURL = "http://snapnjacks.com/getq.php?client=plugins/pychop/trivia"
+	
+	# quote custom parameters to replace with %XX
+	targetURL += "&dif=" + urllib2.quote(str(trivia_difficulty))
+	
+	if trivia_category != -1:
+		targetURL += "&ctg=" + urllib2.quote(trivia_category)
+	
+	print("[TRIVIA] Reading questions from " + targetURL)
+	
+	try:
+		content = urllib2.urlopen(targetURL).read()
+	except Exception as E:
+		print("[TRIVIA] Error: unable to read " + targetURL + ":" + str(E))
+		trivia_questions.append(("Unable to load questions! You won't be able to answer this question D:", ["error"]))
+		
+		# disable trivia
+		trivia_enabled = False
+		
+		return
+	
+	questionSplit = content.split("**")
+	
+	for questionString in questionSplit:
+		parts = questionString.split("|")
+		
+		if(len(parts) < 2):
+			continue
+		
+		unformattedAnswers = parts[1].split("/")
+		answers = []
+		
+		for x in unformattedAnswers:
+			# remove whitespace and convert to lowercase
+			answers.append(x.lower().strip())
+		
+		# parts[0] is question, parts[6] is category
+		trivia_questions.append((parts[0], answers, parts[6]))
+		print("[TRIVIA] Appended question: " + parts[0] + "; storing " + str(len(trivia_questions)) + " questions now")
 
 def gettime():
-	return datetime.now().microsecond / 10
+	return int(round(time.time() * 1000))
 
 def onCommand(bnet, user, command, payload, nType):
-	if command == "trivia":
+	global trivia_enabled, trivia_bnet, trivia_state, trivia_category, trivia_difficulty, trivia_questions
+	
+	if command == "trivia" and user.getAccess() >= trivia_minaccess:
 		parts = payload.split(" ");
 		
 		if parts[0] == "on":
-			global trivia_enabled, trivia_bnet, trivia_state
 			trivia_enabled = True
 			trivia_bnet = bnet
 			trivia_state = 0
+			
+			print("[TRIVIA] Enabled with category=" + trivia_category + " and diff=" + str(trivia_difficulty))
 		elif parts[0] == "off":
-			global trivia_enabled
 			trivia_enabled = False
 		elif parts[0] == "delay" and len(parts) >= 2:
-			global trivia_delay
 			trivia_delay = parts[1]
 		elif parts[0] == "category":
-			global trivia_category
-			
 			if len(parts) >= 2:
 				trivia_category = parts[1]
 			else:
 				trivia_category = -1
+			
+			# clear questions since we changed the type
+			trivia_questions = deque([])
 		elif parts[0] == "difficulty" and len(parts) >= 2:
-			global trivia_difficulty
 			trivia_difficulty = parts[1]
+			# clear questions since we changed the type
+			trivia_questions = deque([])

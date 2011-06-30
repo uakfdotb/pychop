@@ -957,6 +957,8 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		else
 			CONSOLE_Print( "[LOCAL: " + m_ServerAlias + "] [" + User + "] " + Message );
 
+		EXECUTE_HANDLER("ChatReceived", false, boost::ref(this), User, Message)
+
 		// handle bot commands
 
 		if( !Message.empty( ) )
@@ -968,10 +970,9 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
 			if( !user ) {
 				user = new CUser( User, 0 );
-				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] warning: user [" + User + "] sent a message but is not in channel!" );
+				m_Users[lowerUser] = user;
 			}
 
-			m_Channel[lowerUser] = user;
 			user->SetPing( chatEvent->GetPing( ) );
 
 			if( IsRootAdmin( User ) )
