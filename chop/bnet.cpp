@@ -411,7 +411,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 	// refresh the user list every 5 minutes
 
-	if( !m_CallableUserList && GetTime( ) >= m_LastUserRefreshTime + 60 ) {
+	if( !m_CallableUserList && GetTime( ) >= m_LastUserRefreshTime + 300 ) {
 		m_CallableUserList = m_ChOP->m_DB->ThreadedUserList( m_Server );
 		m_LastUserRefreshTime = GetTime();
 	}
@@ -1127,9 +1127,8 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		string lowerName = User;
 		transform( lowerName.begin( ), lowerName.end( ), lowerName.begin( ), (int(*)(int))tolower );
 		map<string, CUser *> :: iterator i = m_Channel.find( lowerName );
-		map<string, CUser *> :: iterator j = m_Users.find( lowerName );
 
-		if( i != m_Channel.end( ) && i == m_Users.end() ) // if the user left the channel and is not on our DB user list (m_Users)
+		if( i != m_Channel.end( ) ) // if the user left the channel
 			m_Channel.erase( i );
 
 		if( IsClanMember( User ) && lowerName != m_ChOP->m_GHostServerAccount )
@@ -1138,9 +1137,13 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			QueueChatCommand( "/whois " + User );
 			UpdateSeen( User );
 		}
-		else if( lowerName != m_ChOP->m_GHostServerAccount )
+		else if( lowerName != m_ChOP->m_GHostServerAccount ) {
 			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] user [" + User + "] has left the channel." );
-
+			
+			if(m_ChOP->m_SeenAllUsers) {
+				UpdateSeen( User );
+			}
+		}
 		else
 		{
 			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] hostbot [" + User + "] has left the channel." );

@@ -506,8 +506,15 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 		if( ClanNameMatch( payload, name ) > 1 )
 			return "";
 
-		if( name.empty( ) )
-			return m_ChOP->m_Language->UserNotInClan( payload );
+		if( name.empty( ) ) {
+			//target is not in clan; seen anyway?
+			
+			if(m_ChOP->m_SeenAllUsers) {
+				name = payload;
+			} else {
+				return m_ChOP->m_Language->UserNotInClan( payload );
+			}
+		}
 
 		if( m_Channel.find( name ) != m_Channel.end( ) )
 			return m_ChOP->m_Language->UserIsHere( name );
