@@ -487,6 +487,8 @@ CChOP :: CChOP( CConfig *CFG )
 	m_Warcraft3Path = CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" );
 	m_CFGPath = CFG->GetString( "bot_cfgpath", "cfg\\" );
 	m_WhisperAllowed = CFG->GetBool( "bot_whisperallowed", true );
+	
+	m_SeenAllUsers = CFG->GetBool( "bot_seenallusers", true );
 
 	m_AntiSpam = CFG->GetBool( "op_antispam", false );
 	m_AntiYell = CFG->GetBool( "op_antiyell", false );

@@ -137,6 +137,8 @@ public:
 	uint32_t m_SpamCacheSize;				// size of spam cache
 	uint32_t m_MaxChatMsg;					// maximum chat messages of a user per 2s
 	uint32_t m_UpTime;						// time when chop started
+	
+	bool m_SeenAllUsers;					// log seen for all users or just clan members?
 
 	bool m_UseGHost;						// connect to GHost++ bot ?
 	bool m_WhisperAllowed;					// allow commands via whisper ?
