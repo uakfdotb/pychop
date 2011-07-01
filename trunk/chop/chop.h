@@ -40,6 +40,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <boost/thread.hpp>
 
 using namespace std;
 
@@ -101,6 +102,7 @@ uint32_t GetTicks( );		// milliseconds
 // output
 
 void CONSOLE_Print( string message );
+string CONSOLE_Read();
 void DEBUG_Print( string message );
 void DEBUG_Print( BYTEARRAY b );
 
@@ -115,6 +117,7 @@ class CChOPDB;
 class CBaseCallable;
 class CLanguage;
 class CConfig;
+class CUser;
 
 class CChOP
 {
@@ -128,8 +131,6 @@ public:
 	string m_Version;						// ChOP++ version string
 	string m_LanguageFile;					// config value: language file
 	string m_Warcraft3Path;					// config value: Warcraft 3 path
-	char m_CommandTrigger;					// config value: the command trigger inside games
-
 
 	string m_GHostServerAccount;			// name of the GHost++ account
 	string m_CFGPath;						// path to txt files
@@ -151,6 +152,9 @@ public:
 	vector<string> m_SlapNegative;			// vector of slap messages against the user
 	vector<string> m_Ask8Ball;				// vector of ask8ball answers
 	vector<string> m_Quotes;				// vector of quotes
+	
+	CUser *m_ConsoleUser;					// the console user
+	boost::thread *inputThread;				// the input thread
 
 #ifdef WIN32
 	string CmdInput;
@@ -174,6 +178,8 @@ public:
 	void EventBNETDisconnected( CBNET *bnet );
 	void EventBNETLoggedIn( CBNET *bnet );
 	void EventBNETConnectTimedOut( CBNET *bnet );
+	
+	void inputLoop( );
 	
 	static void RegisterPythonClass( );
 };
