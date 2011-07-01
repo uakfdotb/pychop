@@ -50,9 +50,6 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 		return "";
 	}
 	
-	//put at beginning or someone else might return something...
-	EXECUTE_HANDLER("ProcessCommand", false, boost::ref(this), boost::ref(User), command, payload, type)
-	
 	bool Console = ( type == 0 );
 	bool Whisper = ( type == 1 );
 	bool Chat = ( type == 2 );
@@ -63,7 +60,10 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 	// are commands in whisperes interpreted ? (can be set in chop.cfg)
 	if( Whisper && !m_ChOP->m_WhisperAllowed && Access > 0 )
 		return m_ChOP->m_Language->WhisperCommandsDisabled( );
-
+	
+	//put at beginning or someone else might return something...
+	EXECUTE_HANDLER("ProcessCommand", false, boost::ref(this), boost::ref(User), command, payload, type)
+	
 	int i = m_CFG.GetInt( command, -1 );
 
 	if( i > 10 )

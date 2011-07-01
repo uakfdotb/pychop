@@ -452,6 +452,13 @@ void CONSOLE_Print( string message )
 	}
 }
 
+string CONSOLE_Read( )
+{
+	string line;
+	getline(cin, line);
+	return line;
+}
+
 void DEBUG_Print( string message )
 {
 	cout << message << endl;
@@ -475,6 +482,7 @@ CChOP :: CChOP( CConfig *CFG )
 {
 	m_CRC = new CCRC32( );
 	m_CRC->Initialize( );
+	
 	CONSOLE_Print( "[CHOP++] opening primary database" );
 
 	m_DB = new CChOPDBMySQL( CFG );
@@ -572,6 +580,9 @@ CChOP :: CChOP( CConfig *CFG )
 	UpdatePhrases( );
 
 	m_UpTime = GetTime( );
+	
+	// initialize the input thread
+	inputThread = new boost::thread(&CChOP::inputLoop, this);
 }
 
 CChOP :: ~CChOP( )
@@ -670,6 +681,40 @@ bool CChOP :: Update( long usecBlock )
 	}
 
 	return m_Exiting || AdminExit || BNETExit;
+}
+
+void CChOP :: inputLoop( )
+{
+	while( true )
+	{
+		string Message = CONSOLE_Read();
+		
+		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
+		{
+			if( Message[0] == (*i)->GetCommandTrigger() )
+			{
+				string Reply, Command, Payload;
+				string :: size_type PayloadStart = Message.find( " " );
+				uint32_t Type = 0; // type 0 indicates console origin
+
+				if( PayloadStart != string :: npos )
+				{
+					Command = Message.substr( 1, PayloadStart - 1 );
+					Payload = Message.substr( PayloadStart + 1 );
+				}
+				else
+					Command = Message.substr( 1 );
+
+				string response = (*i)->ProcessCommand(m_ConsoleUser, Command, Payload, Type);
+			
+				if( !response.empty() ) {
+					CONSOLE_Print(response);
+				}
+			} else {
+					(*i)->QueueChatCommand(Message);
+			}
+		}
+	}
 }
 
 void CChOP :: UpdatePhrases( )
@@ -890,7 +935,6 @@ void CChOP :: RegisterPythonClass( )
 		.def_readwrite("Version", &CChOP::m_Version)
 		.def_readwrite("LanguageFile", &CChOP::m_LanguageFile)
 		.def_readwrite("Warcraft3Path", &CChOP::m_Warcraft3Path)
-		.def_readwrite("CommandTrigger", &CChOP::m_CommandTrigger)
 		.def_readwrite("GHostServerAccount", &CChOP::m_GHostServerAccount)
 		.def_readwrite("CFGPath", &CChOP::m_CFGPath)
 		.def_readwrite("SpamCacheSize", &CChOP::m_SpamCacheSize)
@@ -905,5 +949,7 @@ void CChOP :: RegisterPythonClass( )
 		.def_readwrite("SlapNegative", &CChOP::m_SlapNegative)
 		.def_readwrite("Ask8Ball", &CChOP::m_Ask8Ball)
 		.def_readwrite("Quotes", &CChOP::m_Quotes)
+		
+		.add_property("ConsoleUser", make_getter(&CChOP::m_ConsoleUser, return_value_policy<reference_existing_object>()))
 	;
 }

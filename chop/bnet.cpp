@@ -1120,6 +1120,8 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			else {
 				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] user [" + User + "] has joined the channel." );
 			}
+
+			EXECUTE_HANDLER("UserJoined", false, boost::ref(this), user)
 		}
 	}
 	else if( Event == CBNETProtocol :: EID_LEAVE )
@@ -1149,6 +1151,8 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] hostbot [" + User + "] has left the channel." );
 			m_GHostIsInChannel = false;
 		}
+
+		EXECUTE_HANDLER("UserLeft", false, boost::ref(this), User)
 	}
 	else if( Event == CBNETProtocol :: EID_CHANNEL )
 	{

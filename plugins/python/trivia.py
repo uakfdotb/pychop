@@ -104,7 +104,12 @@ def uncover():
 	global trivia_uncover
 	# calculate how many to uncover; note that we might uncover same one twice
 	# this formula ensures that we don't uncover too many
-	num_uncover = int(round(.21 * len(trivia_uncover)))
+	num_uncover = int(round(.33 * len(trivia_uncover)))
+	
+	if len(trivia_uncover) <= 2:
+		num_uncover = 0
+	elif len(trivia_uncover) < 4:
+		num_uncover = 1
 	
 	for i in range(num_uncover):
 		index = random.randint(0, len(trivia_uncover) - 1)
@@ -191,7 +196,7 @@ def onCommand(bnet, user, command, payload, nType):
 			trivia_bnet = bnet
 			trivia_state = 0
 			
-			print("[TRIVIA] Enabled with category=" + trivia_category + " and diff=" + str(trivia_difficulty))
+			print("[TRIVIA] Enabled with category=" + str(trivia_category) + " and diff=" + str(trivia_difficulty))
 		elif parts[0] == "off":
 			trivia_enabled = False
 		elif parts[0] == "delay" and len(parts) >= 2:
