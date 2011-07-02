@@ -111,59 +111,59 @@ Warden is currently not active.
 All commands are accessible via battle.net chat. These can be sent through the channel or whispered directly to the bot (the latter option can be disabled in chop.cfg). Alternatively, you can send them through standard input (through the terminal).
 
 === user / access
-- add [name] [access]	- sets the access for user [name] to [access]
-- del [name]			- delete ALL data about user [name] from the database
-- count					- displays the total number of users in the database
-- access (name)			- displays the access of user (name), leave blank to see your own access
+  * add [name] [access]	- sets the access for user [name] to [access]
+  * del [name]			- delete ALL data about user [name] from the database
+  * count					- displays the total number of users in the database
+  * access (name)			- displays the access of user (name), leave blank to see your own access
 
 === ban
-- addban [name]			- bans user [name] from the channel and adds him to the database (ban from GHost++ bots with same database), accepts partial names (channel)
-- ban [name]			- alias to addban
-- delban [name]			- unbans user [name] from the channel and the database
-- unban	[name]			- alias to delban
-- checkban [name]		- checks if user [name] is banned in the database
-- countbans				- displays the total number of bans in the database
+  * addban [name]			- bans user [name] from the channel and adds him to the database (ban from GHost++ bots with same database), accepts partial names (channel)
+  * ban [name]			- alias to addban
+  * delban [name]			- unbans user [name] from the channel and the database
+  * unban	[name]			- alias to delban
+  * checkban [name]		- checks if user [name] is banned in the database
+  * countbans				- displays the total number of bans in the database
 
 === channel
-- channel [channel]		- joins channel [channel]
-- say [text]			- repeats [text], can be used to execute BNet commands
-- saycommand			- NOT A COMMAND, command.txt config value to control 'say'ing of BNet commands
-- kick [user]			- kicks [user] from the channel, accepts partial names (channel)
-- designate [name]		- designates user [name] and rejoins the channel
-- rejoin				- rejoins the current channel
+  * channel [channel]		- joins channel [channel]
+  * say [text]			- repeats [text], can be used to execute BNet commands
+  * saycommand			- NOT A COMMAND, command.txt config value to control 'say'ing of BNet commands
+  * kick [user]			- kicks [user] from the channel, accepts partial names (channel)
+  * designate [name]		- designates user [name] and rejoins the channel
+  * rejoin				- rejoins the current channel
 
 === clan (require ChOP++ to be shaman or chieftain)
-- motd [text]			- set the clan motd to [text]
-- invite [name]			- invites user [name] to join the clan, accepts partial names (channel)
-- remove [name]			- throws user [name] out of the clan, accepts partial names (clan)
-- peon [name]			- change user [name]'s clan rank to peon, accepts partial names (clan)
-- grunt [name]			- change user [name]'s clan rank to grunt, accepts partial names (clan)
-- shaman [name]			- change user [name]'s clan rank to shaman, accepts partial names (clan), requires chieftain
+  * motd [text]			- set the clan motd to [text]
+  * invite [name]			- invites user [name] to join the clan, accepts partial names (channel)
+  * remove [name]			- throws user [name] out of the clan, accepts partial names (clan)
+  * peon [name]			- change user [name]'s clan rank to peon, accepts partial names (clan)
+  * grunt [name]			- change user [name]'s clan rank to grunt, accepts partial names (clan)
+  * shaman [name]			- change user [name]'s clan rank to shaman, accepts partial names (clan), requires chieftain
 
 === managemant
-- dbstatus				- show database status information
-- wardenstatus			- show warden status information
-- lastwhisper			- displays name of the last user that whispered
-- lw					- alias to lastwhisper
-- getclan				- refresh the internal copy of the clan member list
-- getfriends			- refresh the internal copy of the friends list
-- exit					- shuts ChOP++ down
-- quit					- alias to exit
-- uptime				- displays how much time passed since ChOP++ startup
-- reload				- reloads all textfiles in the bot_cfgpath
+  * dbstatus				- show database status information
+  * wardenstatus			- show warden status information
+  * lastwhisper			- displays name of the last user that whispered
+  * lw					- alias to lastwhisper
+  * getclan				- refresh the internal copy of the clan member list
+  * getfriends			- refresh the internal copy of the friends list
+  * exit					- shuts ChOP++ down
+  * quit					- alias to exit
+  * uptime				- displays how much time passed since ChOP++ startup
+  * reload				- reloads all textfiles in the bot_cfgpath
 
 === misc
-- seen [name]			- displays when user [name] was last seen in the channel (clan members only), accepts partial names (clan)
-- version				- displays version information
-- ping (name)			- displays the ping of user (name), leave blank to see your own
-- owner					- displays the owner of the bot (root admin)
+  * seen [name]			- displays when user [name] was last seen in the channel (clan members only), accepts partial names (clan)
+  * version				- displays version information
+  * ping (name)			- displays the ping of user (name), leave blank to see your own
+  * owner					- displays the owner of the bot (root admin)
 
 === stats
-- stats (name)			- displays basic player statistics of (name), leave blank to display your own
-- statsdota (name)		- displays dota player statistics of (name), leave blank to display your own
+  * stats (name)			- displays basic player statistics of (name), leave blank to display your own
+  * statsdota (name)		- displays dota player statistics of (name), leave blank to display your own
 
 === fun
-- slap [name]			- makes a random joke about [name], can also hit yourself! (jokes read from 'slap_pos.txt' & 'slap_neg.txt')
-- ask8ball [question]	- gives random answers to [question] (answers read from 'ask8ball.txt')
-- addquote [quote]		- adds a quote to 'quote.txt'
-- quote					- displays a random quote from 'quote.txt'
+  * slap [name]			- makes a random joke about [name], can also hit yourself! (jokes read from 'slap_pos.txt' & 'slap_neg.txt')
+  * ask8ball [question]	- gives random answers to [question] (answers read from 'ask8ball.txt')
+  * addquote [quote]		- adds a quote to 'quote.txt'
+  * quote					- displays a random quote from 'quote.txt'
