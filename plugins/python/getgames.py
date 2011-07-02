@@ -9,15 +9,22 @@ commands = ("getgames", "plugins/pychop/getgames")
 
 import host
 import MySQLdb
+import plugindb
 
-conn = MySQLdb.connect(host = "localhost", user = "user", passwd = "pass", db = "ghost")
-cursor = conn.cursor()
+cursor = 0
 
+def dbReady():
+	global cursor
+	cursor = plugindb.dbconnect()
+	
 def init():
 	host.registerHandler('ProcessCommand', onCommand, True)
+	plugindb.init()
+	plugindb.notifyReady(dbReady)
 	
 def deinit():
 	host.unregisterHandler(onCommand)
+	plugindb.deinit()
 
 def onCommand(bnet, user, command, payload, nType):
 	if command in commands:

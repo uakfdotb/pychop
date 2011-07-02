@@ -6,7 +6,7 @@
 # help = Use !trivia on to enable trivia, and !trivia off to disable it. !trivia delay X changes the delay after asking a question. !trivia difficulty X changes the difficulty (1-5). !trivia category disables categories, and !trivia category X sets the category to X.
 
 commands = ("trivia", "plugins/pychop/trivia")
-trivia_minaccess = 6
+trivia_minaccess = 6  # only for commands; playing trivia needs no access :)
 
 trivia_bnet = 0
 trivia_enabled = False
@@ -41,18 +41,35 @@ from collections import deque
 import urllib2
 import urlparse
 import random
+import plugindb
 
 trivia_questions = deque([]) # this will be populated with question/answer pairs later
+
+# tuple with scores from plugindb
+scoreTuple = 0
+
+def dbReady():
+	global scoreTuple
+
+	print("[TRIVIA] Loading scores...")
+	
+	plugindb.dbconnect()
+	scoreTuple = plugindb.dbGetScores("trivia")
+	
+	print("[TRIVIA] Found " + str(len(scoreTuple[0])) + " scores")
 
 def init():
 	host.registerHandler('ProcessCommand', onCommand)
 	host.registerHandler('ChatReceived', onTalk)
 	host.registerHandler('Update', onUpdate)
+	plugindb.init()
+	plugindb.notifyReady(dbReady)
 	
 def deinit():
 	host.unregisterHandler(onCommand)
 	host.unregisterHandler(onUpdate)
 	host.unregisterHandler(onTalk)
+	plugindb.deinit()
 
 def onTalk(bnet, username, message):
 	global trivia_lasttime, trivia_state, trivia_enabled
@@ -62,7 +79,13 @@ def onTalk(bnet, username, message):
 		userAnswer = message.lower()
 		
 		if userAnswer in trivia_answer:
-			say("The answer was: " + userAnswer + "; user " + username + " got it correct!");
+			# update score
+			plugindb.dbScoreAdd(scoreTuple, "trivia", username.lower(), 1)
+		
+			# get new score
+			newScore = plugindb.dbGetScore(scoreTuple, username.lower())
+			
+			say("The answer was: " + userAnswer + "; user " + username + " got it correct! (points: " + str(newScore) + ")");
 			# reset
 			trivia_lasttime = gettime()
 			trivia_state = 0
@@ -188,32 +211,39 @@ def gettime():
 def onCommand(bnet, user, command, payload, nType):
 	global trivia_enabled, trivia_bnet, trivia_state, trivia_category, trivia_difficulty, trivia_questions
 	
-	if command == "trivia" and user.getAccess() >= trivia_minaccess:
+	if command == "trivia":
 		parts = payload.split(" ");
 		
-		if parts[0] == "on":
-			trivia_enabled = True
-			trivia_bnet = bnet
-			trivia_state = 0
+		if user.getAccess() >= trivia_minaccess:
+			if parts[0] == "on":
+				trivia_enabled = True
+				trivia_bnet = bnet
+				trivia_state = 0
 			
-			print("[TRIVIA] Enabled with category=" + str(trivia_category) + " and diff=" + str(trivia_difficulty))
-		elif parts[0] == "off":
-			trivia_enabled = False
-		elif parts[0] == "delay" and len(parts) >= 2:
-			trivia_delay = parts[1]
-		elif parts[0] == "category":
-			if len(parts) >= 2:
-				trivia_category = parts[1]
-			else:
-				trivia_category = -1
+				print("[TRIVIA] Enabled with category=" + str(trivia_category) + " and diff=" + str(trivia_difficulty))
+			elif parts[0] == "off":
+				trivia_enabled = False
+			elif parts[0] == "delay" and len(parts) >= 2:
+				trivia_delay = parts[1]
+			elif parts[0] == "category":
+				if len(parts) >= 2:
+					trivia_category = parts[1]
+				else:
+					trivia_category = -1
 			
-			# clear questions since we changed the type
-			trivia_questions = deque([])
-		elif parts[0] == "difficulty" and len(parts) >= 2:
-			if len(parts) >= 2:
-				trivia_difficulty = parts[1]
-			else:
-				trivia_difficulty = -1
+				# clear questions since we changed the type
+				trivia_questions = deque([])
+			elif parts[0] == "difficulty" and len(parts) >= 2:
+				if len(parts) >= 2:
+					trivia_difficulty = parts[1]
+				else:
+					trivia_difficulty = -1
 
-			# clear questions since we changed the type
-			trivia_questions = deque([])
+				# clear questions since we changed the type
+				trivia_questions = deque([])
+
+		if parts[0] == "top":
+			bnet.queueChatCommand(plugindb.dbScoreTop(scoreTuple))
+		elif parts[0] == "score":
+			lowername = parts[1].lower()
+			bnet.queueChatCommand(lowername + " points: " + plugindb.dbGetScore(scoreTuple, lowername))
