@@ -25,6 +25,7 @@ def init():
 def deinit():
 	host.unregisterHandler(onJoin)
 
-def onJoin(bnet, user):
-	if user.getAccess() >= minAccess and user.getAccess() <= maxAccess:
+def onJoin(bnet, user, isShow):
+	# need correct access; also only show this when a user actually joins, not just when we join
+	if user.getAccess() >= minAccess and user.getAccess() <= maxAccess and not isShow:
 		bnet.queueChatCommand(greetMessage, user.getName(), True)

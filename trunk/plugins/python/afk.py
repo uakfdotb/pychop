@@ -80,7 +80,7 @@ def onLeave(bnet, username):
 	# also clear from userAfkTime
 	del userAfkTime[lowername]
 
-def onJoin(bnet, user):
+def onJoin(bnet, user, isShow):
 	global nextTime
 
 	lowername = user.getName().lower()
