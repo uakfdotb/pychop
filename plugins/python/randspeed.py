@@ -128,7 +128,8 @@ def onCommand(bnet, user, command, payload, nType):
 		elif user.getAccess() > controlAccess and parts[0] == "now":
 			doRand()
 		elif parts[0] == "top":
-			bnet.queueChatCommand(pdb.dbScoreTopStr())
+			# display top 5
+			bnet.queueChatCommand(pdb.dbScoreTopStr(5))
 		elif parts[0] == "score":
 			lowername = user.getName().lower()
 			

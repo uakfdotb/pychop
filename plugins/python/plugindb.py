@@ -139,7 +139,7 @@ class PluginDB:
 	def dbScoreTop(self):
 		# sort scores and return
 		scores = self.scoreTuple[0]
-		sortedScores = sorted(scores.items(), key=operator.itemgetter(1))
+		sortedScores = sorted(scores.items(), key=operator.itemgetter(1), reverse=True)
 		return sortedScores
 
 	def dbScoreTopStr(self, num):

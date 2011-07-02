@@ -245,7 +245,8 @@ def onCommand(bnet, user, command, payload, nType):
 				trivia_questions = deque([])
 
 		if parts[0] == "top":
-			bnet.queueChatCommand(pdb.dbScoreTopStr())
+			# display top 5
+			bnet.queueChatCommand(pdb.dbScoreTopStr(5))
 		elif parts[0] == "score":
 			lowername = user.getName().lower()
 			
