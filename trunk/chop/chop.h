@@ -140,6 +140,7 @@ public:
 	uint32_t m_UpTime;						// time when chop started
 	
 	bool m_SeenAllUsers;					// log seen for all users or just clan members?
+	uint32_t m_Follow;						// enable following? 0 = disable, 1 = enable for clan, 2 = enable for all
 
 	bool m_UseGHost;						// connect to GHost++ bot ?
 	bool m_WhisperAllowed;					// allow commands via whisper ?

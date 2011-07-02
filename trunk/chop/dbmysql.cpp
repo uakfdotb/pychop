@@ -359,7 +359,6 @@ void *CChOPDBMySQL :: GetIdleConnection( )
 
 string MySQLEscapeString( void *conn, string str )
 {
-    CONSOLE_Print("debuOEURCH:" + str + ":::" + UTIL_ToString(str.size()));
 	char *to = new char[str.size( ) * 2 + 1];
 	unsigned long size = mysql_real_escape_string( (MYSQL *)conn, to, str.c_str( ), str.size( ) );
 	string result( to, size );
@@ -861,23 +860,18 @@ map<string, CUser *> MySQLUserList( void* conn, string *error, string server )
 
 bool MySQLUserSetSeen( void *conn, string *error, string server, string name )
 {
-    CONSOLE_Print("la");
 	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
 	string EscServer = MySQLEscapeString( conn, server );
 	string EscName = MySQLEscapeString( conn, name );
 	string Query = "SELECT * FROM users WHERE server='" + EscServer + "' AND name='" + EscName + "'";
 	bool Success = false;
-    CONSOLE_Print("laa");
 
 	if( mysql_real_query( (MYSQL *)conn, Query.c_str( ), Query.size( ) ) != 0 )
 		*error = mysql_error( (MYSQL *)conn );
 	else
 	{
-        CONSOLE_Print("laaaa");
-
 		MYSQL_RES *Result = mysql_store_result( (MYSQL *)conn );
 		string Query2;
-        CONSOLE_Print("laaa");
 
         if(Result) {
             if( mysql_num_rows(Result) == 0 )
@@ -886,8 +880,6 @@ bool MySQLUserSetSeen( void *conn, string *error, string server, string name )
                 Query2 = "UPDATE users SET seen='" + UTIL_ToString(GetTicks()) + "' WHERE server='" + EscServer + "' AND name='" + EscName + "'";
             
             mysql_free_result( Result );
-            CONSOLE_Print("la:" + Query2);
-            
             
             if( mysql_real_query( (MYSQL *)conn, Query2.c_str( ), Query2.size( ) ) != 0 )
                 *error = mysql_error( (MYSQL *)conn );

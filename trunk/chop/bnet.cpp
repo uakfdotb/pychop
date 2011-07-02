@@ -1146,14 +1146,21 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		if( IsClanMember( User ) && lowerName != m_ChOP->m_GHostServerAccount )
 		{
 			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] clanmember [" + User + "] has left the channel." );
-			QueueChatCommand( "/whois " + User );
 			UpdateSeen( User );
+			
+			if(m_ChOP->m_Follow >= 1) {
+				QueueChatCommand( "/whois " + User );
+			}
 		}
 		else if( lowerName != m_ChOP->m_GHostServerAccount ) {
 			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] user [" + User + "] has left the channel." );
 			
 			if(m_ChOP->m_SeenAllUsers) {
 				UpdateSeen( User );
+			}
+			
+			if(m_ChOP->m_Follow >= 2) {
+				QueueChatCommand( "/whois " + User );
 			}
 		}
 		else
@@ -1167,6 +1174,8 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 	else if( Event == CBNETProtocol :: EID_CHANNEL )
 	{
 		// keep track of current channel so we can rejoin it after hosting a game
+
+
 
 		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] joined channel [" + Message + "]" );
 		m_CurrentChannel = Message;
@@ -1199,7 +1208,8 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
 		if( Message.find( "is using Warcraft III The Frozen Throne in game" ) != string :: npos || Message.find( "is using Warcraft III Frozen Throne and is currently in game" ) != string :: npos )
 		{
-			if( UserName != m_ChOP->m_GHostServerAccount && IsClanMember( UserName ) )
+			bool displayFollow = ( m_ChOP->m_Follow >= 1 && IsClanMember( UserName ) ) || m_ChOP->m_Follow >= 2;
+			if( UserName != m_ChOP->m_GHostServerAccount && displayFollow )
 				QueueChatCommand( "/me " + UserName + " has joined the game " + Message.substr( Message.find( "game" ) + 5 ) );
 		}
 	}
@@ -1444,9 +1454,14 @@ string CBNET :: GetClanRank( string name )
 
 bool CBNET :: IsClanMember( string name )
 {
+	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
+	
 	for( vector<CIncomingClanList *> :: iterator i = m_Clans.begin( ); i != m_Clans.end( ); i++ )
 	{
-		if( (*i)->GetName( ) == name )
+		string memberName = (*i)->GetName( );
+		transform( memberName.begin( ), memberName.end( ), memberName.begin( ), (int(*)(int))tolower );
+		
+		if( memberName == name )
 			return true;
 	}
 
