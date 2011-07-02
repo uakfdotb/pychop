@@ -46,7 +46,7 @@ def onLeave(bnet, username):
 	global numLeaves
 	numLeaves = numLeaves + 1
 
-def onJoin(bnet, user):
+def onJoin(bnet, user, isShow):
 	global numJoins
 	numJoins = numJoins + 1
 	

@@ -1130,7 +1130,8 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] user [" + User + "] has joined the channel." );
 			}
 
-			EXECUTE_HANDLER("UserJoined", false, boost::ref(this), user)
+			bool isShowUser = Event == CBNETProtocol :: EID_SHOWUSER;
+			EXECUTE_HANDLER("UserJoined", false, boost::ref(this), user, isShowUser)
 		}
 	}
 	else if( Event == CBNETProtocol :: EID_LEAVE )
