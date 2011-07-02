@@ -41,35 +41,37 @@ from collections import deque
 import urllib2
 import urlparse
 import random
-import plugindb
+from plugindb import PluginDB
 
 trivia_questions = deque([]) # this will be populated with question/answer pairs later
 
-# tuple with scores from plugindb
-scoreTuple = 0
+# PluginDB instance
+pdb = 0
 
 def dbReady():
-	global scoreTuple
-
 	print("[TRIVIA] Loading scores...")
 	
-	plugindb.dbconnect()
-	scoreTuple = plugindb.dbGetScores("trivia")
+	pdb.dbconnect()
+	pdb.dbGetScores()
 	
-	print("[TRIVIA] Found " + str(len(scoreTuple[0])) + " scores")
+	print("[TRIVIA] Found " + str(pdb.dbScoreNum()) + " scores")
 
 def init():
+	global pdb
+
 	host.registerHandler('ProcessCommand', onCommand)
 	host.registerHandler('ChatReceived', onTalk)
 	host.registerHandler('Update', onUpdate)
-	plugindb.init()
-	plugindb.notifyReady(dbReady)
+	
+	pdb = PluginDB()
+	pdb.notifyReady(dbReady)
+	pdb.setPluginName("trivia")
 	
 def deinit():
 	host.unregisterHandler(onCommand)
 	host.unregisterHandler(onUpdate)
 	host.unregisterHandler(onTalk)
-	plugindb.deinit()
+	plugindb.close()
 
 def onTalk(bnet, username, message):
 	global trivia_lasttime, trivia_state, trivia_enabled
@@ -80,10 +82,10 @@ def onTalk(bnet, username, message):
 		
 		if userAnswer in trivia_answer:
 			# update score
-			plugindb.dbScoreAdd(scoreTuple, "trivia", username.lower(), 1)
+			pdb.dbScoreAdd(username.lower(), 1)
 		
 			# get new score
-			newScore = plugindb.dbGetScore(scoreTuple, username.lower())
+			newScore = pdb.dbGetScore(username.lower())
 			
 			say("The answer was: " + userAnswer + "; user " + username + " got it correct! (points: " + str(newScore) + ")");
 			# reset
@@ -211,7 +213,7 @@ def gettime():
 def onCommand(bnet, user, command, payload, nType):
 	global trivia_enabled, trivia_bnet, trivia_state, trivia_category, trivia_difficulty, trivia_questions
 	
-	if command == "trivia":
+	if command in commands:
 		parts = payload.split(" ");
 		
 		if user.getAccess() >= trivia_minaccess:
@@ -243,7 +245,11 @@ def onCommand(bnet, user, command, payload, nType):
 				trivia_questions = deque([])
 
 		if parts[0] == "top":
-			bnet.queueChatCommand(plugindb.dbScoreTop(scoreTuple))
+			bnet.queueChatCommand(pdb.dbScoreTopStr())
 		elif parts[0] == "score":
-			lowername = parts[1].lower()
-			bnet.queueChatCommand(lowername + " points: " + plugindb.dbGetScore(scoreTuple, lowername))
+			lowername = user.getName().lower()
+			
+			if len(parts) == 2:
+				lowername = parts[1].lower()
+
+			bnet.queueChatCommand(lowername + " points: " + str(pdb.dbGetScore(lowername)))
