@@ -9,18 +9,24 @@ commands = ("getgames", "plugins/pychop/getgames")
 
 import host
 import MySQLdb
-import plugindb
+from plugindb import PluginDB
 
 cursor = 0
+pdb = 0
 
 def dbReady():
 	global cursor
-	cursor = plugindb.dbconnect()
+	
+	print("[GETGAMES] Connecting to database...")
+	cursor = pdb.dbconnect()
 	
 def init():
+	global pdb
+
 	host.registerHandler('ProcessCommand', onCommand, True)
-	plugindb.init()
-	plugindb.notifyReady(dbReady)
+	
+	pdb = PluginDB()
+	pdb.notifyReady(dbReady)
 	
 def deinit():
 	host.unregisterHandler(onCommand)

@@ -18,7 +18,7 @@ stringLength = 8
 minInterval = 5 * 1000
 
 # maximum interval to wait (milliseconds)
-#  default is two minutes
+#  default is 20 seconds
 maxInterval = 20 * 1000
 
 # access needed to run now, on, and off
@@ -38,39 +38,38 @@ randString = ""
 # bnet to send rands to
 randBnet = 0
 
-# tuple with scores from plugindb
-scoreTuple = 0
+# PluginDB instance
+pdb = 0
 
 import host
-import plugindb
+from plugindb import PluginDB
 import time
 import random
 
 def dbReady():
-	global scoreTuple
-
 	print("[RANDSPEED] Loading scores...")
 	
-	plugindb.dbconnect()
-	scoreTuple = plugindb.dbGetScores("randspeed")
+	pdb.dbconnect()
+	pdb.dbGetScores()
 	
-	print("[RANDSPEED] Found " + str(len(scoreTuple[0])) + " scores")
+	print("[RANDSPEED] Found " + str(pdb.dbScoreNum()) + " scores")
 
 def init():
-	global scores
+	global scores, pdb
 
 	host.registerHandler('ChatReceived', onTalk)
 	host.registerHandler('ProcessCommand', onCommand)
 	host.registerHandler('Update', onUpdate)
-	plugindb.init()
 	
-	plugindb.notifyReady(dbReady)
+	pdb = PluginDB()
+	pdb.notifyReady(dbReady)
+	pdb.setPluginName("randspeed")
 	
 def deinit():
 	host.unregisterHandler(onTalk)
 	host.unregisterHandler(onCommand)
 	host.unregisterHandler(onUpdate)
-	plugindb.deinit()
+	pdb.close()
 	del scores
 
 def onTalk(bnet, username, message):
@@ -78,10 +77,10 @@ def onTalk(bnet, username, message):
 
 	if randString != "" and message == randString:
 		# update score
-		plugindb.dbScoreAdd(scoreTuple, "randspeed", username.lower(), 1)
+		pdb.dbScoreAdd(username.lower(), 1)
 		
 		# get new score
-		newScore = plugindb.dbGetScore(scoreTuple, username.lower())
+		newScore = pdb.dbGetScore(username.lower())
 		
 		bnet.queueChatCommand("randspeed: " + username + " got it! (points: " + str(newScore) + ")")
 		randString = ""
@@ -129,10 +128,14 @@ def onCommand(bnet, user, command, payload, nType):
 		elif user.getAccess() > controlAccess and parts[0] == "now":
 			doRand()
 		elif parts[0] == "top":
-			bnet.queueChatCommand(plugindb.dbScoreTop(scoreTuple))
+			bnet.queueChatCommand(pdb.dbScoreTopStr())
 		elif parts[0] == "score":
-			lowername = parts[1].lower()
-			bnet.queueChatCommand(lowername + " points: " + plugindb.dbGetScore(scoreTuple, lowername))
+			lowername = user.getName().lower()
+			
+			if len(parts) == 2:
+				lowername = parts[1].lower()
+
+			bnet.queueChatCommand(lowername + " points: " + str(pdb.dbGetScore(lowername)))
 
 def gettime():
 	return int(round(time.time() * 1000))
