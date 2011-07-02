@@ -500,6 +500,7 @@ CChOP :: CChOP( CConfig *CFG )
 	m_WhisperAllowed = CFG->GetBool( "bot_whisperallowed", true );
 	
 	m_SeenAllUsers = CFG->GetBool( "bot_seenallusers", true );
+	m_Follow = CFG->GetInt( "bot_follow", 1 );
 
 	m_AntiSpam = CFG->GetBool( "op_antispam", false );
 	m_AntiYell = CFG->GetBool( "op_antiyell", false );
