@@ -29,6 +29,7 @@
 #include "bnet.h"
 #include "bnlsprotocol.h"
 #include "bncsutilinterface.h"
+#include "user.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -482,6 +483,8 @@ CChOP :: CChOP( CConfig *CFG )
 {
 	m_CRC = new CCRC32( );
 	m_CRC->Initialize( );
+	
+	m_ConsoleUser = new CUser("console", 10);
 	
 	CONSOLE_Print( "[CHOP++] opening primary database" );
 

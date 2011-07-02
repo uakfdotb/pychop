@@ -21,7 +21,6 @@
 #define BNET_H
 
 #include "bnetprotocol.h"
-#include "user.h"
 
 //
 // CBNET
