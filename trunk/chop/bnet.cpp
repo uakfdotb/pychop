@@ -957,6 +957,15 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
 	if( Event == CBNETProtocol :: EID_WHISPER || Event == CBNETProtocol :: EID_TALK )
 	{
+		try
+		{ 
+			EXECUTE_HANDLER("ChatReceived", true, boost::ref(this), boost::ref(User), User, Message)
+		}
+		catch(...) 
+		{ 
+			return;
+		}
+	
 		if( Event == CBNETProtocol :: EID_WHISPER )
 			CONSOLE_Print( "[WHISPER: " + m_ServerAlias + "] [" + User + "] " + Message );
 		else
@@ -1165,11 +1174,15 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 	}
 	else if( Event == CBNETProtocol :: EID_USERFLAGS )
 	{
+
+
 		if( chatEvent->GetUser( ) == m_UserName )
 			m_IsOperator = chatEvent->GetOperator( );
 	}
 	else if( Event == CBNETProtocol :: EID_INFO )
 	{
+		EXECUTE_HANDLER("BNETInfo", false, boost::ref(this), Message)
+		
 		CONSOLE_Print( "[INFO: " + m_ServerAlias + "] " + Message );
 
 		// extract the first word which we hope is the username
@@ -1189,10 +1202,16 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				QueueChatCommand( "/me " + UserName + " has joined the game " + Message.substr( Message.find( "game" ) + 5 ) );
 		}
 	}
-	else if( Event == CBNETProtocol :: EID_ERROR )
+	else if( Event == CBNETProtocol :: EID_ERROR ) {
+		EXECUTE_HANDLER("BNETError", false, boost::ref(this), Message)
+		
 		CONSOLE_Print( "[ERROR: " + m_ServerAlias + "] " + Message );
-	else if( Event == CBNETProtocol :: EID_EMOTE )
+	}
+	else if( Event == CBNETProtocol :: EID_EMOTE ) {
+		EXECUTE_HANDLER("EmoteReceived", false, boost::ref(this), User, Message)
+		
 		CONSOLE_Print( "[EMOTE: " + m_ServerAlias + "] [" + User + "] " + Message );
+	}
 }
 
 void CBNET :: SendJoinChannel( string channel )
@@ -1224,6 +1243,17 @@ void CBNET :: QueueChatCommand( string chatCommand )
 	if( chatCommand.empty( ) )
 		return;
 
+	try
+	{ 
+		EXECUTE_HANDLER("QueueChatCommand", true, boost::ref(this), chatCommand)
+	}
+	catch(...) 
+	{ 
+		return;
+	}
+
+	EXECUTE_HANDLER("QueueChatCommand", false, boost::ref(this), chatCommand)
+
 	if( m_LoggedIn )
 	{
 		if( m_PasswordHashType == "pvpgn" && chatCommand.size( ) > m_MaxMessageLength )
@@ -1246,6 +1276,17 @@ void CBNET :: QueueChatCommand( string chatCommand, string user, bool whisper )
 {
 	if( chatCommand.empty( ) )
 		return;
+
+	try
+	{ 
+		EXECUTE_HANDLER("QueueChatResponse", true, boost::ref(this), chatCommand, user, whisper)
+	}
+	catch(...) 
+	{ 
+		return;
+	}
+
+	EXECUTE_HANDLER("QueueChatResponse", false, boost::ref(this), chatCommand, user, whisper)
 
 	// if whisper is true send the chat command as a whisper to user, otherwise just queue the chat command
 
@@ -1504,11 +1545,11 @@ void CBNET :: RegisterPythonClass( )
 	class_<CBNET>("BNET", no_init)
 		.def_readonly("ChOP", &CBNET::m_ChOP)
 
-		.def_readonly("socket", &CBNET::m_Socket)
-		.def_readonly("protocol", &CBNET::m_Protocol)
-		.def_readonly("BNLSClient", &CBNET::m_BNLSClient)
+		.add_property("socket", make_getter(&CBNET::m_Socket, return_value_policy<reference_existing_object>()))
+		.add_property("protocol", make_getter(&CBNET::m_Protocol, return_value_policy<reference_existing_object>()) )
+		.add_property("BNLSClient", make_getter(&CBNET::m_BNLSClient, return_value_policy<reference_existing_object>()) )
 		.def_readonly("packets", &CBNET::m_Packets)
-		.def_readonly("m_BNCSUtil", &CBNET::m_BNCSUtil)
+		.add_property("BNCSUtil", make_getter(&CBNET::m_BNCSUtil, return_value_policy<reference_existing_object>()) )
 		.def_readonly("m_OutPackets", &CBNET::m_OutPackets)
 		.def_readonly("friends", &CBNET::m_Friends)
 		.def_readonly("clans", &CBNET::m_Clans)
@@ -1517,7 +1558,7 @@ void CBNET :: RegisterPythonClass( )
 		.def_readonly("pairedBanRemoves", &CBNET::m_PairedBanRemoves)
 		.def_readonly("pairedGPSChecks", &CBNET::m_PairedGPSChecks)
 		.def_readonly("pairedDPSChecks", &CBNET::m_PairedDPSChecks)
-		.def_readonly("callableBanList", &CBNET::m_CallableBanList)
+		.add_property("callableBanList", make_getter(&CBNET::m_CallableBanList, return_value_policy<reference_existing_object>()) )
 		.def_readonly("bans", &CBNET::m_Bans)
 		.def_readonly("exiting", &CBNET::m_Exiting)
 		.def_readonly("server", &CBNET::m_Server)

@@ -126,8 +126,6 @@ void CConfig :: RegisterPythonClass( )
 	using namespace boost::python;
 
 	class_<CConfig>("config", no_init)
-		.def_readonly("CFG", &CConfig::m_CFG)
-		
 		.def("read", &CConfig::Read)
 		.def("exists", &CConfig::Exists)
 		.def("getInt", &CConfig::GetInt)
