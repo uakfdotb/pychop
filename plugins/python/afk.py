@@ -19,6 +19,9 @@ afkMessages = ["afk"]
 # commands to trigger on
 commands = ["afk", "plugins/pychop/afk"]
 
+# whether or not to kick afk users
+afkKick = False
+
 # end settings
 
 # dictionary maps username -> last user event (sent message, joined channel); last user event is -1 if this user has been registered as AFK
@@ -30,12 +33,15 @@ afkUserList = []
 # next time a user might go AFK (minimum event time in userAfkTime)
 nextTime = 0
 
+# BNET to use for kicking
+afkBnet = 0
+
 import host
 import time
 
 def init():
 	host.registerHandler('ProcessCommand', onCommand)
-	host.registerHandler('ChatReceived', onTalk)
+	host.registerHandler('ChatReceivedExtended', onTalk) # extended to distinguish between local chat and whispers
 	host.registerHandler('Update', onUpdate)
 	host.registerHandler('UserLeft', onLeave)
 	host.registerHandler('UserJoined', onJoin)
@@ -47,8 +53,11 @@ def deinit():
 	host.unregisterHandler(onLeave)
 	host.unregisterHandler(onJoin)
 
-def onTalk(bnet, username, message):
-	global nextTime
+def onTalk(bnet, username, message, isWhisper):
+	global nextTime, userAfkTime, afkUserList
+
+	if isWhisper:
+		return
 
 	lowername = username.lower()
 
@@ -57,6 +66,7 @@ def onTalk(bnet, username, message):
 		# add them to afk user list if not already there
 		if not lowername in afkUserList:
 			afkUserList.append(lowername)
+			userAfkTime[lowername] = gettime()
 	else:
 		if lowername in afkUserList:
 			# clear this user from the afk list
@@ -70,15 +80,18 @@ def onTalk(bnet, username, message):
 			nextTime = gettime() + afkTime
 
 def onLeave(bnet, username):
+	global userAfkTime, afkUserList
+
 	lowername = username.lower()
-	time = userAfkTime[lowername]
 	
-	if time == -1:
+	if lowername in afkUserList:
 		# this user is leaving, clear from afk list
 		afkUserList.remove(lowername)
 	
 	# also clear from userAfkTime
+	print("leaving user " + username)
 	del userAfkTime[lowername]
+	print("deleted?: " + str(lowername in userAfkTime))
 
 def onJoin(bnet, user, isShow):
 	global nextTime
@@ -104,8 +117,12 @@ def onUpdate(chop) :
 				continue
 			elif gettime() - time > afkTime:
 				# this user is now afk...
-				userAfkTime[user] = -1
-				afkUserList.append(user)
+				if afkKick:
+					afkBnet.queueChatCommand("/kick " + user)
+					del userAfkTime[user]
+				else:
+					userAfkTime[user] = -1
+					afkUserList.append(user)
 		
 		# second, generate a new nexttime value
 		nextTime = 0
@@ -118,15 +135,22 @@ def gettime():
 	return int(round(time.time() * 1000))
 
 def onCommand(bnet, user, command, payload, nType):
-	global afkUserList, userAfkTime
+	global afkUserList, userAfkTime, afkBnet
+	
+	afkBnet = bnet
 	
 	if command in commands:
 		if payload == "print":
-			print("[AFK] Printing AFK users...")
+			print("[AFK] Printing AFK times (-1 means AFK listed)...")
 			
-			for user in afkUserList:
-				print("[AFK] " + user);
-		if payload == "clear":
+			for k,v in userAfkTime.iteritems():
+				vDifference = gettime() - v
+
+				if v == -1:
+					vDifference = -1
+
+				print("[AFK] " + str(k) + " has been afk for " + str(vDifference / 1000) + " seconds")
+		elif payload == "clear":
 			print("[AFK] Clearing AFK users and times...")
 			
 			afkUserList = []

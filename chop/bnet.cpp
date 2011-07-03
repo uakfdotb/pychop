@@ -957,21 +957,33 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
 	if( Event == CBNETProtocol :: EID_WHISPER || Event == CBNETProtocol :: EID_TALK )
 	{
+		bool isWhisper = Event == CBNETProtocol :: EID_WHISPER;
+		
 		try
 		{ 
-			EXECUTE_HANDLER("ChatReceived", true, boost::ref(this), boost::ref(User), User, Message)
+			EXECUTE_HANDLER("ChatReceived", true, boost::ref(this), User, Message)
+		}
+		catch(...) 
+		{ 
+			return;
+		}
+		
+		try
+		{ 
+			EXECUTE_HANDLER("ChatReceivedExtended", true, boost::ref(this), User, Message, isWhisper)
 		}
 		catch(...) 
 		{ 
 			return;
 		}
 	
-		if( Event == CBNETProtocol :: EID_WHISPER )
+		if( isWhisper )
 			CONSOLE_Print( "[WHISPER: " + m_ServerAlias + "] [" + User + "] " + Message );
 		else
 			CONSOLE_Print( "[LOCAL: " + m_ServerAlias + "] [" + User + "] " + Message );
 
 		EXECUTE_HANDLER("ChatReceived", false, boost::ref(this), User, Message)
+		EXECUTE_HANDLER("ChatReceivedExtended", false, boost::ref(this), User, Message, isWhisper)
 
 		// handle bot commands
 

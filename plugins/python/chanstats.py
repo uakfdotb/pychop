@@ -24,10 +24,13 @@ numLeaves = 0
 # number messages recorded
 numMessages = 0
 
+# number whispers received
+numWhispers = 0
+
 import host
 
 def init():
-	host.registerHandler('ChatReceived', onTalk)
+	host.registerHandler('ChatReceivedExtended', onTalk)
 	host.registerHandler('UserLeft', onLeave)
 	host.registerHandler('UserJoined', onJoin)
 	host.registerHandler('ProcessCommand', onCommand)
@@ -38,9 +41,13 @@ def deinit():
 	host.unregisterHandler(onJoin)
 	host.unregisterHandler(onCommand)
 
-def onTalk(bnet, username, message):
-	global numMessages
-	numMessages = numMessages + 1
+def onTalk(bnet, username, message, isWhisper):
+	global numMessages, numWhispers
+	
+	if isWhisper:
+		numWhispers = numWhispers + 1
+	else:
+		numMessages = numMessages + 1
 
 def onLeave(bnet, username):
 	global numLeaves
@@ -62,4 +69,5 @@ def onCommand(bnet, user, command, payload, nType):
 		message += ";  num joins: " + str(numJoins);
 		message += ";  num leaves: " + str(numLeaves);
 		message += ";  num messages: " + str(numMessages);
+		message += ";  num whispers: " + str(numWhispers);
 		bnet.queueChatCommand(message, user.getName(), whisper)
