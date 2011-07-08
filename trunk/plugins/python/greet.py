@@ -3,7 +3,7 @@
 # name = greet
 # fullname = plugins/pychop/greet
 # description = Greets users who join the channel.
-# help = Rejoin the channel!
+# help = Rejoin the channel! Also, use !greet <message> to set the greet message. Use !greet to disable greeting.
 
 # modify settings below
 
@@ -34,8 +34,6 @@ def onJoin(bnet, user, isShow):
 
 def onCommand(bnet, user, command, payload, nType):
 	global greetMessage
-	
-	whisper = nType == 1
 
     if command == "greet":
     	greetMessage = payload
