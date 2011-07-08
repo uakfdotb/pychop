@@ -21,11 +21,21 @@ import host
 
 def init():
 	host.registerHandler('UserJoined', onJoin)
+    host.registerHandler('onCommand', onCommand)
 	
 def deinit():
 	host.unregisterHandler(onJoin)
+    host.unregisterHandler(onCommand)
 
 def onJoin(bnet, user, isShow):
 	# need correct access; also only show this when a user actually joins, not just when we join
-	if user.getAccess() >= minAccess and user.getAccess() <= maxAccess and not isShow:
+	if user.getAccess() >= minAccess and user.getAccess() <= maxAccess and not isShow and greetMessage != "":
 		bnet.queueChatCommand(greetMessage, user.getName(), True)
+
+def onCommand(bnet, user, command, payload, nType):
+	global greetMessage
+	
+	whisper = nType == 1
+
+    if command == "greet":
+    	greetMessage = payload
