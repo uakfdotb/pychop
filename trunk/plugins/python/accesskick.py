@@ -11,7 +11,7 @@
 minAccess = 1
 
 # whether to enable by default
-accessEnabled = True
+accessEnabled = False
 
 # whether to ban instead of kick
 accessBan = False
@@ -22,14 +22,14 @@ import host
 
 def init():
 	host.registerHandler('UserJoined', onJoin)
-    host.registerHandler('onCommand', onCommand)
+	host.registerHandler('ProcessCommand', onCommand)
 	
 def deinit():
 	host.unregisterHandler(onJoin)
-    host.unregisterHandler(onCommand)
+	host.unregisterHandler(onCommand)
 
 def onJoin(bnet, user, isShow):
-	if user.getAccess() < minAccess:
+	if user.getAccess() < minAccess and accessEnabled:
 		if not accessBan:
 			bnet.queueChatCommand("/kick " + user.getName())
 		else:
@@ -38,5 +38,10 @@ def onJoin(bnet, user, isShow):
 def onCommand(bnet, user, command, payload, nType):
 	global accessEnabled
 
-    if command == "accesskick":
-    	accessEnabled = not accessEnabled
+	if command == "accesskick":
+		accessEnabled = not accessEnabled
+		
+		if accessEnabled:
+			print("accesskick is now enabled!")
+		else:
+			print("accesskick has been disabled!")
