@@ -88,6 +88,11 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 		else
 			return "";
 	}
+	
+	// ignore user if user has no access and we are flooding
+	if ( Access == 0 && m_OutPackets.size( ) > 3 ) {
+		return "";
+	}
 
 	// Command system
 	//
@@ -221,7 +226,13 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 		if( ChannelNameMatch( name, victim ) != 1 )
 			return "";
 
-		QueueChatCommand( "/ban " + victim + " " + reason );
+		QueueChatCommand( "/ban " + victim + reason );
+		
+		// also ban in database
+		if( !IsBannedName( victim ) ) {
+			m_PairedBanAdds.push_back( PairedBanAdd( Whisper ? UserName : string( ), m_ChOP->m_DB->ThreadedBanAdd( m_Server, victim, string( ), string( ), UserName, reason ) ) );
+		}
+		
 		return "";
 	}
 
@@ -231,6 +242,10 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 			return "";
 
 		QueueChatCommand( "/unban " + payload );
+		
+		// also remove ban in database
+		m_PairedBanRemoves.push_back( PairedBanRemove( Whisper ? UserName : string( ), m_ChOP->m_DB->ThreadedBanRemove( payload ) ) );
+		
 		return "";
 	}
 
@@ -331,7 +346,6 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 			return "";
 
 		QueueChatCommand( "/designate " + name );
-		QueueChatCommand( "/rejoin" );
 		return "";
 	}
 
@@ -519,7 +533,8 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 		if( m_Channel.find( name ) != m_Channel.end( ) )
 			return m_ChOP->m_Language->UserIsHere( name );
 
-		if( name.size( ) < 16 && name[0] != '/' )
+		// make sure name is ok and don't flood
+		if( name.size( ) < 16 && name[0] != '/' && m_OutPackets.size( ) <= 3 )
 			m_PairedUserSeens.push_back( PairedUserSeen( Whisper ? UserName : string( ), m_ChOP->m_DB->ThreadedUserSeen( m_Server, name ) ) );
 
 		return "";
@@ -648,8 +663,7 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 
 		i = rand( ) % m_ChOP->m_Quotes.size( );
 
-		QueueChatCommand( "/me " + m_ChOP->m_Quotes[i] );
-		return "";
+		return m_ChOP->m_Quotes[i];
 	}
 	
 	return "";
