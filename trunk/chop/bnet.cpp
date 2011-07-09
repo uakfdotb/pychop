@@ -409,9 +409,9 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			i++;
 	}
 
-	// refresh the user list every 5 minutes
+	// refresh the user list every minute
 
-	if( !m_CallableUserList && GetTime( ) >= m_LastUserRefreshTime + 300 ) {
+	if( !m_CallableUserList && GetTime( ) >= m_LastUserRefreshTime + 60 ) {
 		m_CallableUserList = m_ChOP->m_DB->ThreadedUserList( m_Server );
 		m_LastUserRefreshTime = GetTime();
 	}
@@ -422,19 +422,48 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 		map<string, CUser *> tmpUsers = m_Users;
 		m_Users = m_CallableUserList->GetResult( );
-
-		// delete from user list while making sure channel list gets recreated
+		
+		// first, look for users in old list that are also in new list or who were deleted
 		
 		for( map<string, CUser *> :: iterator i = tmpUsers.begin( ); i != tmpUsers.end( ); i++ ) {
+			map<string, CUser *> :: iterator newIndex = m_Users.find( (*i).first );
 			map<string, CUser *> :: iterator channelIndex = m_Channel.find( (*i).first );
-			if( channelIndex != m_Channel.end( ) ) {
-				m_Channel.erase(channelIndex);
-				
-				// replace with userlist's first
-				m_Channel[(*i).first] = m_Users[(*i).first];
-			}
 			
-			delete (*i).second;
+			if( newIndex != m_Users.end( ) ) {
+				// this user was simply updated, so we want to update channel version as well
+				
+				if( channelIndex != m_Channel.end( ) ) {
+					m_Channel.erase(channelIndex);
+					m_Channel[(*i).first] = m_Users[(*i).first];
+				}
+				
+				delete (*i).second;
+			} else {
+				// this user was deleted; if not in channel, delete, otherwise update access
+				
+				if( channelIndex != m_Channel.end( ) ) {
+					(*channelIndex).second->SetAccess(0);
+				} else {
+					delete (*i).second;
+				}
+			}
+		}
+		
+		// now, look for users in new list not in old list (added users)
+		
+		for( map<string, CUser *> :: iterator i = m_Users.begin( ); i != m_Users.end( ); i++ ) {
+			map<string, CUser *> :: iterator oldIndex = tmpUsers.find( (*i).first );
+			map<string, CUser *> :: iterator channelIndex = m_Channel.find( (*i).first );
+			
+			if( oldIndex == tmpUsers.end( ) ) {
+				// this user was added; if in channel, update channel user
+				
+				if( channelIndex != m_Channel.end( ) ) {
+					delete (*channelIndex).second;
+					m_Channel.erase(channelIndex);
+					m_Channel[(*i).first] = (*i).second;
+				}
+			}
 		}
 		
 		m_ChOP->m_DB->RecoverCallable( m_CallableUserList );
@@ -1398,8 +1427,15 @@ void CBNET :: AddUser( string name, uint32_t access )
 	}
 
 	m_Users[lowerName] = new CUser( name, access );
-	if( IsInChannel( name ) )
-		m_Channel[lowerName]->SetAccess( access );
+	
+	// user was added; if in channel, update channel user
+	map<string, CUser *> :: iterator channelIndex = m_Channel.find(lowerName);
+	
+	if( channelIndex != m_Channel.end( ) ) {
+		delete (*channelIndex).second;
+		m_Channel.erase(channelIndex);
+		m_Channel[lowerName] = m_Users[lowerName];
+	}
 }
 
 void CBNET :: RemoveBan( string name )
@@ -1423,8 +1459,19 @@ void CBNET :: RemoveUser( string name )
 	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
 	map<string, CUser *> :: iterator i = m_Users.find( name );
 
-	if( i != m_Users.end( ) )
+	if( i != m_Users.end( ) ) {
+		// user was deleted; if not in channel, delete, otherwise update access
+		map<string, CUser *> :: iterator channelIndex = m_Channel.find(name);
+	
+		if( channelIndex != m_Channel.end( ) ) {
+			(*channelIndex).second->SetAccess(0);
+		} else {
+			delete (*i).second;
+		}
+
+		// finish removing from m_Users
 		m_Users.erase( i );
+	}
 }
 
 string CBNET :: FormatTime( uint32_t time )
