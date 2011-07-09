@@ -21,11 +21,11 @@ import host
 
 def init():
 	host.registerHandler('UserJoined', onJoin)
-    host.registerHandler('onCommand', onCommand)
+	host.registerHandler('ProcessCommand', onCommand)
 	
 def deinit():
 	host.unregisterHandler(onJoin)
-    host.unregisterHandler(onCommand)
+	host.unregisterHandler(onCommand)
 
 def onJoin(bnet, user, isShow):
 	# need correct access; also only show this when a user actually joins, not just when we join
@@ -35,5 +35,5 @@ def onJoin(bnet, user, isShow):
 def onCommand(bnet, user, command, payload, nType):
 	global greetMessage
 
-    if command == "greet":
-    	greetMessage = payload
+	if command == "greet":
+		greetMessage = payload
