@@ -30,17 +30,17 @@ def onCommand(bnet, user, command, payload, nType):
 		bnet.queueChatCommand(before_rand + rand(args), user.getName(), whisper)
 
 def rand(args):
-    if len(args) == 0:
-        return str(random.random())
-    elif len(args) == 1:
-        try:
-            return str(random.randint(0, int(args[0])))
-        except ValueError:
-            return "usage: !rand [integer max]"
-    elif len(args) == 2:
-        try:
-            return str(random.randint(int(args[0]), int(args[1])))
-        except ValueError:
-            return "usage: !rand [integer min] [integer max]"
-    else:
-        return "error: too many arguments"
+	if len(args) == 0:
+		return str(random.random())
+	elif len(args) == 1:
+		try:
+			return str(random.randint(0, int(args[0])))
+		except ValueError:
+			return "usage: !rand [integer max]"
+	elif len(args) == 2:
+		try:
+			return str(random.randint(int(args[0]), int(args[1])))
+		except ValueError:
+			return "usage: !rand [integer min] [integer max]"
+	else:
+		return "error: too many arguments"

@@ -48,7 +48,9 @@ def onCommand(bnet, user, command, payload, nType):
 		result_string = "Inactive users: "
 		
 		for row in result_set:
-			result_string += str(row[0]) + ", "
+			rowUsername = str(row[0])
+			if bnet.isClanMember(rowUsername):
+				result_string += str(rowUsername) + ", "
 		
 		# delete last two characters, don't care if there aren't any inactive users
 		result_string = result_string[:-2]
