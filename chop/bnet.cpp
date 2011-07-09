@@ -1056,8 +1056,11 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
 				Reply = ProcessCommand( user, Command, Payload, Type );
 
-				if( !Reply.empty( ) )
-				QueueChatCommand( Reply, User, Whisper );
+				if( !Reply.empty( ) ) {
+					if( user->GetAccess( ) != 0 || m_OutPackets.size( ) <= 3 ) {
+						QueueChatCommand( Reply, User, Whisper );
+					}
+				}
 			}
 			else
 			{
@@ -1608,6 +1611,11 @@ void CBNET :: UpdateSeen( string user )
 	m_CallableUserSeens.push_back( m_ChOP->m_DB->ThreadedUserSetSeen( m_Server, user ) );
 }
 
+uint32_t CBNET :: NumPackets( )
+{
+	return m_OutPackets.size( );
+}
+
 #include <boost/python.hpp>
 
 void CBNET :: RegisterPythonClass( )
@@ -1693,6 +1701,7 @@ void CBNET :: RegisterPythonClass( )
 		.def("sendClanChangeRank", &CBNET::SendClanChangeRank)
 		.def("sendClanSetMOTD", &CBNET::SendClanSetMOTD)
 
+
 		.def("isRootAdmin", &CBNET::IsRootAdmin)
 		.def("isBannedName", &CBNET::IsBannedName, return_internal_reference<>())
 		.def("isBannedIP", &CBNET::IsBannedIP, return_internal_reference<>())
@@ -1709,5 +1718,6 @@ void CBNET :: RegisterPythonClass( )
 		.def("clanNameMatch", &CBNET::ClanNameMatch)
 		.def("getUserByName", &CBNET::GetUserByName, return_internal_reference<>())
 		.def("updateSeen", &CBNET::UpdateSeen)
+		.def("numPackets", &CBNET::NumPackets)
 	;
 }

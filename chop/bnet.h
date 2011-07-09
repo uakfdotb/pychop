@@ -188,6 +188,8 @@ public:
 	uint32_t ClanNameMatch( string name, string &match );
 	CUser *GetUserByName( string name );
 	void UpdateSeen( string user );
+	uint32_t NumPackets( ); //get number of outgoing packets in queue
+	
 	static void RegisterPythonClass();
 };
 
