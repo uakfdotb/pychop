@@ -85,6 +85,7 @@ class PluginDB:
 		self.cursor.execute("INSERT INTO plugindb (plugin,k,val) VALUES(%s, %s, %s)", (self.pluginName,key,value,))
 		return self.cursor.lastrowid
 
+	# returns array with tuples (key, value, dbID)
 	def dbGetAll(self):
 		self.cursor.execute("SELECT k,val,id FROM plugindb WHERE plugin=%s", (self.pluginName,))
 		result_set = self.cursor.fetchall()
@@ -94,6 +95,9 @@ class PluginDB:
 			result_list.append((str(row[0]), str(row[1]), int(row[2]),))
 	
 		return result_list
+
+	def dbClear(self):
+		self.cursor.execute("DELETE FROM plugindb WHERE plugin=%s", (self.pluginName,))
 
 	# gets tuple(dictionary of key->score, dictionary of userid->score)
 	# score functions later will use this tuple (scoreTuple)

@@ -21,16 +21,7 @@ def init():
 
 def deinit():
 	host.unregisterHandler(onCommand)
-
-def onWhisper(ghost, bnet, user, message):
-	onMessage(ghost, bnet, user, message, True);
-
-def onMessage(ghost, bnet, user, message, whisper=False):
-	if message[0] == bnet.commandTrigger[0]:
-		args = message[1:].split(None)
-		if args[0] in commands:
-			bnet.queueChatCommand(before_time + gettime(), user, whisper)
-
+	
 def onCommand(bnet, user, command, payload, nType):
 	whisper = nType == 1
 
