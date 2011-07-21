@@ -1671,6 +1671,10 @@ void CBNET :: RegisterPythonClass( )
 		.def_readonly("waitingToConnect", &CBNET::m_WaitingToConnect)
 		.def_readonly("loggedIn", &CBNET::m_LoggedIn)
 		.def_readonly("inChat", &CBNET::m_InChat)
+		
+		.def_readonly("channel" &CBNET::m_Channel)
+		.def_readonly("users", &CBNET::m_Users)
+
 
 		.def("getExiting", &CBNET::GetExiting)
 		.def("getServer", &CBNET::GetServer)
