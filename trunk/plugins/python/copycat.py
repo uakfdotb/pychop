@@ -10,6 +10,9 @@
 # commands to trigger on
 commands = ["copycat", "plugins/pychop/copycat"]
 
+# minimum access to control
+controlAccess = 10
+
 # end settings
 
 # whether or not copycat is enabled
@@ -32,5 +35,5 @@ def onTalk(bnet, username, message, isWhisper):
 def onCommand(bnet, user, command, payload, nType):
 	global copycatEnabled
 	
-	if command in commands:
+	if command in commands and user.getAccess() >= controlAccess:
 		copycatEnabled = not copycatEnabled
