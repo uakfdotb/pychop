@@ -139,7 +139,7 @@ def onCommand(bnet, user, command, payload, nType):
 	
 	afkBnet = bnet
 	
-	if command in commands:
+	if command in commands and user.getAccess() > afkAccess:
 		if payload == "print":
 			print("[AFK] Printing AFK times (-1 means AFK listed)...")
 			

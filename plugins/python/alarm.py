@@ -5,8 +5,13 @@
 # description = Your own alarm clock. Alarm messages are stored via PluginDB so that if the bot is restarted, alarms do not have to be set again. If you do wish to reset all alarms, clearing the database is also supported.
 # help = Use !alarm set <minutes> <message> to alarm at a specific time (for example, "!alarm set 90 hello, world" will print hello, world in 90 minutes. "!alarm list" lists currently stored alarms. "!alarm clear" clears the database.
 
+### begin configuration
+
 # strings to identify this command
 commands = ("plugins/pychop/alarm", "alarm")
+
+# minimum access to control
+controlAccess = 10
 
 ### end configuration
 
@@ -57,7 +62,7 @@ def onCommand(bnet, user, command, payload, nType):
 	alarm_bnet = bet
 	whisper = nType == 1
 
-	if command in commands:
+	if command in commands and user.getAccess() > controlAccess:
 		# might as well split with max arraylength=3
 		parts = payload.split(" ", 2)
 		
