@@ -38,7 +38,7 @@ def onLeave(bnet, username):
 
 def onCommand(bnet, user, command, payload, nType):
 
-	if command in commands:
+	if command in commands and bnet.getOutPacketsQueued() < 5:
 		# select a random user
 		randIndex = random.randint(0, len(channelList) - 1)
 		randUser = channelList[randIndex]

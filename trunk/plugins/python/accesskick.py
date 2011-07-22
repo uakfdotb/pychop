@@ -29,7 +29,7 @@ def deinit():
 	host.unregisterHandler(onCommand)
 
 def onJoin(bnet, user, isShow):
-	if user.getAccess() < minAccess and accessEnabled:
+	if user.getAccess() < minAccess and accessEnabled and bnet.getOutPacketsQueued() < 5:
 		if not accessBan:
 			bnet.queueChatCommand("/kick " + user.getName())
 		else:

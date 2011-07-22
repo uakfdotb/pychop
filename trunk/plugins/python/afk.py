@@ -117,7 +117,7 @@ def onUpdate(chop) :
 				continue
 			elif gettime() - time > afkTime:
 				# this user is now afk...
-				if afkKick:
+				if afkKick and bnet.getOutPacketsQueued() < 5:
 					afkBnet.queueChatCommand("/kick " + user)
 					del userAfkTime[user]
 				else:

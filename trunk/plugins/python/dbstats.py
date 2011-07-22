@@ -52,7 +52,7 @@ def deinit():
 def onCommand(bnet, user, command, payload, nType):
 	whisper = nType == 1
 	
-	if command in commands:
+	if command in commands and bnet.getOutPacketsQueued() < 4:
 		cursor.execute("SELECT COUNT(DISTINCT plugin) FROM plugindb")
 		result = cursor.fetchone()
 		numPlugins = result[0]

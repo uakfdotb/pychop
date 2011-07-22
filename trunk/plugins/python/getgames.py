@@ -33,7 +33,7 @@ def deinit():
 	plugindb.deinit()
 
 def onCommand(bnet, user, command, payload, nType):
-	if command in commands:
+	if command in commands and bnet.getOutPacketsQueued() < 4:
 		cursor.execute("SELECT gamename, slotstaken, slotstotal FROM gamelist");
 		result_set = cursor.fetchall()
 		result_string = "Current games: "

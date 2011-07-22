@@ -59,10 +59,10 @@ def deinit():
 def onCommand(bnet, user, command, payload, nType):
 	whisper = nType == 1
 
-	if command in commands:
+	if command in commands and bnet.getOutPacketsQueued() < 3:
 		args = payload.split(None)
 		bnet.queueChatCommand(before + calc(args), user.getName(), whisper)
-	elif command in set_commands:
+	elif command in set_commands and bnet.getOutPacketsQueued() < 3:
 		args = payload.split(None)
 		varset(args[0], args[1])
 
