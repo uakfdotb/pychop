@@ -77,7 +77,21 @@ def onCommand(bnet, user, command, payload, nType):
 				
 				# check if we have the number needed
 				if len(matchmakingList) >= matchmakingPlayers:
+					random.shuffle(matchmakingList)
+					chatString = "T1: "
+					teamCounter = 0
+					teamPlayers = 0
 					
+					for name in matchmakingList:
+						chatString += name + " "
+						
+						teamPlayers = teamPlayers + 1;
+						# check if we have filled this team
+						if teamPlayers >= matchmakingTeamList[teamCounter]:
+							teamCounter = teamCounter + 1
+							chatString += "  T2: "
+					
+					bnet.queueChatCommand(chatString)
 					# reset
 					matchmakingEnabled = False
 				else:
@@ -87,7 +101,7 @@ def onCommand(bnet, user, command, payload, nType):
 			bnet.queueChatCommand("Matchmaking cleared")
 
 def checkTeams():
-	if len(matchmakingTeamList) > maxteams:
+	if len(matchmakingTeamList) > maxteams and len(matchmakingTeamList) > 1:
 		return False
 	
 	numplayers = 0
