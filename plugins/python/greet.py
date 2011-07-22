@@ -29,7 +29,7 @@ def deinit():
 
 def onJoin(bnet, user, isShow):
 	# need correct access; also only show this when a user actually joins, not just when we join
-	if user.getAccess() >= minAccess and user.getAccess() <= maxAccess and not isShow and greetMessage != "":
+	if user.getAccess() >= minAccess and user.getAccess() <= maxAccess and not isShow and greetMessage != "" and bnet.getOutPacketsQueued() < 3:
 		bnet.queueChatCommand(greetMessage, user.getName(), True)
 
 def onCommand(bnet, user, command, payload, nType):

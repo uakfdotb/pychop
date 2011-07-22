@@ -64,7 +64,7 @@ def onJoin(bnet, user, isShow):
 def onCommand(bnet, user, command, payload, nType):
 	whisper = nType == 1
 	
-	if command in commands:
+	if command in commands and bnet.getOutPacketsQueued() < 3:
 		message = "Unique users: " + str(len(userList));
 		message += ";  num joins: " + str(numJoins);
 		message += ";  num leaves: " + str(numLeaves);

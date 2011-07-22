@@ -71,7 +71,7 @@ def deinit():
 	host.unregisterHandler(onCommand)
 	host.unregisterHandler(onUpdate)
 	host.unregisterHandler(onTalk)
-	plugindb.close()
+	pdb.close()
 
 def onTalk(bnet, username, message):
 	global trivia_lasttime, trivia_state, trivia_enabled
@@ -244,10 +244,10 @@ def onCommand(bnet, user, command, payload, nType):
 				# clear questions since we changed the type
 				trivia_questions = deque([])
 
-		if parts[0] == "top":
+		if parts[0] == "top" and bnet.getOutPacketsQueued() < 3:
 			# display top 5
 			bnet.queueChatCommand(pdb.dbScoreTopStr(5))
-		elif parts[0] == "score":
+		elif parts[0] == "score" and bnet.getOutPacketsQueued() < 3:
 			lowername = user.getName().lower()
 			
 			if len(parts) == 2:

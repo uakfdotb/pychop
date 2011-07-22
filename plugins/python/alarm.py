@@ -72,7 +72,7 @@ def onCommand(bnet, user, command, payload, nType):
 			alarms.append((time, parts[2],))
 			# add to database
 			pdb.dbAdd(time, parts[2])
-		elif parts[0]=="count":
+		elif parts[0]=="count" and bnet.getOutPacketsQueued() < 10:
 			bnet.queueChatCommand("Alarms stored: " + str(len(alarms)), user.getName(), whisper)
 		elif parts[0]=="print":
 			for alarm in alarms:
@@ -88,7 +88,7 @@ def onUpdate(chop):
 		
 		if gettime() > alarm[0]:
 			# it's time to print it...
-			if alarm_bnet != 0:
+			if alarm_bnet != 0 and bnet.getOutPacketsQueued() < 10:
 				alarm_bnet.queueChatCommand(alarm[1])
 				to_del = i
 	

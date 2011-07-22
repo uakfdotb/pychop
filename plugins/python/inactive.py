@@ -37,7 +37,7 @@ def gettime():
 	return int(round(time.time() * 1000))
 
 def onCommand(bnet, user, command, payload, nType):
-	if command in commands:
+	if command in commands and bnet.getOutPacketsQueued() < 3:
 		# change hours to milliseconds
 		timeMillis = int(payload) * 60 * 60 * 1000;
 		# now identify gettime() at timeMillis in the past

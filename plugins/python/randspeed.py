@@ -70,7 +70,6 @@ def deinit():
 	host.unregisterHandler(onCommand)
 	host.unregisterHandler(onUpdate)
 	pdb.close()
-	del scores
 
 def onTalk(bnet, username, message):
 	global randString, scores, userids
@@ -127,10 +126,10 @@ def onCommand(bnet, user, command, payload, nType):
 			randTime = 0
 		elif user.getAccess() > controlAccess and parts[0] == "now":
 			doRand()
-		elif parts[0] == "top":
+		elif parts[0] == "top" and bnet.getOutPacketsQueued() < 3:
 			# display top 5
 			bnet.queueChatCommand(pdb.dbScoreTopStr(5))
-		elif parts[0] == "score":
+		elif parts[0] == "score" and bnet.getOutPacketsQueued() < 3:
 			lowername = user.getName().lower()
 			
 			if len(parts) == 2:

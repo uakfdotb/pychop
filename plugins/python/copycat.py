@@ -35,5 +35,5 @@ def onTalk(bnet, username, message, isWhisper):
 def onCommand(bnet, user, command, payload, nType):
 	global copycatEnabled
 	
-	if command in commands and user.getAccess() >= controlAccess:
+	if command in commands and user.getAccess() >= controlAccess and bnet.getOutPacketsQueued() < 5:
 		copycatEnabled = not copycatEnabled

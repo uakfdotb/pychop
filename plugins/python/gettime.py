@@ -25,7 +25,7 @@ def deinit():
 def onCommand(bnet, user, command, payload, nType):
 	whisper = nType == 1
 
-	if command in commands:
+	if command in commands and bnet.getOutPacketsQueued() < 3:
 		bnet.queueChatCommand(before_time + gettime(), user.getName(), whisper)
 
 def gettime():
