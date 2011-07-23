@@ -120,11 +120,11 @@ def onCommand(bnet, user, command, payload, nType):
 	if command in commands:
 		parts = payload.split(" ", 1)
 		
-		if user.getAccess() > controlAccess and parts[0] == "on":
+		if user.getAccess() >= controlAccess and parts[0] == "on":
 			setNext()
-		elif user.getAccess() > controlAccess and parts[0] == "off":
+		elif user.getAccess() >= controlAccess and parts[0] == "off":
 			randTime = 0
-		elif user.getAccess() > controlAccess and parts[0] == "now":
+		elif user.getAccess() >= controlAccess and parts[0] == "now":
 			doRand()
 		elif parts[0] == "top" and bnet.getOutPacketsQueued() < 3:
 			# display top 5

@@ -29,12 +29,12 @@ def deinit():
 	host.unregisterHandler(onCommand)
 
 def onJoin(bnet, user, isShow):
-	if not user.getName() in channelList:
-		channelList.append(user.getName())
+	if not user.getName().lower() in channelList:
+		channelList.append(user.getName().lower())
 
 def onLeave(bnet, username):
-	if user.getName() in channelList:
-		channelList.remove(user.getName())
+	if username.lower() in channelList:
+		channelList.remove(username.lower())
 
 def onCommand(bnet, user, command, payload, nType):
 

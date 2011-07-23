@@ -20,7 +20,7 @@ votekickTime = 60
 
 ### end configuration
 
-# dictionary with lowername victim -> (votecount, gettime,votedlist)
+# dictionary with lowername victim -> [votecount, gettime,votedlist]
 votekicks = {}
 
 votekickBnet = 0
@@ -39,7 +39,7 @@ def deinit():
 def onUpdate(chop):
 	removeName = -1
 
-	for lowername, value in votekicks:
+	for lowername, value in votekicks.items():
 		votetime = value[1]
 		
 		if gettime() - votetime > votekickTime * 1000:
@@ -66,12 +66,12 @@ def onCommand(bnet, user, command, payload, nType):
 	if command in commands and payload != "":
 		parts = payload.split(" ");
 		
-		if len(parts) <= 1 || parts[1] == "yes":
+		if len(parts) <= 1 or parts[1] == "yes":
 			victim = parts[0].lower()
 			# init a votekick if needed
-			if not votekicks.contains(victim):
-				if user.getAccess() > initAccess:
-					votekicks[victim] = (0,gettime(),[])
+			if not victim in votekicks:
+				if user.getAccess() >= initAccess:
+					votekicks[victim] = [0,gettime(),[]]
 				else:
 					return
 			
@@ -85,8 +85,13 @@ def onCommand(bnet, user, command, payload, nType):
 			votekickTuple[2].append(user.getName().lower())
 			bnet.queueChatCommand("Votekick count on [" + victim + "] is now " + str(votekickTuple[0]))
 		else:
-			if votekicks.contains(victim):
+			if victim in votekicks:
 				votekickTuple = votekicks[victim]
 				
 				# make sure not already voted
-				if user.getName().lower() in vote
+				if user.getName().lower() in votekickTuple[2]:
+					return
+				
+				votekickTuple[0] = votekickTuple[0] - 1
+				votekickTuple[2].append(user.getName().lower())
+				bnet.queueChatCommand("Votekick count on [" + victim + "] is now " + str(votekickTuple[0]))

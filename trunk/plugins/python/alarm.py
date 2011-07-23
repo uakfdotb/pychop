@@ -17,6 +17,7 @@ controlAccess = 10
 
 import host
 import time
+from plugindb import PluginDB
 
 # PluginDB instance
 pdb = 0
@@ -59,10 +60,10 @@ def deinit():
 def onCommand(bnet, user, command, payload, nType):
 	global alarm_bnet
 	
-	alarm_bnet = bet
+	alarm_bnet = bnet
 	whisper = nType == 1
 
-	if command in commands and user.getAccess() > controlAccess:
+	if command in commands and user.getAccess() >= controlAccess:
 		# might as well split with max arraylength=3
 		parts = payload.split(" ", 2)
 		
@@ -81,18 +82,21 @@ def onCommand(bnet, user, command, payload, nType):
 def onUpdate(chop):
 	global alarms
 	
-	to_del = 0
+	to_del = -1
 
 	for i in range(len(alarms)):
 		alarm = alarms[i]
 		
 		if gettime() > alarm[0]:
 			# it's time to print it...
-			if alarm_bnet != 0 and bnet.getOutPacketsQueued() < 10:
+			if alarm_bnet != 0 and alarm_bnet.getOutPacketsQueued() < 10:
 				alarm_bnet.queueChatCommand(alarm[1])
 				to_del = i
+				break
 	
-	delete alarms[to_del]
+	if to_del >= 0:
+		del alarms[to_del]
+		pdb.dbRemove(to_del)
 
 def gettime():
 	return int(round(time.time() * 1000))
