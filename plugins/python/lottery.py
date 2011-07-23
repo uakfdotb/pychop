@@ -82,7 +82,7 @@ def onUpdate(chop) :
 	
 	if lotteryEnabled:
 		if lotteryState == 0:
-			if gettime() - lastTime > lotteryDelay * 1000:
+			if gettime() - lotteryTime > lotteryDelay * 1000:
 				# start a round
 				lotteryPlayers.clear()
 				lotterySecret = random.randint(lotteryMin, lotteryMax)
@@ -92,7 +92,7 @@ def onUpdate(chop) :
 				lotteryTime = gettime()
 				lotteryState = 1
 		elif lotteryState == 1:
-			if gettime() - lastTime > roundTime * 1000:
+			if gettime() - lotteryTime > roundTime * 1000:
 				# see if anyone won
 				winnerList = []
 				

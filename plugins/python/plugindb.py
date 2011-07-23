@@ -85,6 +85,9 @@ class PluginDB:
 		self.cursor.execute("INSERT INTO plugindb (plugin,k,val) VALUES(%s, %s, %s)", (self.pluginName,key,value,))
 		return self.cursor.lastrowid
 
+	def dbRemove(self, key):
+		self.cursor.execute("DELETE FROM plugindb WHERE plugin=%s AND k=%s", (self.pluginName,key,))
+
 	# returns array with tuples (key, value, dbID)
 	def dbGetAll(self):
 		self.cursor.execute("SELECT k,val,id FROM plugindb WHERE plugin=%s", (self.pluginName,))

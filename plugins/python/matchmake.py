@@ -50,7 +50,7 @@ def onCommand(bnet, user, command, payload, nType):
 
 	if command in commands and user.getAccess() > joinAccess:
 		args = payload.split(None)
-		if (args[0] == "start" or args[0]=="startt") and user.getAccess() > controlAccess:
+		if (args[0] == "start" or args[0]=="startt") and user.getAccess() >= controlAccess:
 			if not matchmakingEnabled:
 				del matchmakingList[:]
 				del matchmakingTeamList[:]
@@ -72,7 +72,7 @@ def onCommand(bnet, user, command, payload, nType):
 					matchmakingEnabled = True
 					bnet.queueChatCommand("Matchmaking started with " + str(matchmakingTeams) + " teams and " + str(matchmakingPlayers) + " players.")
 		elif args[0] == "in":
-			if matchmakingEnabled and !matchmakingList.contains(user.getName.lower()):
+			if matchmakingEnabled and not matchmakingList.contains(user.getName.lower()):
 				matchmakingList.append(user.getName().lower())
 				
 				# check if we have the number needed
@@ -96,7 +96,7 @@ def onCommand(bnet, user, command, payload, nType):
 					matchmakingEnabled = False
 				else:
 					bnet.queueChatCommand("Matchmaking needs " + str(matchmakingPlayers - len(matchmakingList)) + " more players.")
-		elif args[0] == "clear"
+		elif args[0] == "clear":
 			matchmakingEnabled = False
 			bnet.queueChatCommand("Matchmaking cleared")
 
@@ -113,19 +113,3 @@ def checkTeams():
 			numplayers = numplayers + num
 	
 	return numplayers
-
-def rand(args):
-	if len(args) == 0:
-		return str(random.random())
-	elif len(args) == 1:
-		try:
-			return str(random.randint(0, int(args[0])))
-		except ValueError:
-			return "usage: !rand [integer max]"
-	elif len(args) == 2:
-		try:
-			return str(random.randint(int(args[0]), int(args[1])))
-		except ValueError:
-			return "usage: !rand [integer min] [integer max]"
-	else:
-		return "error: too many arguments"

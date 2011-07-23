@@ -41,6 +41,8 @@ def dbReady():
 	cursor = pdb.dbconnect()
 
 def init():
+	global pdb
+	
 	host.registerHandler('ProcessCommand', onCommand)
 	
 	pdb = PluginDB()
@@ -77,4 +79,4 @@ def onCommand(bnet, user, command, payload, nType):
 		result = cursor.fetchone()
 		numAccessUsers = result[0]
 		
-		bnet.queueChatCommand("#plugins: " + str(numPlugins) + "; #pdbrows: " + str(numPDB) + "; #users: " + str(numUsers) + "; #admins: " + str(numAdmins) + "; #bans: " + str(numBans) + "#users with acces: " + str(numAccessUsers), user.getName(), whisper)
+		bnet.queueChatCommand("#plugins: " + str(numPlugins) + "; #pdbrows: " + str(numPDB) + "; #users: " + str(numUsers) + "; #admins: " + str(numAdmins) + "; #bans: " + str(numBans) + "; #users with access: " + str(numAccessUsers), user.getName(), whisper)
