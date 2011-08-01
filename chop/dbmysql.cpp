@@ -913,7 +913,7 @@ uint32_t MySQLUserSeen( void *conn, string *error, string server, string name )
 			vector<string> Row = MySQLFetchRow( Result );
 
 			if( Row.size( ) == 1 )
-				Seen = UTIL_ToInt32( Row[0] );
+				Seen = UTIL_ToUInt32( Row[0] );
 			else
 				*error = "error spotting users [" + name + "] - row doesn't have 1 column";
 

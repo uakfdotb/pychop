@@ -133,5 +133,5 @@ CREATE TABLE users (
 	server VARCHAR(100) NOT NULL,
 	name VARCHAR(15) NOT NULL,
 	access INT NOT NULL,
-	seen INT
+	seen LONG
 );
