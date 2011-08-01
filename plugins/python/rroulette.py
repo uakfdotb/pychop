@@ -92,11 +92,14 @@ def onCommand(bnet, user, command, payload, nType):
 			if parts[0] == "start":
 				rouletteState = 1
 				lastTime = gettime()
+				bnet.queueChatCommand("rroulette: starting game; type \\rroulette join to join the game!")
 			elif parts[0] == "channel" and rouletteState == 1:
 				channelUsers = bnet.channel
 				for cuser in channelUsers:
 					if not cuser.getName().lower() in roulettePlayers:
 						roulettePlayers.append(cuser.getName().lower())
+						print("[RROULETTE] Added user " + cuser.getName())
 		if parts[0] == "join" and rouletteState == 1:
 			if not user.getName().lower() in roulettePlayers:
 				roulettePlayers.append(user.getName().lower())
+				print("[RROULETTE] Added user " + user.getName())
