@@ -41,7 +41,9 @@ def dbReady():
 	
 	# alarms stored as key=time, value=message
 	for dbAlarm in dbAlarmList:
-		alarms.append((dbAlarm[0], dbAlarm[1],))
+		alarms.append((int(dbAlarm[0]), dbAlarm[1],))
+	
+	print("[ALARM] Found " + str(len(alarms)) + " alarms")
 
 def init():
 	global pdb
@@ -88,15 +90,18 @@ def onUpdate(chop):
 		alarm = alarms[i]
 		
 		if gettime() > alarm[0]:
+			print("[ALARM] Attempting to output: " + alarm[1])
 			# it's time to print it...
 			if alarm_bnet != 0 and alarm_bnet.getOutPacketsQueued() < 10:
 				alarm_bnet.queueChatCommand(alarm[1])
 				to_del = i
 				break
+			else:
+				print("[ALARM] Failed: too many queued or bnet not set yet")
 	
 	if to_del >= 0:
+		pdb.dbRemove(alarms[to_del][0])
 		del alarms[to_del]
-		pdb.dbRemove(to_del)
 
 def gettime():
 	return int(round(time.time() * 1000))
