@@ -162,6 +162,7 @@ BOOST_PYTHON_MODULE(host)
 	def( "registerHandler", RegisterHandler, RegisterHandler_Overloads() );
 	def( "unregisterHandler", UnregisterHandler, UnregisterHandler_Overloads() );
 	def( "log", CONSOLE_Print );
+	def( "GetTicks", GetTicks );
 }
 
 BOOST_PYTHON_MODULE(BNLSProtocol)
