@@ -1672,7 +1672,7 @@ void CBNET :: RegisterPythonClass( )
 		.def_readonly("loggedIn", &CBNET::m_LoggedIn)
 		.def_readonly("inChat", &CBNET::m_InChat)
 		
-		.def_readonly("channel" &CBNET::m_Channel)
+		.def_readonly("channel", &CBNET::m_Channel)
 		.def_readonly("users", &CBNET::m_Users)
 
 
@@ -1704,6 +1704,7 @@ void CBNET :: RegisterPythonClass( )
 		.def("sendClanRemove", &CBNET::SendClanRemove)
 		.def("sendClanChangeRank", &CBNET::SendClanChangeRank)
 		.def("sendClanSetMOTD", &CBNET::SendClanSetMOTD)
+
 
 
 		.def("isRootAdmin", &CBNET::IsRootAdmin)

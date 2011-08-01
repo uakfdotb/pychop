@@ -35,7 +35,7 @@ lotteryEnabled = False
 # 1: in a round
 lotteryState = 0
 
-lastTime = 0
+lotteryTime = 0
 
 # dictionary playername -> (guess,betamount,)
 lotteryPlayers = {}
