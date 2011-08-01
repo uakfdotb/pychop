@@ -52,7 +52,7 @@ def deinit():
 	host.unregisterHandler(onUpdate)
 
 def onUpdate(chop) :
-	global lastTime, rouletteState
+	global lastTime, rouletteState, roulettePlayers
 	
 	if rouletteState != 0:
 		if rouletteState == 1:
@@ -73,9 +73,10 @@ def onUpdate(chop) :
 				# see if game is over
 				if len(roulettePlayers) <= numWinners:
 					rouletteBnet.queueChatCommand("The round is over; the remaining players win")
-				
-				# reset
-				rouletteState = 0
+					rouletteState = 0
+				else:
+					# reset
+					lastTime = gettime()
 
 def gettime():
 	return int(round(time.time() * 1000))
@@ -92,7 +93,7 @@ def onCommand(bnet, user, command, payload, nType):
 			if parts[0] == "start":
 				rouletteState = 1
 				lastTime = gettime()
-				bnet.queueChatCommand("rroulette: starting game; type \\rroulette join to join the game!")
+				bnet.queueChatCommand("rroulette: starting game; use command rroulette join to join the game!")
 			elif parts[0] == "channel" and rouletteState == 1:
 				channelUsers = bnet.channel
 				for cuser in channelUsers:
