@@ -48,7 +48,7 @@ def deinit():
 def onCommand(bnet, user, command, payload, nType):
 	global matchmakingEnabled, matchmakingList, matchmakingTeams, matchmakingTeamList
 
-	if command in commands and user.getAccess() > joinAccess:
+	if command in commands and user.getAccess() >= joinAccess:
 		args = payload.split(None)
 		if (args[0] == "start" or args[0]=="startt") and user.getAccess() >= controlAccess:
 			if not matchmakingEnabled:
@@ -57,13 +57,13 @@ def onCommand(bnet, user, command, payload, nType):
 				
 				if args[0] == "start":
 					matchmakingTeams = 2
-					matchmakingTeamList[0] = int(args[1])
-					matchmakingTeamList[1] = int(args[2])
+					matchmakingTeamList.append(int(args[1]))
+					matchmakingTeamList.append(int(args[2]))
 				else:
 					matchmakingTeams = int(args[1])
 					
 					for i in range(matchmakingTeams):
-						matchmakingTeamList[i] = args[i + 2]
+						matchmakingTeamList.append(args[i + 2])
 				
 				matchmakingPlayers = checkTeams()
 				if not matchmakingPlayers:

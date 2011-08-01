@@ -46,7 +46,7 @@ def onCommand(bnet, user, command, payload, nType):
 	global announceEnabled, announceMessage, announceInterval, announceBnet
 	announceBnet = bnet
 	
-	if command in commands and user.getAccess() > announceAccess:
+	if command in commands and user.getAccess() >= announceAccess:
 		parts = payload.split(" ", 1);
 		
 		if len(parts) < 2:
