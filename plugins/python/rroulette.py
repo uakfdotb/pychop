@@ -99,4 +99,4 @@ def onCommand(bnet, user, command, payload, nType):
 						roulettePlayers.append(cuser.getName().lower())
 		if parts[0] == "join" and rouletteState == 1:
 			if not user.getName().lower() in roulettePlayers:
-				roulettePlayers.append(user.getName().lower()
+				roulettePlayers.append(user.getName().lower())

@@ -317,6 +317,7 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 		if( payload.empty( ) || !m_IsOperator )
 			return "";
 
+
 		// extract the victim and reason: "kick victim reason can be longer"
 		//	-> victim: "victim", reason: "reason can be longer"
 
@@ -517,17 +518,11 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 			return "";
 
 		string name;
-		if( ClanNameMatch( payload, name ) > 1 )
-			return "";
-
-		if( name.empty( ) ) {
-			//target is not in clan; seen anyway?
-			
-			if(m_ChOP->m_SeenAllUsers) {
-				name = payload;
-			} else {
-				return m_ChOP->m_Language->UserNotInClan( payload );
-			}
+		if( ! m_ChOP->m_SeenAllUsers ) {
+			if( ClanNameMatch( payload, name ) > 1 )
+				return "";
+		} else {
+			name = payload;
 		}
 
 		if( m_Channel.find( name ) != m_Channel.end( ) )
