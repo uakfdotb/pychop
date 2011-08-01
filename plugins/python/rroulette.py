@@ -55,14 +55,14 @@ def onUpdate(chop) :
 	global lastTime, rouletteState
 	
 	if rouletteState != 0:
-		if lotteryState == 1:
+		if rouletteState == 1:
 			if gettime() - lastTime > timeStarting:
 				# begin the round
 				rouletteBnet.queueChatCommand("rroulette: the round has started; a player will be kicked shortly...")
 				
 				lastTime = gettime()
 				rouletteState = 2
-		elif lotteryState == 2:
+		elif rouletteState == 2:
 			if gettime() - lastTime > timeKick:
 				# kick a random player
 				if rouletteBnet.getOutPacketsQueued() < 5:
