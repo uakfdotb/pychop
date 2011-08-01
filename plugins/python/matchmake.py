@@ -46,7 +46,7 @@ def deinit():
 	host.unregisterHandler(onCommand)
 
 def onCommand(bnet, user, command, payload, nType):
-	global matchmakingEnabled, matchmakingList, matchmakingTeams, matchmakingTeamList
+	global matchmakingEnabled, matchmakingList, matchmakingTeams, matchmakingTeamList, matchmakingPlayers
 
 	if command in commands and user.getAccess() >= joinAccess:
 		args = payload.split(None)
@@ -63,7 +63,8 @@ def onCommand(bnet, user, command, payload, nType):
 					matchmakingTeams = int(args[1])
 					
 					for i in range(matchmakingTeams):
-						matchmakingTeamList.append(args[i + 2])
+						matchmakingTeamList.append(int(args[i + 2]))
+						print("[MATCHMAKE] Team " + str(i) + " has " + str(matchmakingTeamList[i]) + " players")
 				
 				matchmakingPlayers = checkTeams()
 				if not matchmakingPlayers:
@@ -78,18 +79,19 @@ def onCommand(bnet, user, command, payload, nType):
 				# check if we have the number needed
 				if len(matchmakingList) >= matchmakingPlayers:
 					random.shuffle(matchmakingList)
-					chatString = "T1: "
+					chatString = "T1:"
 					teamCounter = 0
 					teamPlayers = 0
 					
 					for name in matchmakingList:
-						chatString += name + " "
+						print("[MATCHMAKE] Appending " + name + " to team " + str(teamCounter + 1))
+						chatString += " " + name
 						
 						teamPlayers = teamPlayers + 1;
 						# check if we have filled this team
-						if teamPlayers >= matchmakingTeamList[teamCounter]:
+						if teamPlayers >= matchmakingTeamList[teamCounter] and teamCounter + 1 < len(matchmakingTeamList):
 							teamCounter = teamCounter + 1
-							chatString += "  T2: "
+							chatString += "  T" + str(teamCounter + 1) + ":"
 					
 					bnet.queueChatCommand(chatString)
 					# reset
@@ -101,15 +103,18 @@ def onCommand(bnet, user, command, payload, nType):
 			bnet.queueChatCommand("Matchmaking cleared")
 
 def checkTeams():
-	if len(matchmakingTeamList) > maxteams and len(matchmakingTeamList) > 1:
+	if len(matchmakingTeamList) > maxteams or len(matchmakingTeamList) <= 1:
+		print("[MATCHMAKE] Bad team number: " + str(len(matchmakingTeamList)))
 		return False
 	
 	numplayers = 0
 	
 	for num in matchmakingTeamList:
 		if num > maxplayers:
+			print("[MATCHMAKE] Too many players on a team: " + str(num) + " (max is " + str(maxplayers) + ")")
 			return False
 		else:
 			numplayers = numplayers + num
+			print("[MATCHMAKE] Found " + str(num) + " players; total is now " + str(numplayers))
 	
 	return numplayers
