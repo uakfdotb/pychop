@@ -878,6 +878,7 @@ bool MySQLUserSetSeen( void *conn, string *error, string server, string name )
                 Query2 = "INSERT INTO users ( botid, server, name, access, seen ) VALUES ( 0, '" + EscServer + "', '" + EscName + "', 0, '" + UTIL_ToString(GetTicks()) + "' )";
             else
                 Query2 = "UPDATE users SET seen='" + UTIL_ToString(GetTicks()) + "' WHERE server='" + EscServer + "' AND name='" + EscName + "'";
+            CONSOLE_Print(Query2);
             
             mysql_free_result( Result );
             
