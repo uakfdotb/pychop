@@ -66,7 +66,7 @@ def onUpdate(chop) :
 			if gettime() - lastTime > timeKick:
 				# kick a random player
 				if rouletteBnet.getOutPacketsQueued() < 5:
-					playerIndex = random.randint(0, len(roulettePLayers) - 1)
+					playerIndex = random.randint(0, len(roulettePlayers) - 1)
 					rouletteBnet.queueChatCommand("/kick " + roulettePlayers[playerIndex] + " rroulette")
 					del roulettePlayers[playerIndex]
 				

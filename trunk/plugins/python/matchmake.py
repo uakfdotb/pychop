@@ -72,7 +72,7 @@ def onCommand(bnet, user, command, payload, nType):
 					matchmakingEnabled = True
 					bnet.queueChatCommand("Matchmaking started with " + str(matchmakingTeams) + " teams and " + str(matchmakingPlayers) + " players.")
 		elif args[0] == "in":
-			if matchmakingEnabled and not matchmakingList.contains(user.getName.lower()):
+			if matchmakingEnabled and not user.getName.lower() in matchmakingList:
 				matchmakingList.append(user.getName().lower())
 				
 				# check if we have the number needed
