@@ -6,6 +6,7 @@
 # help = Use !inactive <time in hours> to get a list of inactive users.
 
 commands = ("inactive")
+commandAccess = 10
 
 import host
 import MySQLdb
@@ -34,7 +35,7 @@ def deinit():
 	plugindb.deinit()
 
 def onCommand(bnet, user, command, payload, nType):
-	if command in commands and bnet.getOutPacketsQueued() < 3:
+	if command in commands and bnet.getOutPacketsQueued() < 3 and user.getAccess() >= commandAccess:
 		# change hours to milliseconds
 		timeMillis = int(payload) * 60 * 60 * 1000;
 		# now identify gettime() at timeMillis in the past
