@@ -10,6 +10,9 @@
 # commands to trigger on
 commands = ["randkick", "plugins/pychop/randkick"]
 
+# access needed to use randkick
+randkickAccess = 10
+
 # end settings
 
 import host
@@ -37,7 +40,7 @@ def onLeave(bnet, username):
 		channelList.remove(username.lower())
 
 def onCommand(bnet, user, command, payload, nType):
-	if command in commands and bnet.getOutPacketsQueued() < 5:
+	if command in commands and bnet.getOutPacketsQueued() < 5 and user.getAccess() >= randkickAccess:
 		# select a random user
 		randIndex = random.randint(0, len(channelList) - 1)
 		randUser = channelList[randIndex]
