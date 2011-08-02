@@ -84,7 +84,8 @@ def onCommand(bnet, user, command, payload, nType):
 			votekickTuple[0] = votekickTuple[0] + 1
 			votekickTuple[2].append(user.getName().lower())
 			bnet.queueChatCommand("Votekick count on [" + victim + "] is now " + str(votekickTuple[0]))
-		else:
+		elif parts[1] == "no":
+			victim = parts[2].lower()
 			if victim in votekicks:
 				votekickTuple = votekicks[victim]
 				
