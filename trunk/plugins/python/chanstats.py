@@ -36,10 +36,10 @@ def init():
 	host.registerHandler('ProcessCommand', onCommand)
 	
 def deinit():
-	host.unregisterHandler(onTalk)
-	host.unregisterHandler(onLeave)
-	host.unregisterHandler(onJoin)
-	host.unregisterHandler(onCommand)
+	host.unregisterHandler('ChatReceivedExtended', onTalk)
+	host.unregisterHandler('UserLeft', onLeave)
+	host.unregisterHandler('UserJoined', onJoin)
+	host.unregisterHandler('ProcessCommand', onCommand)
 
 def onTalk(bnet, username, message, isWhisper):
 	global numMessages, numWhispers

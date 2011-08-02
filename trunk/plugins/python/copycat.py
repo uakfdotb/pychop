@@ -25,8 +25,8 @@ def init():
 	host.registerHandler('ChatReceivedExtended', onTalk) # extended to distinguish between local chat and whispers
 	
 def deinit():
-	host.unregisterHandler(onCommand)
-	host.unregisterHandler(onTalk)
+	host.unregisterHandler('ProcessCommand', onCommand)
+	host.unregisterHandler('ChatReceivedExtended', onTalk)
 
 def onTalk(bnet, username, message, isWhisper):
 	if not isWhisper and copycatEnabled:

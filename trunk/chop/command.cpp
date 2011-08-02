@@ -41,12 +41,17 @@
 
 string CBNET :: ProcessCommand( CUser *User, string command, string payload, uint32_t type )
 {
+	// ignore user completely if no access and public commands disabled
+	if( User->GetAccess() == 0 && m_ChOP->m_DisablePublic ) {
+		return "";
+	}
+
 	try	
 	{ 
 		EXECUTE_HANDLER("ProcessCommand", true, boost::ref(this), boost::ref(User), command, payload, type)
 	}
 	catch(...) 
-	{ 
+	{
 		return "";
 	}
 	
@@ -60,7 +65,6 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 	// are commands in whisperes interpreted ? (can be set in chop.cfg)
 	if( Whisper && !m_ChOP->m_WhisperAllowed && Access > 0 )
 		return m_ChOP->m_Language->WhisperCommandsDisabled( );
-	
 	//put at beginning or someone else might return something...
 	EXECUTE_HANDLER("ProcessCommand", false, boost::ref(this), boost::ref(User), command, payload, type)
 	
@@ -316,6 +320,8 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 	{
 		if( payload.empty( ) || !m_IsOperator )
 			return "";
+
+
 
 
 		// extract the victim and reason: "kick victim reason can be longer"

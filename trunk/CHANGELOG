@@ -1,0 +1,9 @@
+a1
+--
+- Added plugin for plugin management (can load and unload plugins without restarting pychop)
+- Public commands can be disabled through configuration file
+- ?trigger command is supported
+
+a0
+--
+Initial release

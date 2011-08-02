@@ -172,7 +172,7 @@ def init():
 
 def deinit():
 		'''Unregisters all handlers registered in init()'''
-		host.unregisterHandler(onCommand)
+		host.unregisterHandler('ProcessCommand', onCommand, True)
 
 def reply(obj, user, whisper=False):
 		'''A high-order function that defines how a command function

@@ -43,7 +43,7 @@ def init():
 	host.registerHandler('ProcessCommand', onCommand)
 
 def deinit():
-	host.unregisterHandler(onCommand)
+	host.unregisterHandler('ProcessCommand', onCommand)
 
 def onCommand(bnet, user, command, payload, nType):
 	global matchmakingEnabled, matchmakingList, matchmakingTeams, matchmakingTeamList, matchmakingPlayers

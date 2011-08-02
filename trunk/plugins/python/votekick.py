@@ -33,8 +33,8 @@ def init():
 	host.registerHandler('Update', onUpdate)
 	
 def deinit():
-	host.unregisterHandler(onCommand)
-	host.unregisterHandler(onUpdate)
+	host.unregisterHandler('ProcessCommand', onCommand)
+	host.unregisterHandler('Update', onUpdate)
 
 def onUpdate(chop):
 	removeName = -1

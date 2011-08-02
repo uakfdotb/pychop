@@ -68,9 +68,9 @@ def init():
 	pdb.setPluginName("trivia")
 	
 def deinit():
-	host.unregisterHandler(onCommand)
-	host.unregisterHandler(onUpdate)
-	host.unregisterHandler(onTalk)
+	host.unregisterHandler('ProcessCommand', onCommand)
+	host.unregisterHandler('Update', onUpdate)
+	host.unregisterHandler('ChatReceived', onTalk)
 	pdb.close()
 
 def onTalk(bnet, username, message):
