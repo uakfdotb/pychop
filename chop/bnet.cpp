@@ -1033,7 +1033,11 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			if( IsRootAdmin( User ) )
 				user->SetAccess( 10 );
 
-			if( Message[0] == m_CommandTrigger )
+			if( Message == "?trigger" && ( user->GetAccess( ) > 0 || ( !m_ChOP->m_DisablePublic && m_OutPackets.size( ) > 3 ) ) )
+			{
+				QueueChatCommand( "Command trigger: " + string( 1, m_CommandTrigger ), User, Whisper);
+			}
+			else if( Message[0] == m_CommandTrigger )
 			{
 				// extract the command trigger, the command, and the payload
 				// e.g. "!say hello world" -> command: "say", payload: "hello world"

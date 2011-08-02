@@ -73,8 +73,8 @@ def init():
 	pdb.setPluginName("lottery")
 	
 def deinit():
-	host.unregisterHandler(onCommand)
-	host.unregisterHandler(onUpdate)
+	host.unregisterHandler('ProcessCommand', onCommand)
+	host.unregisterHandler('Update', onUpdate)
 	pdb.close()
 
 def onUpdate(chop) :

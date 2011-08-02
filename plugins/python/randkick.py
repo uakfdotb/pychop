@@ -27,9 +27,9 @@ def init():
 	host.registerHandler('ProcessCommand', onCommand)
 	
 def deinit():
-	host.unregisterHandler(onJoin)
-	host.unregisterHandler(onLeft)
-	host.unregisterHandler(onCommand)
+	host.unregisterHandler('UserJoined', onJoin)
+	host.unregisterHandler('UserLeft', onLeft)
+	host.unregisterHandler('ProcessCommand', onCommand)
 
 def onJoin(bnet, user, isShow):
 	if not user.getName().lower() in channelList:

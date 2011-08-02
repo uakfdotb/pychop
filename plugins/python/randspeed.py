@@ -66,9 +66,9 @@ def init():
 	pdb.setPluginName("randspeed")
 	
 def deinit():
-	host.unregisterHandler(onTalk)
-	host.unregisterHandler(onCommand)
-	host.unregisterHandler(onUpdate)
+	host.unregisterHandler('ChatReceivedExtended', onTalk)
+	host.unregisterHandler('ProcessCommand', onCommand)
+	host.unregisterHandler('Update', onUpdate)
 	pdb.close()
 
 def onTalk(bnet, username, message):

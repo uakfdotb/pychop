@@ -31,7 +31,7 @@ def init():
 	pdb.notifyReady(dbReady)
 	
 def deinit():
-	host.unregisterHandler(onCommand)
+	host.unregisterHandler('ProcessCommand', onCommand, True)
 	plugindb.deinit()
 
 def onCommand(bnet, user, command, payload, nType):

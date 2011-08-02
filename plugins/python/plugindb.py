@@ -28,27 +28,16 @@ class PluginDB:
 	pluginName = "default"
 
 	def __init__(self):
-		def startupHandler(config):
-			self.onStartup(config)
-
-		host.registerHandler('StartUp', startupHandler)
-	
-	def close():
-		host.unregisterHandler(onStartup)
-
-	# callback will be called when onStartup completes
-	def notifyReady(self, callback):
-		self.readyCallback = callback
-
-	def onStartup(self, config):
+		config = host.config()
 		self.dbHost = config.getString("db_server", self.dbHost)
 		self.dbUser = config.getString("db_user", self.dbUser)
 		self.dbPassword = config.getString("db_password", self.dbPassword)
 		self.dbName = config.getString("db_database", self.dbName)
 		self.dbPort = config.getInt("db_port", self.dbPort)
-	
-		if self.readyCallback != 0:
-			self.readyCallback()
+
+	def notifyReady(self, callbackFunction):
+		# legacy function (not needed anymore since onStartup for configuration is not used)
+		callbackFunction()
 
 	def dbconnect(self):
 		self.conn = MySQLdb.connect(host = self.dbHost, user = self.dbUser, passwd = self.dbPassword, db = self.dbName, port = self.dbPort)
@@ -58,6 +47,12 @@ class PluginDB:
 		self.cursor.execute("CREATE TABLE IF NOT EXISTS plugindb (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, plugin VARCHAR(16), k VARCHAR(128), val VARCHAR(128))")
 	
 		return self.cursor
+
+	def close(self):
+		if self.cursor != 0:
+			self.cursor.close()
+		if self.conn != 0:
+			self.conn.close()
 
 	def setPluginName(self, name):
 		self.pluginName = name

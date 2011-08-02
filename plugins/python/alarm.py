@@ -56,8 +56,8 @@ def init():
 	pdb.setPluginName("alarm")
 
 def deinit():
-	host.unregisterHandler(onCommand)
-	host.unregisterHandler(onUpdate)
+	host.unregisterHandler('ProcessCommand', onCommand)
+	host.unregisterHandler('Update', onUpdate)
 
 def onCommand(bnet, user, command, payload, nType):
 	global alarm_bnet

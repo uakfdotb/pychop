@@ -56,6 +56,7 @@
 time_t gStartTime;
 string gLogFile;
 CChOP *gChOP = NULL;
+CConfig CFG;
 
 uint32_t GetTime( )
 {
@@ -83,6 +84,11 @@ uint32_t GetTicks( )
 	ticks += t.tv_nsec / 1000000;
 	return ticks;
 #endif
+}
+
+CConfig GetCFG( )
+{
+	return CFG;
 }
 
 void SignalCatcher( int s )
@@ -163,6 +169,7 @@ BOOST_PYTHON_MODULE(host)
 	def( "unregisterHandler", UnregisterHandler, UnregisterHandler_Overloads() );
 	def( "log", CONSOLE_Print );
 	def( "GetTicks", GetTicks );
+	def( "config", GetCFG );
 }
 
 BOOST_PYTHON_MODULE(BNLSProtocol)
@@ -279,13 +286,12 @@ int main( int argc, char **argv )
 
 	// read config file
 
-	CConfig CFG;
 	CFG.Read( CFGFile );
 	gLogFile = CFG.GetString( "bot_log", string( ) );
 
 	// print something for logging purposes
 
-	CONSOLE_Print( "[CHOP++] starting up" );
+	CONSOLE_Print( "[PYCHOP] starting up" );
 
 	// catch SIGABRT and SIGINT
 
@@ -306,12 +312,12 @@ int main( int argc, char **argv )
 #ifdef WIN32
 	// initialize winsock
 
-	CONSOLE_Print( "[CHOP++] starting winsock" );
+	CONSOLE_Print( "[PYCHOP] starting winsock" );
 	WSADATA wsadata;
 
 	if( WSAStartup( MAKEWORD( 2, 2 ), &wsadata ) != 0 )
 	{
-		CONSOLE_Print( "[CHOP++] error starting winsock" );
+		CONSOLE_Print( "[PYCHOP] error starting winsock" );
 		return 1;
 	}
 #endif
@@ -405,7 +411,7 @@ int main( int argc, char **argv )
 
 	// shutdown chop
 
-	CONSOLE_Print( "[CHOP++] shutting down" );
+	CONSOLE_Print( "[PYCHOP] shutting down" );
 	delete gChOP;
 	gChOP = NULL;
 	
@@ -422,7 +428,7 @@ int main( int argc, char **argv )
 #ifdef WIN32
 	// shutdown winsock
 
-	CONSOLE_Print( "[CHOP++] shutting down winsock" );
+	CONSOLE_Print( "[PYCHOP] shutting down winsock" );
 	WSACleanup( );
 #endif
 
@@ -487,12 +493,12 @@ CChOP :: CChOP( CConfig *CFG )
 	
 	m_ConsoleUser = new CUser("console", 10);
 	
-	CONSOLE_Print( "[CHOP++] opening primary database" );
+	CONSOLE_Print( "[PYCHOP] opening primary database" );
 
 	m_DB = new CChOPDBMySQL( CFG );
 
 	m_Exiting = false;
-	m_Version = "0.94";
+	m_Version = "a1";
 
 	m_LanguageFile = CFG->GetString( "bot_language", "language.cfg" );
 	m_Language = new CLanguage( m_LanguageFile );
@@ -502,6 +508,7 @@ CChOP :: CChOP( CConfig *CFG )
 	
 	m_SeenAllUsers = CFG->GetBool( "bot_seenallusers", true );
 	m_Follow = CFG->GetInt( "bot_follow", 1 );
+	m_DisablePublic = CFG->GetBool( "bot_disablepublic", false );
 
 	m_AntiSpam = CFG->GetBool( "op_antispam", false );
 	m_AntiYell = CFG->GetBool( "op_antiyell", false );
@@ -554,30 +561,30 @@ CChOP :: CChOP( CConfig *CFG )
 
 		if( CDKeyROC.empty( ) )
 		{
-			CONSOLE_Print( "[CHOP++] missing " + Prefix + "cdkeyroc, skipping this battle.net connection" );
+			CONSOLE_Print( "[PYCHOP] missing " + Prefix + "cdkeyroc, skipping this battle.net connection" );
 			continue;
 		}
 
 		if( UserName.empty( ) )
 		{
-			CONSOLE_Print( "[CHOP++] missing " + Prefix + "username, skipping this battle.net connection" );
+			CONSOLE_Print( "[PYCHOP] missing " + Prefix + "username, skipping this battle.net connection" );
 			continue;
 		}
 
 		if( UserPassword.empty( ) )
 		{
-			CONSOLE_Print( "[CHOP++] missing " + Prefix + "password, skipping this battle.net connection" );
+			CONSOLE_Print( "[PYCHOP] missing " + Prefix + "password, skipping this battle.net connection" );
 			continue;
 		}
 
-		CONSOLE_Print( "[CHOP++] found battle.net connection #" + UTIL_ToString( i ) + " for server [" + Server + "]" );
+		CONSOLE_Print( "[PYCHOP] found battle.net connection #" + UTIL_ToString( i ) + " for server [" + Server + "]" );
 		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, BNLSServer, (uint16_t)BNLSPort, (uint32_t)BNLSWardenCookie, CDKeyROC, CountryAbbrev, Country, UserName, UserPassword, FirstChannel, RootAdmin, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, MaxMessageLength ) );
 	}
 
 	if( m_BNETs.empty( ) )
-		CONSOLE_Print( "[CHOP++] warning - no battle.net connections found in config file" );
+		CONSOLE_Print( "[PYCHOP] warning - no battle.net connections found in config file" );
 
-	CONSOLE_Print( "[CHOP++] ChOP++ Version " + m_Version );
+	CONSOLE_Print( "[PYCHOP] pychop " + m_Version );
 
 	UpdateQuotes( );
 	UpdateSlap( );
@@ -604,7 +611,7 @@ CChOP :: ~CChOP( )
 	// but if you try to recreate the CChOP object within a single session you will probably leak resources!
 
 	if( !m_Callables.empty( ) )
-		CONSOLE_Print( "[CHOP++] warning - " + UTIL_ToString( m_Callables.size( ) ) + " orphaned callables were leaked (this is not an error)" );
+		CONSOLE_Print( "[PYCHOP] warning - " + UTIL_ToString( m_Callables.size( ) ) + " orphaned callables were leaked (this is not an error)" );
 
 	delete m_Language;
 }
@@ -619,7 +626,7 @@ bool CChOP :: Update( long usecBlock )
 
 	if( m_DB->HasError( ) )
 	{
-		CONSOLE_Print( "[CHOP++] database error - " + m_DB->GetError( ) );
+		CONSOLE_Print( "[PYCHOP] database error - " + m_DB->GetError( ) );
 		return true;
 	}
 

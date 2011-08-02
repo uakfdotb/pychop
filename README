@@ -89,21 +89,51 @@ External scripts: plugins
 
 Several official plugins are included in the SVN repository and in the plugins download. These are:
 
-afk: keeps track of AFK users. Support for kicking these users is planned.
+accesskick: automatically kicks users from the channel who do not have a certain access level on the bot.
+
+afk: keeps track of AFK users.
+
+alarm: an alarm clock. Alarm messages are stored via PluginDB so that if the bot is restarted, alarms do not have to be set again. If you do wish to reset all alarms, clearing the database is also supported.
+
+announce: announces a message at a set time interval.
+
+calc: a basic calculator.
 
 chanstats: basic channel statistics. Currently displays the number of unique users who have entered the channel, the number of messages sent in the channel, and the number of joins/leaves recorded in the channel (these should be about the same).
 
-getgames: if you have the MySQL gamelist modification installed (will be posted soon...), then you can use the getgames plugin to display the list of games. getgames relies on plugindb.
+copycat: copies everything that users say in the channel.
+
+dbstats: displays some statistics about your MySQL database.
+
+getgames: if you have the MySQL gamelist modification installed (http://www.codelain.com/forum/index.php?topic=18076.0), then you can use the getgames plugin to display the list of games. getgames relies on plugindb.
+
+getmap: downloads a map from a URL and stores in in a preset directory.
+
+gettime: retrieves the server time.
 
 greet: automatically sends a message when a user joins the channel.
 
+inactive: keeps track of inactive users in the clan based on channel activity.
+
+lottery: a lottery game where channel users can bet on a number.
+
+matchmake: a plugin to randomly create teams for matches.
+
 plugindb: a library that takes database configuration values from pychop and allows plugins to access it. Also supports access to a plugindb table where key/value pairs can be recorded, and automatic score management.
 
+rand: a simple plugin to display randomly generated numbers.
+
+randkick: kicks a random user from the channel
+
 randspeed: a simple game. pychop will display a string to the channel, and the first user to type it out wins. Stats are stored via plugindb.
+
+rroulette: a game where players are randomly kicked from the channel. Hope that you do not get kicked!
 
 test: a plugin to see if you correctly installed pychop.  Type !test and see if it works.
 
 trivia: a powerful trivia handler. Trivia questions are read from the snapnjacks.com trivia question database. Category and difficulty can be specified both in the python file and through battle.net. Hints are given, and stats are stored via plugindb.
+
+votekick: allows non-admin users to votekick disruptive users from the channel.
 
 To submit a plugin, post it on the codelain.com forums in the pychop topic.
 

@@ -47,11 +47,11 @@ def init():
 	host.registerHandler('UserJoined', onJoin)
 	
 def deinit():
-	host.unregisterHandler(onCommand)
-	host.unregisterHandler(onUpdate)
-	host.unregisterHandler(onTalk)
-	host.unregisterHandler(onLeave)
-	host.unregisterHandler(onJoin)
+	host.unregisterHandler('ProcessCommand', onCommand)
+	host.unregisterHandler('Update', onUpdate)
+	host.unregisterHandler('ChatReceivedExtended', onTalk)
+	host.unregisterHandler('UserLeft', onLeave)
+	host.unregisterHandler('UserJoined', onJoin)
 
 def onTalk(bnet, username, message, isWhisper):
 	global nextTime, userAfkTime, afkUserList

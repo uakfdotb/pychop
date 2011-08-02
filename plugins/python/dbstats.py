@@ -49,7 +49,7 @@ def init():
 	pdb.notifyReady(dbReady)
 
 def deinit():
-	host.unregisterHandler(onCommand)
+	host.unregisterHandler('ProcessCommand', onCommand)
 
 def onCommand(bnet, user, command, payload, nType):
 	whisper = nType == 1

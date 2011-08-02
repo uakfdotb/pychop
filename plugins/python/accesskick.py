@@ -25,8 +25,8 @@ def init():
 	host.registerHandler('ProcessCommand', onCommand)
 	
 def deinit():
-	host.unregisterHandler(onJoin)
-	host.unregisterHandler(onCommand)
+	host.unregisterHandler('UserJoined', onJoin)
+	host.unregisterHandler('ProcessCommand', onCommand)
 
 def onJoin(bnet, user, isShow):
 	if user.getAccess() < minAccess and accessEnabled and bnet.getOutPacketsQueued() < 5:

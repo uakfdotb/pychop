@@ -24,8 +24,8 @@ def init():
 	host.registerHandler('ProcessCommand', onCommand)
 	
 def deinit():
-	host.unregisterHandler(onJoin)
-	host.unregisterHandler(onCommand)
+	host.unregisterHandler('UserJoined', onJoin)
+	host.unregisterHandler('ProcessCommand', onCommand)
 
 def onJoin(bnet, user, isShow):
 	# need correct access; also only show this when a user actually joins, not just when we join
