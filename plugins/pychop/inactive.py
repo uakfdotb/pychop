@@ -41,14 +41,28 @@ def onCommand(bnet, user, command, payload, nType):
 		# now identify gettime() at timeMillis in the past
 		timeTarget = host.GetTicks() - timeMillis;
 		
-		cursor.execute("SELECT name FROM users WHERE seen < " + str(timeTarget));
+		cursor.execute("SELECT name, seen FROM users");
 		result_set = cursor.fetchall()
 		result_string = "Inactive users: "
 		
+		# this list will be used for determining clan members who have never been seen
+		user_set = []
+		
+		# first, display users who are in list but not active
 		for row in result_set:
-			rowUsername = str(row[0])
-			if bnet.isClanMember(rowUsername):
+			rowUsername = str(row[0]).lower()
+			user_set.append(rowUsername)
+			rowSeen = int(row[1])
+			
+			if rowSeen < timeTarget and bnet.isClanMember(rowUsername):
 				result_string += str(rowUsername) + ", "
+		
+		# now search for never seen clan members
+		numClanMembers = bnet.getNumClanMembers()
+		for i in range(numClanMembers):
+			member = bnet.getClanMember(i)
+			if not member.getName().lower() in user_set:
+				result_string += str(member.getName()) + ", "
 		
 		# delete last two characters, don't care if there aren't any inactive users
 		result_string = result_string[:-2]

@@ -189,6 +189,12 @@ public:
 	void UpdateSeen( string user );
 	uint32_t NumPackets( ); //get number of outgoing packets in queue
 	
+	uint32_t GetNumClanMembers( ) { return m_Clans.size( ); }
+	uint32_t GetNumFriends( ) { return m_Friends.size( ); }
+	
+	CIncomingClanList GetClanMember( uint32_t position );
+	CIncomingFriendList GetFriend( uint32_t position );
+	
 	static void RegisterPythonClass();
 };
 
