@@ -31,7 +31,7 @@ def init():
 	
 	for name in startupLoad:
 		importedPlugins[parts[1]] = __import__(parts[1], globals(), locals(), [], -1)
-		loadedPilugins[parts[1]] = importedPlugins[parts[1]]
+		loadedPlugins[parts[1]] = importedPlugins[parts[1]]
 		loadedPlugins[parts[1]].init()
 
 def deinit():
