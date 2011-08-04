@@ -118,7 +118,6 @@ private:
 
 	string m_LastWhisper;								// user who recently whispered
 	uint32_t m_LastWarnTime;							// GetTime when warns were updated
-	bool m_GHostIsInChannel;							// command forwarding
 	vector<string> m_SpamCache;							// vector of recent channel messages
 	map<string, CUser *> m_Users;						// map of cached users
 	map<string, CUser *> m_Channel;						// map of users in channel

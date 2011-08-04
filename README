@@ -50,14 +50,6 @@ pychop requires a MySQL database or it will fail upon startup. Support for addit
 All MySQL connection information must be filled in chop.cfg. To create the needed tables on your MySQL server simply use 'mysql_create_users.sql'. Both 'mysql_create_users.sql' and 'mysql_upgrade_ghost.sql' can be used to upgrade your existing GHost++ database without any data loss.
 
 
-Hostbot setup
-=============
-
-pychop can interact with GHost++ hostbots. To combine these you should use the same database for both. Also you should set 'ghost_connect' to '1' and 'ghost_account' to the account name of your bot. The account name is needed for some features and to prevent spam of overlapping commands like 'stats'.
-
-A major revision of the hostbot system from ChOP++ is planned.
-
-
 Users
 =====
 

@@ -375,7 +375,7 @@ int main( int argc, char **argv )
 
 	try
 	{
-		boost::python::object module = boost::python::import("plugins.python");
+		boost::python::object module = boost::python::import("plugins.pychop");
 	}
 	catch(...)
 	{
@@ -514,12 +514,6 @@ CChOP :: CChOP( CConfig *CFG )
 	m_AntiYell = CFG->GetBool( "op_antiyell", false );
 	m_PhraseKick = CFG->GetBool( "op_phrasekick", false );
 	m_SpamCacheSize = CFG->GetInt( "op_spamcachesize", 4 );
-
-	m_UseGHost = CFG->GetBool( "ghost_connect", false );
-	m_GHostServerAccount = CFG->GetString( "ghost_account", "" );
-	transform( m_GHostServerAccount.begin( ), m_GHostServerAccount.end( ), m_GHostServerAccount.begin( ), (int(*)(int))tolower );
-	if( m_GHostServerAccount.empty( ) )
-		m_UseGHost = false;
 
 	// load the battle.net connections
 	// we're just loading the config data and creating the CBNET classes here, the connections are established later (in the Update function)
@@ -947,12 +941,10 @@ void CChOP :: RegisterPythonClass( )
 		.def_readwrite("Version", &CChOP::m_Version)
 		.def_readwrite("LanguageFile", &CChOP::m_LanguageFile)
 		.def_readwrite("Warcraft3Path", &CChOP::m_Warcraft3Path)
-		.def_readwrite("GHostServerAccount", &CChOP::m_GHostServerAccount)
 		.def_readwrite("CFGPath", &CChOP::m_CFGPath)
 		.def_readwrite("SpamCacheSize", &CChOP::m_SpamCacheSize)
 		.def_readwrite("MaxChatMsg", &CChOP::m_MaxChatMsg)
 		.def_readwrite("UpTime", &CChOP::m_UpTime)
-		.def_readwrite("UseGHost", &CChOP::m_UseGHost)
 		.def_readwrite("AntiSpam", &CChOP::m_AntiSpam)
 		.def_readwrite("AntiYell", &CChOP::m_AntiYell)
 		.def_readwrite("PhraseKick", &CChOP::m_PhraseKick)

@@ -575,9 +575,6 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 
 	if( command == "stats" )
 	{
-		if( m_GHostIsInChannel )
-			return "";
-
 		string StatsUser = UserName;
 
 		if( !payload.empty( ) )
@@ -593,9 +590,6 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 
 	if( command == "statsdota" )
 	{
-		if( m_GHostIsInChannel )
-			return "";
-
 		string StatsUser = UserName;
 
 		if( !payload.empty( ) )
@@ -614,19 +608,17 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 
 	if( command == "slap" )
 	{
-		string victim, chop, ghost;
+		string victim, chop;
 		uint32_t i, r;
 
 		victim = payload;
 		transform( victim.begin( ), victim.end( ), victim.begin( ), (int(*)(int))tolower );
 		chop = m_UserName;
 		transform( chop.begin( ), chop.end( ), chop.begin( ), (int(*)(int))tolower );
-		ghost = m_ChOP->m_GHostServerAccount;
-		transform( ghost.begin( ), ghost.end( ), ghost.begin( ), (int(*)(int))tolower );
 		i = rand( );
 		r = rand( );
 
-		if( victim == chop || victim == ghost || rand( ) % 10 < 2 )
+		if( victim == chop || rand( ) % 10 < 2 )
 		{
 			i %= m_ChOP->m_SlapNegative.size( );
 			return m_ChOP->m_Language->Slap( m_ChOP->m_SlapNegative[i], UserName, payload, UTIL_ToString( r ) );
