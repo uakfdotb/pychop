@@ -52,32 +52,33 @@ typedef vector<unsigned char> BYTEARRAY;
 extern map< string, vector<boost::python::object> > gHandlersFirst;
 extern map< string, vector<boost::python::object> > gHandlersSecond;
 
-#define EXECUTE_HANDLER(HandlerName, throw_if_not_all_succeeded, ...)											\
+#define EXECUTE_HANDLER(HandlerName, throw_if_fail, ...)														\
 	{																											\
-		bool AllSucceeded = true;																				\
-		vector<boost::python::object>* Functions = throw_if_not_all_succeeded ?									\
+		vector<boost::python::object>* Functions = throw_if_fail ?												\
 											&gHandlersFirst[ HandlerName ] : &gHandlersSecond[ HandlerName ];	\
 																												\
 		if( !Functions->empty() )																				\
 		{																										\
+			bool fail = false;																					\
+																												\
 			for( vector<boost::python::object>::iterator i = Functions->begin(); i != Functions->end(); i++ )	\
 			{																									\
 				try																								\
 				{																								\
 					bool Val = boost::python::extract<bool>( (*i)( __VA_ARGS__ ) );								\
 																												\
-					if( !Val )																				\
-						AllSucceeded = false;																	\
+					if( !Val )																					\
+						fail = true;																			\
 				}																								\
 				catch(...)																						\
 				{																								\
-					AllSucceeded = false;																		\
+					fail = true;																				\
 					PyErr_Print( );																				\
 				}																								\
-			}																									\
 																												\
-			if( !AllSucceeded && throw_if_not_all_succeeded )													\
-				throw 5;																						\
+				if( fail && throw_if_fail )																		\
+					throw 5;																					\
+			}																									\
 		}																										\
 	}	
 
@@ -136,7 +137,6 @@ public:
 	
 	bool m_DisablePublic;					// config value: disable commands for users with no access?
 
-	string m_GHostServerAccount;			// name of the GHost++ account
 	string m_CFGPath;						// path to txt files
 
 	uint32_t m_SpamCacheSize;				// size of spam cache
@@ -146,7 +146,6 @@ public:
 	bool m_SeenAllUsers;					// log seen for all users or just clan members?
 	uint32_t m_Follow;						// enable following? 0 = disable, 1 = enable for clan, 2 = enable for all
 
-	bool m_UseGHost;						// connect to GHost++ bot ?
 	bool m_WhisperAllowed;					// allow commands via whisper ?
 	bool m_AntiSpam;						// activate AntiSpam ?
 	bool m_AntiYell;						// activate AntiYell ?

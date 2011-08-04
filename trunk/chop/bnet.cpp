@@ -103,7 +103,6 @@ CBNET :: CBNET( CChOP *nChOP, string nServer, string nServerAlias, string nBNLSS
 	m_WaitingToConnect = true;
 	m_LoggedIn = false;
 	m_InChat = false;
-	m_GHostIsInChannel = false;
 
 	string CommFile = m_ChOP->m_CFGPath + "command.txt";
 	m_CFG.Read( CommFile );
@@ -418,7 +417,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 	if( m_CallableUserList && m_CallableUserList->GetReady( ) )
 	{
-		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] refreshed user list (" + UTIL_ToString( m_Users.size( ) ) + " -> " + UTIL_ToString( m_CallableUserList->GetResult( ).size( ) ) + " users with access)" );
+		// CONSOLE_Print( "[BNET: " + m_ServerAlias + "] refreshed user list (" + UTIL_ToString( m_Users.size( ) ) + " -> " + UTIL_ToString( m_CallableUserList->GetResult( ).size( ) ) + " users with access)" );
 
 		map<string, CUser *> tmpUsers = m_Users;
 		m_Users = m_CallableUserList->GetResult( );
@@ -1168,10 +1167,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			m_Channel[lowerUser] = user;
 			user->SetPing( chatEvent->GetPing( ) );
 			
-			if( lowerUser == m_ChOP->m_GHostServerAccount ) {
-				m_GHostIsInChannel = true;
-			}
-			else if( IsClanMember( User ) ) {
+			if( IsClanMember( User ) ) {
 				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] clanmember [" + User + "] has joined the channel." );
 			}
 			else {
@@ -1191,7 +1187,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		if( i != m_Channel.end( ) ) // if the user left the channel
 			m_Channel.erase( i );
 
-		if( IsClanMember( User ) && lowerName != m_ChOP->m_GHostServerAccount )
+		if( IsClanMember( User ) )
 		{
 			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] clanmember [" + User + "] has left the channel." );
 			UpdateSeen( User );
@@ -1200,7 +1196,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				QueueChatCommand( "/whois " + User );
 			}
 		}
-		else if( lowerName != m_ChOP->m_GHostServerAccount ) {
+		else {
 			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] user [" + User + "] has left the channel." );
 			
 			if(m_ChOP->m_SeenAllUsers) {
@@ -1210,11 +1206,6 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			if(m_ChOP->m_Follow >= 2) {
 				QueueChatCommand( "/whois " + User );
 			}
-		}
-		else
-		{
-			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] hostbot [" + User + "] has left the channel." );
-			m_GHostIsInChannel = false;
 		}
 
 		EXECUTE_HANDLER("UserLeft", false, boost::ref(this), User)
@@ -1257,7 +1248,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		if( Message.find( "is using Warcraft III The Frozen Throne in game" ) != string :: npos || Message.find( "is using Warcraft III Frozen Throne and is currently in game" ) != string :: npos )
 		{
 			bool displayFollow = ( m_ChOP->m_Follow >= 1 && IsClanMember( UserName ) ) || m_ChOP->m_Follow >= 2;
-			if( UserName != m_ChOP->m_GHostServerAccount && displayFollow )
+			if( displayFollow )
 				QueueChatCommand( "/me " + UserName + " has joined the game " + Message.substr( Message.find( "game" ) + 5 ) );
 		}
 	}
