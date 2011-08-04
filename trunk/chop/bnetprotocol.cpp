@@ -1022,7 +1022,7 @@ void CBNETProtocol :: RegisterPythonClass( )
 {
 	using namespace boost::python;
 
-	class_<CBNETProtocol>("BNETProtocol", no_init)
+	class_<CBNETProtocol>("CNETProtocol", no_init)
 		.def_readonly("clientToken", &CBNETProtocol::m_ClientToken)
 		.def_readonly("logonType", &CBNETProtocol::m_LogonType)
 		.def_readonly("serverToken", &CBNETProtocol::m_ServerToken)
@@ -1091,3 +1091,53 @@ void CBNETProtocol :: RegisterPythonClass( )
 	;
 }
 
+void CIncomingGameHost :: RegisterPythonClass( )
+{
+	using namespace boost::python;
+
+	class_<CIncomingGameHost>("IncomingGameHost", no_init)
+		.def("getIP", &CIncomingGameHost::GetIP)
+		.def("getIPString", &CIncomingGameHost::GetIPString)
+		.def("getPort", &CIncomingGameHost::GetPort)
+		.def("getGameName", &CIncomingGameHost::GetGameName)
+		.def("getHostCounter", &CIncomingGameHost::GetHostCounter)
+	;
+}
+
+void CIncomingChatEvent :: RegisterPythonClass( )
+{
+	using namespace boost::python;
+
+	class_<CIncomingChatEvent>("IncomingChatEvent", no_init)
+		.def("getOperator", &CIncomingChatEvent::GetOperator)
+		.def("getChatEvent", &CIncomingChatEvent::GetChatEvent)
+		.def("getPing", &CIncomingChatEvent::GetPing)
+		.def("getUser", &CIncomingChatEvent::GetUser)
+		.def("getMessage", &CIncomingChatEvent::GetMessage)
+	;
+}
+
+void CIncomingFriendList :: RegisterPythonClass( )
+{
+	using namespace boost::python;
+
+	class_<CIncomingFriendList>("IncomingFriendList", no_init)
+		.def("getAccount", &CIncomingFriendList::GetAccount)
+		.def("getStatus", &CIncomingFriendList::GetStatus)
+		.def("getArea", &CIncomingFriendList::GetArea)
+		.def("getLocation", &CIncomingFriendList::GetLocation)
+		.def("getDescription", &CIncomingFriendList::GetDescription)
+	;
+}
+
+void CIncomingClanList :: RegisterPythonClass( )
+{
+	using namespace boost::python;
+
+	class_<CIncomingClanList>("IncomingClanList", no_init)
+		.def("getName", &CIncomingClanList::GetName)
+		.def("getRank", &CIncomingClanList::GetRank)
+		.def("getStatus", &CIncomingClanList::GetStatus)
+		.def("getDescription", &CIncomingClanList::GetDescription)
+	;
+}

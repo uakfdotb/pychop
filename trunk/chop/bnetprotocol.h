@@ -200,6 +200,9 @@ public:
 	uint16_t GetPort( )			{ return m_Port; }
 	string GetGameName( )		{ return m_GameName; }
 	BYTEARRAY GetHostCounter( )	{ return m_HostCounter; }
+
+	// other functions
+    static void RegisterPythonClass( );
 };
 
 //
@@ -224,6 +227,9 @@ public:
 	uint32_t GetPing( )									{ return m_Ping; }
 	string GetUser( )									{ return m_User; }
 	string GetMessage( )								{ return m_Message; }
+
+	// other functions
+    static void RegisterPythonClass( );
 };
 
 //
@@ -247,6 +253,9 @@ public:
 	unsigned char GetArea( )	{ return m_Area; }
 	string GetLocation( )		{ return m_Location; }
 	string GetDescription( );
+
+	// other functions
+    static void RegisterPythonClass( );
 
 private:
 	string ExtractStatus( unsigned char status );
@@ -273,6 +282,9 @@ public:
 	string GetRank( );
 	string GetStatus( );
 	string GetDescription( );
+
+	// other functions
+    static void RegisterPythonClass( );
 };
 
 #endif

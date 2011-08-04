@@ -1611,7 +1611,16 @@ uint32_t CBNET :: NumPackets( )
 	return m_OutPackets.size( );
 }
 
+CIncomingClanList CBNET :: GetClanMember( uint32_t position ) {
+	return *(m_Clans[position]);
+}
+
+CIncomingFriendList CBNET :: GetFriend( uint32_t position ) {
+	return *(m_Friends[position]);
+}
+
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 void CBNET :: RegisterPythonClass( )
 {
@@ -1629,8 +1638,6 @@ void CBNET :: RegisterPythonClass( )
 		.def_readonly("packets", &CBNET::m_Packets)
 		.add_property("BNCSUtil", make_getter(&CBNET::m_BNCSUtil, return_value_policy<reference_existing_object>()) )
 		.def_readonly("m_OutPackets", &CBNET::m_OutPackets)
-		.def_readonly("friends", &CBNET::m_Friends)
-		.def_readonly("clans", &CBNET::m_Clans)
 		.def_readonly("pairedBanCounts", &CBNET::m_PairedBanCounts)
 		.def_readonly("pairedBanAdds", &CBNET::m_PairedBanAdds)
 		.def_readonly("pairedBanRemoves", &CBNET::m_PairedBanRemoves)
@@ -1700,8 +1707,6 @@ void CBNET :: RegisterPythonClass( )
 		.def("sendClanChangeRank", &CBNET::SendClanChangeRank)
 		.def("sendClanSetMOTD", &CBNET::SendClanSetMOTD)
 
-
-
 		.def("isRootAdmin", &CBNET::IsRootAdmin)
 		.def("isBannedName", &CBNET::IsBannedName, return_internal_reference<>())
 		.def("isBannedIP", &CBNET::IsBannedIP, return_internal_reference<>())
@@ -1719,5 +1724,10 @@ void CBNET :: RegisterPythonClass( )
 		.def("getUserByName", &CBNET::GetUserByName, return_internal_reference<>())
 		.def("updateSeen", &CBNET::UpdateSeen)
 		.def("numPackets", &CBNET::NumPackets)
+		
+		.def("getNumClanMembers", &CBNET::GetNumClanMembers)
+		.def("getNumFriends", &CBNET::GetNumFriends)
+		.def("getClanMember", &CBNET::GetClanMember)
+		.def("getFriend", &CBNET::GetFriend)
 	;
 }

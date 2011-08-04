@@ -370,6 +370,10 @@ int main( int argc, char **argv )
 	CBNET::RegisterPythonClass( );
 	CConfig::RegisterPythonClass( );
 	CUser::RegisterPythonClass( );
+	CIncomingClanList::RegisterPythonClass( );
+	CIncomingFriendList::RegisterPythonClass( );
+	CIncomingChatEvent::RegisterPythonClass( );
+	CIncomingGameHost::RegisterPythonClass( );
 
     CONSOLE_Print("[PYTHON] Importing plugins module");
 
