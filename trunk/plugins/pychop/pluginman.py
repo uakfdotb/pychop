@@ -30,8 +30,8 @@ def init():
 	host.registerHandler('ProcessCommand', onCommand, True)
 	
 	for name in startupLoad:
-		importedPlugins[parts[1]] = __import__(parts[1], globals(), locals(), [], -1)
-		loadedPlugins[parts[1]] = importedPlugins[parts[1]]
+		importedPlugins[parts[1]] = __import__(name, globals(), locals(), [], -1)
+		loadedPlugins[parts[1]] = importedPlugins[name]
 		loadedPlugins[parts[1]].init()
 
 def deinit():
