@@ -82,7 +82,13 @@ def onCommand(bnet, user, command, payload, nType):
 			
 			loadedPlugins[parts[1]] = importedPlugins[parts[1]]
 			loadedPlugins[parts[1]].init()
-		
+		elif parts[0]=="show":
+			printString = "Loaded plugins:"
+			
+			for name in loadedPlugins:
+				printString += " " + name
+			
+			bnet.queueChatCommand(printString)
 		# stop executing so we don't run anything we just inited
 		return False
 	
