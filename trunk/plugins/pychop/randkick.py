@@ -28,7 +28,7 @@ def init():
 	
 def deinit():
 	host.unregisterHandler('UserJoined', onJoin)
-	host.unregisterHandler('UserLeft', onLeft)
+	host.unregisterHandler('UserLeft', onLeave)
 	host.unregisterHandler('ProcessCommand', onCommand)
 
 def onJoin(bnet, user, isShow):
