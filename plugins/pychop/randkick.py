@@ -18,31 +18,16 @@ randkickAccess = 10
 import host
 import random
 
-# list of users in channel
-channelList = []
-
 def init():
-	host.registerHandler('UserJoined', onJoin)
-	host.registerHandler('UserLeft', onLeave)
 	host.registerHandler('ProcessCommand', onCommand)
 	
 def deinit():
-	host.unregisterHandler('UserJoined', onJoin)
-	host.unregisterHandler('UserLeft', onLeave)
 	host.unregisterHandler('ProcessCommand', onCommand)
-
-def onJoin(bnet, user, isShow):
-	if not user.getName().lower() in channelList:
-		channelList.append(user.getName().lower())
-
-def onLeave(bnet, username):
-	if username.lower() in channelList:
-		channelList.remove(username.lower())
 
 def onCommand(bnet, user, command, payload, nType):
 	if command in commands and bnet.getOutPacketsQueued() < 5 and user.getAccess() >= randkickAccess:
 		# select a random user
-		randIndex = random.randint(0, len(channelList) - 1)
-		randUser = channelList[randIndex]
+		randIndex = random.randint(0, len(bnet.channel) - 1)
+		randUser = bnet.channel[randIndex]
 		# kick
 		bnet.queueChatCommand("/kick " + str(randUser) + " randkick")

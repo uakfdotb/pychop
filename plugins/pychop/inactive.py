@@ -52,7 +52,10 @@ def onCommand(bnet, user, command, payload, nType):
 		for row in result_set:
 			rowUsername = str(row[0]).lower()
 			user_set.append(rowUsername)
-			rowSeen = int(row[1])
+			
+			rowSeen = 0
+			if row[1] != None:
+				rowSeen = int(row[1])
 			
 			if rowSeen < timeTarget and bnet.isClanMember(rowUsername):
 				result_string += str(rowUsername) + ", "
