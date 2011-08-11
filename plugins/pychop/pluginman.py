@@ -3,7 +3,7 @@
 # name = pluginman
 # fullname = plugins/pychop/pluginman
 # description = A plugin management system. Can reload plugins during testing so that the bot does not have to be fully restarted.
-# help = Specify plugins to load on startup in the source file. Use the commands "!pluginman load", "!pluginman unload", and "!pluginman reload" to load, unload, and reload plugins, respectively. Note that reloading must be used if you wish to test a new version of a plugin as import is stored in unload.
+# help = Specify plugins to load on startup in the source file. Use the commands "!pluginman load", "!pluginman unload", and "!pluginman reload" to load, unload, and reload plugins, respectively. Note that reloading must be used if you wish to test a new version of a plugin as import is stored in unload. "!pluginman show" displays a list of loaded plugins.
 
 ### begin configuration
 

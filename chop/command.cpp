@@ -227,10 +227,10 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 		ss >> name;
 		while( ss >> tmp )
 			reason += " " + tmp;
-		if( ChannelNameMatch( name, victim ) != 1 )
-			return "";
-
-		QueueChatCommand( "/ban " + victim + reason );
+		
+		// only ban from channel if they are in the channel
+		if( ChannelNameMatch( name, victim ) == 1 )
+			QueueChatCommand( "/ban " + victim + reason );
 		
 		// also ban in database
 		if( !IsBannedName( victim ) ) {
