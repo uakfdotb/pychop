@@ -3,7 +3,7 @@
 # name = gettime
 # fullname = plugins/pychop/gettime
 # description = Your own alarm clock. Alarm messages are stored via PluginDB so that if the bot is restarted, alarms do not have to be set again. If you do wish to reset all alarms, clearing the database is also supported.
-# help = Use !alarm set <minutes> <message> to alarm at a specific time (for example, "!alarm set 90 hello, world" will print hello, world in 90 minutes. "!alarm list" lists currently stored alarms. "!alarm clear" clears the database.
+# help = Use !alarm set <minutes> <message> to alarm at a specific time (for example, "!alarm set 90 hello, world" will print hello, world in 90 minutes. "!alarm print" lists currently stored alarms. "!alarm clear" clears the database.
 
 ### begin configuration
 
@@ -52,8 +52,8 @@ def init():
 	host.registerHandler('Update', onUpdate)
 	
 	pdb = PluginDB()
-	pdb.notifyReady(dbReady)
 	pdb.setPluginName("alarm")
+	pdb.notifyReady(dbReady)
 
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand)
@@ -80,6 +80,10 @@ def onCommand(bnet, user, command, payload, nType):
 		elif parts[0]=="print":
 			for alarm in alarms:
 				print(str(alarm[0]) + "|" + alarm[1])
+		elif parts[0]=="clear":
+			while len(alarms) > 0:
+				pdb.dbRemove(alarms[0][0])
+				del alarms[0]
 
 def onUpdate(chop):
 	global alarms
