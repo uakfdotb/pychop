@@ -430,6 +430,36 @@ CIncomingClanList *CBNETProtocol :: RECEIVE_SID_CLANMEMBERSTATUSCHANGE( BYTEARRA
 	return NULL;
 }
 
+string CBNETProtocol :: RECEIVE_SID_CLANCREATIONINVITATION( BYTEARRAY data )
+{
+	if( ValidateLength( data ) && data.size( ) >= 12 )
+	{
+		//skip four bytes cookie
+		m_ClanLastInviteTag = BYTEARRAY( data.begin( ) + 8, data.begin( ) + 12 );
+		BYTEARRAY ClanName = UTIL_ExtractCString( data, 12 );
+		m_ClanLastInviteName = UTIL_ExtractCString( data, 12 + ClanName.size( ) );
+		
+		return string( m_ClanLastInviteName.begin( ), m_ClanLastInviteName.end( ) );
+	}
+
+	return NULL;
+}
+
+string CBNETProtocol :: RECEIVE_SID_CLANINVITATIONRESPONSE( BYTEARRAY data )
+{
+	if( ValidateLength( data ) && data.size( ) >= 12 )
+	{
+		//skip four bytes cookie
+		m_ClanLastInviteTag = BYTEARRAY( data.begin( ) + 8, data.begin( ) + 12 );
+		BYTEARRAY ClanName = UTIL_ExtractCString( data, 12 );
+		m_ClanLastInviteName = UTIL_ExtractCString( data, 12 + ClanName.size( ) );
+		
+		return string( m_ClanLastInviteName.begin( ), m_ClanLastInviteName.end( ) );
+	}
+
+	return NULL;
+}
+
 ////////////////////
 // SEND FUNCTIONS //
 ////////////////////
@@ -798,6 +828,50 @@ BYTEARRAY CBNETProtocol :: SEND_SID_CLANSETMOTD( string message )
 	AssignLength( packet );
 	// DEBUG_Print( "SEND SID_CLANMOTD" );
 	// DEBUG_Print( packet );
+	return packet;
+}
+
+BYTEARRAY CBNETProtocol :: SEND_SID_CLANCREATIONINVITATION( bool accept )
+{
+	unsigned char Cookie[] = { 0, 0, 0, 0 };
+
+	BYTEARRAY packet;
+	packet.push_back( BNET_HEADER_CONSTANT );       // BNET header constant
+	packet.push_back( SID_CLANCREATIONINVITATION );         // SID_CLANCREATIONINVITATION
+	packet.push_back( 0 );                                          // packet length will be assigned later
+	packet.push_back( 0 );                                          // packet length will be assigned later
+	UTIL_AppendByteArray( packet, Cookie, 4);
+	UTIL_AppendByteArrayFast( packet, m_ClanLastInviteTag );
+	UTIL_AppendByteArrayFast( packet, m_ClanLastInviteName );
+	
+	if(accept)
+		packet.push_back( 0x06 );
+	else
+		packet.push_back( 0x04 );
+	
+	AssignLength( packet );
+	return packet;
+}
+
+BYTEARRAY CBNETProtocol :: SEND_SID_CLANINVITATIONRESPONSE( bool accept )
+{
+	unsigned char Cookie[] = { 0, 0, 0, 0 };
+
+	BYTEARRAY packet;
+	packet.push_back( BNET_HEADER_CONSTANT );       // BNET header constant
+	packet.push_back( SID_CLANINVITATIONRESPONSE );         // SID_CLANCREATIONINVITATION
+	packet.push_back( 0 );                                          // packet length will be assigned later
+	packet.push_back( 0 );                                          // packet length will be assigned later
+	UTIL_AppendByteArray( packet, Cookie, 4);
+	UTIL_AppendByteArrayFast( packet, m_ClanLastInviteTag );
+	UTIL_AppendByteArrayFast( packet, m_ClanLastInviteName );
+	
+	if(accept)
+		packet.push_back( 0x06 );
+	else
+		packet.push_back( 0x04 );
+	
+	AssignLength( packet );
 	return packet;
 }
 
