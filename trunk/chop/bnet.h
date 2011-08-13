@@ -115,6 +115,7 @@ private:
 	bool m_WaitingToConnect;							// if we're waiting to reconnect to battle.net after being disconnected
 	bool m_LoggedIn;									// if we've logged into battle.net or not
 	bool m_InChat;										// if we've entered chat or not (but we're not necessarily in a chat channel yet)
+	bool m_LastInviteCreation;						// whether the last invite received was for a clan creation (else, it was for invitation response)
 
 	string m_LastWhisper;								// user who recently whispered
 	uint32_t m_LastWarnTime;							// GetTime when warns were updated
@@ -168,6 +169,7 @@ public:
 	void SendClanRemove( string name );
 	void SendClanChangeRank( string name, CBNETProtocol :: RankCode rank );
 	void SendClanSetMOTD( string message );
+	void SendClanAcceptInvite( bool accept );
 
 	// other functions
 

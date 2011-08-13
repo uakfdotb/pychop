@@ -103,6 +103,7 @@ CBNET :: CBNET( CChOP *nChOP, string nServer, string nServerAlias, string nBNLSS
 	m_WaitingToConnect = true;
 	m_LoggedIn = false;
 	m_InChat = false;
+	m_LastInviteCreation = false;
 
 	string CommFile = m_ChOP->m_CFGPath + "command.txt";
 	m_CFG.Read( CommFile );
@@ -1368,6 +1369,16 @@ void CBNET :: SendClanSetMOTD( string message )
 {
 	if( m_LoggedIn )
 		m_Socket->PutBytes( m_Protocol->SEND_SID_CLANSETMOTD( message ) );
+}
+
+void CBNET :: SendClanAcceptInvite( bool accept )
+{
+	if( m_LoggedIn ) {
+		if( m_LastInviteCreation )
+			m_Socket->PutBytes( m_Protocol->SEND_SID_CLANCREATIONINVITATION( accept ) );
+		else
+			m_Socket->PutBytes( m_Protocol->SEND_SID_CLANINVITATIONRESPONSE( accept ) );
+	}
 }
 
 bool CBNET :: IsRootAdmin( string name )

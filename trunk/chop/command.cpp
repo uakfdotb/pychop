@@ -117,6 +117,12 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 
 	// user / access commands
 
+	if( command == "accept" )
+	{
+		SendClanAcceptInvite( true );
+		return "";
+	}
+
 	if( command == "add" )
 	{
 		if( payload.empty( ) )

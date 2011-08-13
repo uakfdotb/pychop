@@ -46,6 +46,7 @@ motd = 5
 peon = 10
 grunt = 10
 shaman = 10
+accept = 10
 
 // management
 dbstatus = 10
