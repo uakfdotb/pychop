@@ -25,8 +25,6 @@ CBNETProtocol :: CBNETProtocol( )
 {
 	unsigned char ClientToken[] = { 220, 1, 203, 7 };
 	m_ClientToken = UTIL_CreateByteArray( ClientToken, 4 );
-	m_ClanLastInviteTag = NULL;
-	m_ClanLastInviteName = NULL;
 }
 
 CBNETProtocol :: ~CBNETProtocol( )
@@ -440,6 +438,7 @@ string CBNETProtocol :: RECEIVE_SID_CLANCREATIONINVITATION( BYTEARRAY data )
 		m_ClanLastInviteTag = BYTEARRAY( data.begin( ) + 8, data.begin( ) + 12 );
 		BYTEARRAY ClanName = UTIL_ExtractCString( data, 12 );
 		m_ClanLastInviteName = UTIL_ExtractCString( data, 12 + ClanName.size( ) );
+		m_ClanLastInviteSet = true;
 		
 		return string( m_ClanLastInviteName.begin( ), m_ClanLastInviteName.end( ) );
 	}
@@ -455,6 +454,7 @@ string CBNETProtocol :: RECEIVE_SID_CLANINVITATIONRESPONSE( BYTEARRAY data )
 		m_ClanLastInviteTag = BYTEARRAY( data.begin( ) + 8, data.begin( ) + 12 );
 		BYTEARRAY ClanName = UTIL_ExtractCString( data, 12 );
 		m_ClanLastInviteName = UTIL_ExtractCString( data, 12 + ClanName.size( ) );
+		m_ClanLastInviteSet = true;
 		
 		return string( m_ClanLastInviteName.begin( ), m_ClanLastInviteName.end( ) );
 	}
@@ -835,11 +835,11 @@ BYTEARRAY CBNETProtocol :: SEND_SID_CLANSETMOTD( string message )
 
 BYTEARRAY CBNETProtocol :: SEND_SID_CLANCREATIONINVITATION( bool accept )
 {
-	if(m_ClanLastInviteTag == NULL || m_ClanLastInviteName == NULL) return NULL;
-
 	unsigned char Cookie[] = { 0, 0, 0, 0 };
 
 	BYTEARRAY packet;
+	if( !m_ClanLastInviteSet ) return packet;
+	
 	packet.push_back( BNET_HEADER_CONSTANT );       // BNET header constant
 	packet.push_back( SID_CLANCREATIONINVITATION );         // SID_CLANCREATIONINVITATION
 	packet.push_back( 0 );                                          // packet length will be assigned later
@@ -859,11 +859,11 @@ BYTEARRAY CBNETProtocol :: SEND_SID_CLANCREATIONINVITATION( bool accept )
 
 BYTEARRAY CBNETProtocol :: SEND_SID_CLANINVITATIONRESPONSE( bool accept )
 {
-	if(m_ClanLastInviteTag == NULL || m_ClanLastInviteName == NULL) return NULL;
-	
 	unsigned char Cookie[] = { 0, 0, 0, 0 };
 
 	BYTEARRAY packet;
+	if( !m_ClanLastInviteSet ) return packet;
+	
 	packet.push_back( BNET_HEADER_CONSTANT );       // BNET header constant
 	packet.push_back( SID_CLANINVITATIONRESPONSE );         // SID_CLANCREATIONINVITATION
 	packet.push_back( 0 );                                          // packet length will be assigned later
