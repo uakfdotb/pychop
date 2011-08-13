@@ -25,6 +25,8 @@ CBNETProtocol :: CBNETProtocol( )
 {
 	unsigned char ClientToken[] = { 220, 1, 203, 7 };
 	m_ClientToken = UTIL_CreateByteArray( ClientToken, 4 );
+	m_ClanLastInviteTag = NULL;
+	m_ClanLastInviteName = NULL;
 }
 
 CBNETProtocol :: ~CBNETProtocol( )
@@ -833,6 +835,8 @@ BYTEARRAY CBNETProtocol :: SEND_SID_CLANSETMOTD( string message )
 
 BYTEARRAY CBNETProtocol :: SEND_SID_CLANCREATIONINVITATION( bool accept )
 {
+	if(m_ClanLastInviteTag == NULL || m_ClanLastInviteName == NULL) return NULL;
+
 	unsigned char Cookie[] = { 0, 0, 0, 0 };
 
 	BYTEARRAY packet;
@@ -855,6 +859,8 @@ BYTEARRAY CBNETProtocol :: SEND_SID_CLANCREATIONINVITATION( bool accept )
 
 BYTEARRAY CBNETProtocol :: SEND_SID_CLANINVITATIONRESPONSE( bool accept )
 {
+	if(m_ClanLastInviteTag == NULL || m_ClanLastInviteName == NULL) return NULL;
+	
 	unsigned char Cookie[] = { 0, 0, 0, 0 };
 
 	BYTEARRAY packet;

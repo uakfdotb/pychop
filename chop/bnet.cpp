@@ -1391,10 +1391,15 @@ void CBNET :: SendClanSetMOTD( string message )
 void CBNET :: SendClanAcceptInvite( bool accept )
 {
 	if( m_LoggedIn ) {
+		BYTEARRAY SendBytes = NULL;
+		
 		if( m_LastInviteCreation )
-			m_Socket->PutBytes( m_Protocol->SEND_SID_CLANCREATIONINVITATION( accept ) );
+			SendBytes = m_Protocol->SEND_SID_CLANCREATIONINVITATION( accept );
 		else
-			m_Socket->PutBytes( m_Protocol->SEND_SID_CLANINVITATIONRESPONSE( accept ) );
+			SendBytes = m_Protocol->SEND_SID_CLANINVITATIONRESPONSE( accept );
+		
+		if( SendBytes != NULL )
+			m_Socket->PutBytes( SendBytes );
 	}
 }
 
