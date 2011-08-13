@@ -934,7 +934,7 @@ void CBNET :: ProcessPackets( )
 
 				break;
 
-			case CBNETProtocol :: SID_CLANMEMBERLIST:
+			case CBNETProtocol :: SID_CLANMEMBERLIST: {
 				vector<CIncomingClanList *> Clans = m_Protocol->RECEIVE_SID_CLANMEMBERLIST( Packet->GetData( ) );
 
 				for( vector<CIncomingClanList *> :: iterator i = m_Clans.begin( ); i != m_Clans.end( ); i++ )
@@ -970,6 +970,23 @@ void CBNET :: ProcessPackets( )
 				}
 
 				break;
+			}
+			
+			case CBNETProtocol :: SID_CLANCREATIONINVITATION: {
+				string ClanCreateName = m_Protocol->RECEIVE_SID_CLANCREATIONINVITATION( Packet->GetData( ) );
+				
+				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] Invited (creation) to clan " + ClanCreateName + ", !accept to accept" );
+				m_LastInviteCreation = true;
+				break;
+			}
+			
+			case CBNETProtocol :: SID_CLANINVITATIONRESPONSE: {
+				string ClanInviteName = m_Protocol->RECEIVE_SID_CLANINVITATIONRESPONSE( Packet->GetData( ) );
+				
+				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] Invited to clan " + ClanInviteName + ", !accept to accept" );
+				m_LastInviteCreation = false;
+				break;
+			}
 			}
 		}
 
