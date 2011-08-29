@@ -4,6 +4,8 @@ a1
 - Public commands can be disabled through configuration file
 - ?trigger command is supported
 - Hostbot support removed
+- pychop can accept the last clan invitation
+- fix: various issues with plugins
 
 a0
 --
