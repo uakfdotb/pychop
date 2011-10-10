@@ -27,7 +27,8 @@ def deinit():
 def onCommand(bnet, user, command, payload, nType):
 	if command in commands and bnet.getOutPacketsQueued() < 5 and user.getAccess() >= randkickAccess:
 		# select a random user
-		randIndex = random.randint(0, len(bnet.channel) - 1)
-		randUser = bnet.channel[randIndex]
+		channelUsers = bnet.getChannelNameList()
+		randIndex = random.randint(0, len(channelUsers) - 1)
+		randUser = channelUsers[randIndex]
 		# kick
-		bnet.queueChatCommand("/kick " + str(randUser) + " randkick")
+		bnet.queueChatCommand("/kick " + randUser + " randkick")

@@ -1403,6 +1403,12 @@ void CBNET :: SendClanAcceptInvite( bool accept )
 	}
 }
 
+void CBNET :: SendProfile( string name )
+{
+	if( m_LoggedIn )
+		m_Socket->PutBytes( m_Protocol->SEND_SID_PROFILE( name ) );
+}
+
 bool CBNET :: IsRootAdmin( string name )
 {
 	// m_RootAdmin was already transformed to lower case in the constructor
@@ -1644,11 +1650,37 @@ uint32_t CBNET :: NumPackets( )
 	return m_OutPackets.size( );
 }
 
-CIncomingClanList CBNET :: GetClanMember( uint32_t position ) {
+vector<string> CBNET :: GetChannelNameList( )
+{
+	vector<string> channelNameList;
+	
+	for( map<string, CUser *> :: iterator i = m_Channel.begin( ); i != m_Channel.end( ); i++ )
+	{
+		channelNameList.push_back((*i).first);
+	}
+	
+	return channelNameList;
+}
+
+vector<string> CBNET :: GetUserNameList( )
+{
+	vector<string> userNameList;
+	
+	for( map<string, CUser *> :: iterator i = m_Users.begin( ); i != m_Users.end( ); i++ )
+	{
+		userNameList.push_back((*i).first);
+	}
+	
+	return userNameList;
+}
+
+CIncomingClanList CBNET :: GetClanMember( uint32_t position )
+{
 	return *(m_Clans[position]);
 }
 
-CIncomingFriendList CBNET :: GetFriend( uint32_t position ) {
+CIncomingFriendList CBNET :: GetFriend( uint32_t position )
+{
 	return *(m_Friends[position]);
 }
 
@@ -1661,6 +1693,10 @@ void CBNET :: RegisterPythonClass( )
 
 	void (CBNET::*QueueChatCommand1)(string)				= &CBNET::QueueChatCommand;
 	void (CBNET::*QueueChatCommand2)(string, string, bool)  = &CBNET::QueueChatCommand;
+	
+	class_<std::vector<std::string> >("STD_String")
+		.def(vector_indexing_suite<std::vector<std::string> >())
+		;
 
 	class_<CBNET>("BNET", no_init)
 		.def_readonly("ChOP", &CBNET::m_ChOP)
@@ -1739,6 +1775,7 @@ void CBNET :: RegisterPythonClass( )
 		.def("sendClanRemove", &CBNET::SendClanRemove)
 		.def("sendClanChangeRank", &CBNET::SendClanChangeRank)
 		.def("sendClanSetMOTD", &CBNET::SendClanSetMOTD)
+		.def("sendProfile", &CBNET::SendProfile)
 
 		.def("isRootAdmin", &CBNET::IsRootAdmin)
 		.def("isBannedName", &CBNET::IsBannedName, return_internal_reference<>())
@@ -1758,6 +1795,8 @@ void CBNET :: RegisterPythonClass( )
 		.def("updateSeen", &CBNET::UpdateSeen)
 		.def("numPackets", &CBNET::NumPackets)
 		
+		.def("getUserNameList", &CBNET::GetUserNameList)
+		.def("getChannelNameList", &CBNET::GetChannelNameList)
 		.def("getNumClanMembers", &CBNET::GetNumClanMembers)
 		.def("getNumFriends", &CBNET::GetNumFriends)
 		.def("getClanMember", &CBNET::GetClanMember)

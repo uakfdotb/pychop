@@ -1049,8 +1049,6 @@ string CIncomingFriendList :: ExtractLocation( string location )
 }
 
 //
-
-
 // CIncomingClanList
 //
 
@@ -1095,6 +1093,22 @@ string CIncomingClanList :: GetDescription( )
 	Description += GetStatus( ) + "\n";
 	Description += GetRank( ) + "\n\n";
 	return Description;
+}
+
+//
+// CIncomingProfile
+//
+
+CIncomingProfile :: CIncomingProfile( string nProfileDesc, string nProfileLocation, nClanTag )
+{
+	m_ProfileDesc = nProfileDesc;
+	m_ProfileLocation = nProfileLocation;
+	m_ClanTag = nClanTag;
+}
+
+CIncomingProfile :: ~CIncomingProfile( )
+{
+
 }
 
 #include <boost/python.hpp>
@@ -1145,6 +1159,7 @@ void CBNETProtocol :: RegisterPythonClass( )
 		.def("RECEIVE_SID_FRIENDSLIST", &CBNETProtocol::RECEIVE_SID_FRIENDSLIST)
 		.def("RECEIVE_SID_CLANMEMBERLIST", &CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST)
 		.def("RECEIVE_SID_CLANMEMBERSTATUSCHANGE", &CBNETProtocol::RECEIVE_SID_CLANMEMBERSTATUSCHANGE, return_internal_reference<>())
+		.def("RECEIVE_SID_PROFILE", &CBNETProtocol::RECEIVE_SID_PROFILE, return_internal_reference<>())
 
 		.def("SEND_PROTOCOL_INITIALIZE_SELECTOR", &CBNETProtocol::SEND_PROTOCOL_INITIALIZE_SELECTOR)
 		.def("SEND_SID_NULL", &CBNETProtocol::SEND_SID_NULL)
@@ -1166,6 +1181,7 @@ void CBNETProtocol :: RegisterPythonClass( )
 		.def("SEND_SID_CLANREMOVE", &CBNETProtocol::SEND_SID_CLANREMOVE)
 		.def("SEND_SID_CLANSETMOTD", &CBNETProtocol::SEND_SID_CLANSETMOTD)
 		.def("SEND_SID_CLANCHANGERANK", &CBNETProtocol::SEND_SID_CLANCHANGERANK)
+		.def("SEND_SID_PROFILE", &CBNETProtocol::SEND_SID_PROFILE)
 
 		.def("assignLength", &CBNETProtocol::AssignLength)
 		.def("validateLength", &CBNETProtocol::ValidateLength)
@@ -1220,5 +1236,16 @@ void CIncomingClanList :: RegisterPythonClass( )
 		.def("getRank", &CIncomingClanList::GetRank)
 		.def("getStatus", &CIncomingClanList::GetStatus)
 		.def("getDescription", &CIncomingClanList::GetDescription)
+	;
+}
+
+void CIncomingProfile :: RegisterPythonClass( )
+{
+	using namespace boost::python;
+
+	class_<CIncomingProfile>("IncomingProfile", no_init)
+		.def("getProfileDesc", &CIncomingClanList::GetProfileDesc)
+		.def("getProfileLocation", &CIncomingClanList::GetProfileLocation)
+		.def("getClanTag", &CIncomingClanList::GetClanTag)
 	;
 }

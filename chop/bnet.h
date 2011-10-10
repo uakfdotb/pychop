@@ -170,6 +170,7 @@ public:
 	void SendClanChangeRank( string name, CBNETProtocol :: RankCode rank );
 	void SendClanSetMOTD( string message );
 	void SendClanAcceptInvite( bool accept );
+	void SendProfile( string name );
 
 	// other functions
 
@@ -194,6 +195,8 @@ public:
 	uint32_t GetNumClanMembers( ) { return m_Clans.size( ); }
 	uint32_t GetNumFriends( ) { return m_Friends.size( ); }
 	
+	vector<string> GetChannelNameList( );
+	vector<string> GetUserNameList( );
 	CIncomingClanList GetClanMember( uint32_t position );
 	CIncomingFriendList GetFriend( uint32_t position );
 	
