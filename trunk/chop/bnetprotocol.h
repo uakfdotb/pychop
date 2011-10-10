@@ -44,6 +44,7 @@ public:
 		SID_DISPLAYAD				= 33,	// 0x21
 		SID_PING					= 37,	// 0x25
 		SID_LOGONRESPONSE			= 41,	// 0x29
+		SID_PROFILE					= 53,	// 0x35
 		SID_NETGAMEPORT				= 69,	// 0x45
 		SID_AUTH_INFO				= 80,	// 0x50
 		SID_AUTH_CHECK				= 81,	// 0x51
@@ -151,6 +152,7 @@ public:
 	CIncomingClanList *RECEIVE_SID_CLANMEMBERSTATUSCHANGE( BYTEARRAY data );
 	string RECEIVE_SID_CLANCREATIONINVITATION( BYTEARRAY data );
 	string RECEIVE_SID_CLANINVITATIONRESPONSE( BYTEARRAY data );
+	CIncomingProfile *RECEIVE_SID_PROFILE( BYTEARRAY data );
 
 	// send functions
 
@@ -180,6 +182,7 @@ public:
 	BYTEARRAY SEND_SID_CLANCHANGERANK( string name, CBNETProtocol :: RankCode rank );
 	BYTEARRAY SEND_SID_CLANCREATIONINVITATION( bool accept );
 	BYTEARRAY SEND_SID_CLANINVITATIONRESPONSE( bool accept );
+	BYTEARRAY SEND_SID_PROFILE( string name );
 
 	// other functions
     static void RegisterPythonClass( );
@@ -292,6 +295,29 @@ public:
 	string GetRank( );
 	string GetStatus( );
 	string GetDescription( );
+
+	// other functions
+    static void RegisterPythonClass( );
+};
+
+//
+// CIncomingProfile
+//
+
+class CIncomingProfile
+{
+private:
+	string m_ProfileDesc;
+	string m_ProfileLocation;
+	string m_ClanTag;
+
+public:
+	CIncomingProfile( string nProfileDesc, string nProfileLocation, nClanTag );
+	~CIncomingProfile( );
+
+	string GetProfileDesc( )	{ return m_ProfileDesc; }
+	string GetProfileLocation( )	{ return m_ProfileLocation; }
+	string GetClanTag( )		{ return m_ClanTag; }
 
 	// other functions
     static void RegisterPythonClass( );

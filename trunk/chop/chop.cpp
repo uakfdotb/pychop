@@ -374,6 +374,7 @@ int main( int argc, char **argv )
 	CIncomingFriendList::RegisterPythonClass( );
 	CIncomingChatEvent::RegisterPythonClass( );
 	CIncomingGameHost::RegisterPythonClass( );
+	CIncomingProfile::RegisterPythonClass( );
 
     CONSOLE_Print("[PYTHON] Importing plugins module");
 
