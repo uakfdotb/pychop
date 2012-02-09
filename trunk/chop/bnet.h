@@ -110,6 +110,7 @@ private:
 	uint32_t m_LastNullTime;							// GetTime when the last null packet was sent for detecting disconnects
 	uint32_t m_LastOutPacketTicks;						// GetTicks when the last packet was sent for the m_OutPackets queue
 	uint32_t m_LastOutPacketSize;
+	uint32_t m_FrequencyDelayTimes;						// times when we sent quickly after WaitTicks was over
 	uint32_t m_LastBanRefreshTime;						// GetTime when the ban list was last refreshed from the database
 	uint32_t m_LastUserRefreshTime;						// GetTime when the user list was last refreshed from the database
 	bool m_WaitingToConnect;							// if we're waiting to reconnect to battle.net after being disconnected

@@ -64,8 +64,8 @@ def init():
 	host.registerHandler('Update', onUpdate)
 	
 	pdb = PluginDB()
-	pdb.notifyReady(dbReady)
 	pdb.setPluginName("trivia")
+	dbReady()
 	
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand)
