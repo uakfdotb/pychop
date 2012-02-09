@@ -1099,7 +1099,7 @@ string CIncomingClanList :: GetDescription( )
 // CIncomingProfile
 //
 
-CIncomingProfile :: CIncomingProfile( string nProfileDesc, string nProfileLocation, nClanTag )
+CIncomingProfile :: CIncomingProfile( string nProfileDesc, string nProfileLocation, string nClanTag )
 {
 	m_ProfileDesc = nProfileDesc;
 	m_ProfileLocation = nProfileLocation;
@@ -1244,8 +1244,8 @@ void CIncomingProfile :: RegisterPythonClass( )
 	using namespace boost::python;
 
 	class_<CIncomingProfile>("IncomingProfile", no_init)
-		.def("getProfileDesc", &CIncomingClanList::GetProfileDesc)
-		.def("getProfileLocation", &CIncomingClanList::GetProfileLocation)
-		.def("getClanTag", &CIncomingClanList::GetClanTag)
+		.def("getProfileDesc", &CIncomingProfile::GetProfileDesc)
+		.def("getProfileLocation", &CIncomingProfile::GetProfileLocation)
+		.def("getClanTag", &CIncomingProfile::GetClanTag)
 	;
 }

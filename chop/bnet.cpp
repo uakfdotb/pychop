@@ -98,6 +98,7 @@ CBNET :: CBNET( CChOP *nChOP, string nServer, string nServerAlias, string nBNLSS
 	m_LastNullTime = 0;
 	m_LastOutPacketTicks = 0;
 	m_LastOutPacketSize = 0;
+	m_FrequencyDelayTimes = 0;
 	m_LastBanRefreshTime = GetTime( );
 	m_LastUserRefreshTime = GetTime( );
 	m_WaitingToConnect = true;
@@ -565,21 +566,38 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		uint32_t WaitTicks = 0;
 
 		if( m_LastOutPacketSize < 10 )
-			WaitTicks = 1200;
+			WaitTicks = 1000;
+		else if( m_LastOutPacketSize < 30 )
+			WaitTicks = 3000;
+		else if( m_LastOutPacketSize < 50 )
+			WaitTicks = 3250;
 		else if( m_LastOutPacketSize < 100 )
-			WaitTicks = 3700;
+			WaitTicks = 3500;
 		else
-			WaitTicks = 6000;
+			WaitTicks = 4500;
+		
+		// add on frequency delay
+		
+		WaitTicks += m_FrequencyDelayTimes * 40;
 
 		if( !m_OutPackets.empty( ) && GetTicks( ) >= m_LastOutPacketTicks + WaitTicks )
 		{
+			CONSOLE_Print("WaitTicks at " + UTIL_ToString(WaitTicks));
 			if( m_OutPackets.size( ) > 7 )
 				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] packet queue warning - there are " + UTIL_ToString( m_OutPackets.size( ) ) + " packets waiting to be sent" );
 
 			m_Socket->PutBytes( m_OutPackets.front( ) );
 			m_LastOutPacketSize = m_OutPackets.front( ).size( );
 			m_OutPackets.pop( );
-			m_LastOutPacketTicks = GetTicks( );
+
+			// reset frequency delay (or increment it)
+			
+			if( m_FrequencyDelayTimes >= 30 || GetTicks( ) > m_LastOutPacketTicks + WaitTicks + 100 )
+				m_FrequencyDelayTimes = 0;
+			else
+				m_FrequencyDelayTimes++;
+
+			m_LastOutPacketTicks = GetTicks( );			
 		}
 
 		// send a null packet every 60 seconds to detect disconnects
@@ -1403,12 +1421,6 @@ void CBNET :: SendClanAcceptInvite( bool accept )
 	}
 }
 
-void CBNET :: SendProfile( string name )
-{
-	if( m_LoggedIn )
-		m_Socket->PutBytes( m_Protocol->SEND_SID_PROFILE( name ) );
-}
-
 bool CBNET :: IsRootAdmin( string name )
 {
 	// m_RootAdmin was already transformed to lower case in the constructor
@@ -1775,7 +1787,6 @@ void CBNET :: RegisterPythonClass( )
 		.def("sendClanRemove", &CBNET::SendClanRemove)
 		.def("sendClanChangeRank", &CBNET::SendClanChangeRank)
 		.def("sendClanSetMOTD", &CBNET::SendClanSetMOTD)
-		.def("sendProfile", &CBNET::SendProfile)
 
 		.def("isRootAdmin", &CBNET::IsRootAdmin)
 		.def("isBannedName", &CBNET::IsBannedName, return_internal_reference<>())

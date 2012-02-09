@@ -30,6 +30,7 @@ class CIncomingGameHost;
 class CIncomingChatEvent;
 class CIncomingFriendList;
 class CIncomingClanList;
+class CIncomingProfile;
 
 class CBNETProtocol
 {
@@ -152,7 +153,7 @@ public:
 	CIncomingClanList *RECEIVE_SID_CLANMEMBERSTATUSCHANGE( BYTEARRAY data );
 	string RECEIVE_SID_CLANCREATIONINVITATION( BYTEARRAY data );
 	string RECEIVE_SID_CLANINVITATIONRESPONSE( BYTEARRAY data );
-	CIncomingProfile *RECEIVE_SID_PROFILE( BYTEARRAY data );
+	CIncomingProfile *RECEIVE_SID_PROFILE( BYTEARRAY data ) { return NULL; };
 
 	// send functions
 
@@ -182,7 +183,7 @@ public:
 	BYTEARRAY SEND_SID_CLANCHANGERANK( string name, CBNETProtocol :: RankCode rank );
 	BYTEARRAY SEND_SID_CLANCREATIONINVITATION( bool accept );
 	BYTEARRAY SEND_SID_CLANINVITATIONRESPONSE( bool accept );
-	BYTEARRAY SEND_SID_PROFILE( string name );
+	BYTEARRAY SEND_SID_PROFILE( string name ) { };
 
 	// other functions
     static void RegisterPythonClass( );
@@ -312,7 +313,7 @@ private:
 	string m_ClanTag;
 
 public:
-	CIncomingProfile( string nProfileDesc, string nProfileLocation, nClanTag );
+	CIncomingProfile( string nProfileDesc, string nProfileLocation, string nClanTag );
 	~CIncomingProfile( );
 
 	string GetProfileDesc( )	{ return m_ProfileDesc; }
