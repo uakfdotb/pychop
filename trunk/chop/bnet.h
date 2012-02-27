@@ -169,6 +169,7 @@ public:
 	void SendClanInvitation( string name );
 	void SendClanRemove( string name );
 	void SendClanChangeRank( string name, CBNETProtocol :: RankCode rank );
+	void SendClanMakeChieftain( string name );
 	void SendClanSetMOTD( string message );
 	void SendClanAcceptInvite( bool accept );
 	void SendProfile( string name );

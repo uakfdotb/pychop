@@ -817,6 +817,21 @@ BYTEARRAY CBNETProtocol :: SEND_SID_CLANCHANGERANK( string name, CBNETProtocol :
 	return packet;
 }
 
+BYTEARRAY CBNETProtocol :: SEND_SID_CLANMAKECHIEFTAIN( string name )
+{
+	unsigned char Cookie[] = { 0, 0, 0, 0 };
+
+	BYTEARRAY packet;
+	packet.push_back( BNET_HEADER_CONSTANT );	// BNET header constant
+	packet.push_back( SID_CLANMAKECHIEFTAIN );	// SID_CLANMAKECHIEFTAIN
+	packet.push_back( 0 );						// packet length will be assigned later
+	packet.push_back( 0 );						// packet length will be assigned later
+	UTIL_AppendByteArray( packet, Cookie, 4 );	// cookie
+	UTIL_AppendByteArray( packet, name );
+	AssignLength( packet );
+	return packet;
+}
+
 BYTEARRAY CBNETProtocol :: SEND_SID_CLANSETMOTD( string message )
 {
 	unsigned char Cookie[] = { 0, 0, 0, 0 };
