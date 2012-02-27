@@ -13,24 +13,18 @@ from plugindb import PluginDB
 
 cursor = 0
 pdb = 0
-
-def dbReady():
-	global cursor
-	
-	print("[GETGAMES] Connecting to database...")
-	cursor = pdb.dbconnect()
 	
 def init():
-	global pdb
+	global pdb, cursor
 
 	host.registerHandler('ProcessCommand', onCommand, True)
 	
 	pdb = PluginDB()
-	pdb.notifyReady(dbReady)
+	print("[GETGAMES] Connecting to database...")
+	cursor = pdb.dbconnect()
 	
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand, True)
-	plugindb.deinit()
 
 def onCommand(bnet, user, command, payload, nType):
 	if command in commands and bnet.getOutPacketsQueued() < 4:

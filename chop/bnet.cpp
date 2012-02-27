@@ -1400,6 +1400,12 @@ void CBNET :: SendClanChangeRank( string accountName, CBNETProtocol :: RankCode 
 		m_Socket->PutBytes( m_Protocol->SEND_SID_CLANCHANGERANK( accountName, rank ) );
 }
 
+void CBNET :: SendClanMakeChieftain( string accountName )
+{
+	if( m_LoggedIn )
+		m_Socket->PutBytes( m_Protocol->SEND_SID_CLANMAKECHIEFTAIN( accountName ) );
+}
+
 void CBNET :: SendClanSetMOTD( string message )
 {
 	if( m_LoggedIn )

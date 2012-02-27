@@ -465,6 +465,22 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 		return m_ChOP->m_Language->ChangedClanRank( m_Server, name, "shaman" );
 	}
 
+	if( command == "chieftain" )
+	{
+		if( payload.empty( ) || m_ClanRank < CBNETProtocol :: CLAN_CHIEF )
+			return "";
+
+		string name;
+		if( ClanNameMatch( payload, name ) != 1 )
+			return "";
+
+		SendClanMakeChieftain( name );
+		SendGetClanList( );
+		CONSOLE_Print( "[ChOP++] " + UserName + " made " + name + " a chieftain" );
+
+		return m_ChOP->m_Language->ChangedClanRank( m_Server, name, "chieftain" );
+	}
+
 
 	// management commands
 
