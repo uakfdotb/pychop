@@ -10,6 +10,6 @@ $USER$ knows where $VICTIM$ sleeps.
 $VICTIM$ is a Schlawiener!
 $VICTIM$ smells like hell.
 $VICTIM$ is noob.
-$VICTIM$ and $USER$ you....! DAMN BASTARDS! DONT MESS WITH THE MASTER AKA m_$USER$Name!
+$VICTIM$ and $USER$ you....! DAMN BASTARDS! DONT MESS WITH THE MASTER AKA $USER$!
 $USER$ crashs $VICTIM$'s car with his sledgehammer.
 $USER$ brokes $VICTIM$nana's cane.

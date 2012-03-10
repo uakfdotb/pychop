@@ -566,19 +566,19 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		uint32_t WaitTicks = 0;
 
 		if( m_LastOutPacketSize < 10 )
-			WaitTicks = 1000;
+			WaitTicks = 1300;
 		else if( m_LastOutPacketSize < 30 )
-			WaitTicks = 3000;
+			WaitTicks = 3200;
 		else if( m_LastOutPacketSize < 50 )
-			WaitTicks = 3250;
+			WaitTicks = 3400;
 		else if( m_LastOutPacketSize < 100 )
-			WaitTicks = 3500;
+			WaitTicks = 3700;
 		else
-			WaitTicks = 4500;
+			WaitTicks = 5000;
 		
 		// add on frequency delay
 		
-		WaitTicks += m_FrequencyDelayTimes * 40;
+		WaitTicks += m_FrequencyDelayTimes * 60;
 
 		if( !m_OutPackets.empty( ) && GetTicks( ) >= m_LastOutPacketTicks + WaitTicks )
 		{

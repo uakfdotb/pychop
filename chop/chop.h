@@ -159,12 +159,15 @@ public:
 	
 	CUser *m_ConsoleUser;					// the console user
 	boost::thread *inputThread;				// the input thread
+	boost::mutex m_InputMutex;
+	string m_InputMessage;
 
 #ifdef WIN32
 	string CmdInput;
 #endif
 
 	CChOP( CConfig *CFG );
+	CChOP( const CChOP& other) {}
 	~CChOP( );
 
 	// processing functions
