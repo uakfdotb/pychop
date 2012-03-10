@@ -220,7 +220,7 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 	
 	if( command == "addban" || command == "ban" )
 	{
-		if( payload.empty( ) || !m_IsOperator )
+		if( payload.empty( ) )
 			return "";
 
 		stringstream ss;
@@ -235,12 +235,12 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 			reason += " " + tmp;
 		
 		// only ban from channel if they are in the channel
-		if( ChannelNameMatch( name, victim ) == 1 )
+		if( ChannelNameMatch( name, victim ) == 1 && !m_IsOperator )
 			QueueChatCommand( "/ban " + victim + reason );
 		
 		// also ban in database
-		if( !IsBannedName( victim ) ) {
-			m_PairedBanAdds.push_back( PairedBanAdd( Whisper ? UserName : string( ), m_ChOP->m_DB->ThreadedBanAdd( m_Server, victim, string( ), string( ), UserName, reason ) ) );
+		if( !IsBannedName( name ) ) {
+			m_PairedBanAdds.push_back( PairedBanAdd( Whisper ? UserName : string( ), m_ChOP->m_DB->ThreadedBanAdd( m_Server, name, string( ), string( ), UserName, reason ) ) );
 		}
 		
 		return "";
@@ -248,10 +248,11 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 
 	if( command == "delban" || command == "unban" )
 	{
-		if( payload.empty( ) || !m_IsOperator )
+		if( payload.empty( ) )
 			return "";
 
-		QueueChatCommand( "/unban " + payload );
+		if( m_IsOperator )
+			QueueChatCommand( "/unban " + payload );
 		
 		// also remove ban in database
 		m_PairedBanRemoves.push_back( PairedBanRemove( Whisper ? UserName : string( ), m_ChOP->m_DB->ThreadedBanRemove( payload ) ) );
@@ -311,7 +312,7 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 			if( Access < access )
 			{
 				// only return a message if the user has access at all
-				if( Access > 0 )
+				if( Access > 0 && m_ChOP->m_DisplayNoAccess )
 					return m_ChOP->m_Language->YouDontHaveAccessToThatCommand( );
 				else
 					return "";
