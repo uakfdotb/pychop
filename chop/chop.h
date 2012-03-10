@@ -136,6 +136,7 @@ public:
 	string m_Warcraft3Path;					// config value: Warcraft 3 path
 	
 	bool m_DisablePublic;					// config value: disable commands for users with no access?
+	bool m_DisplayNoAccess;					// config value: show no access messages?
 
 	string m_CFGPath;						// path to txt files
 
