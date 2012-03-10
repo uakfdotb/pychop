@@ -691,6 +691,40 @@ bool CChOP :: Update( long usecBlock )
 			BNETExit = true;
 	}
 
+	// execute input message
+	boost::mutex::scoped_lock lock( m_InputMutex );
+	if( !m_InputMessage.empty( ) ) {
+		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
+		{
+			if( m_InputMessage[0] == (*i)->GetCommandTrigger() )
+			{
+				string Reply, Command, Payload;
+				string :: size_type PayloadStart = m_InputMessage.find( " " );
+				uint32_t Type = 0; // type 0 indicates console origin
+
+				if( PayloadStart != string :: npos )
+				{
+					Command = m_InputMessage.substr( 1, PayloadStart - 1 );
+					Payload = m_InputMessage.substr( PayloadStart + 1 );
+				}
+				else
+					Command = m_InputMessage.substr( 1 );
+
+				string response = (*i)->ProcessCommand(m_ConsoleUser, Command, Payload, Type);
+			
+				if( !response.empty() ) {
+					CONSOLE_Print(response);
+				}
+			} else {
+					(*i)->QueueChatCommand(m_InputMessage);
+			}
+		}
+		
+		m_InputMessage = "";
+	}
+	
+	lock.unlock( );
+
 	return m_Exiting || AdminExit || BNETExit;
 }
 
@@ -699,32 +733,9 @@ void CChOP :: inputLoop( )
 	while( true )
 	{
 		string Message = CONSOLE_Read();
-		
-		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); i++ )
-		{
-			if( Message[0] == (*i)->GetCommandTrigger() )
-			{
-				string Reply, Command, Payload;
-				string :: size_type PayloadStart = Message.find( " " );
-				uint32_t Type = 0; // type 0 indicates console origin
-
-				if( PayloadStart != string :: npos )
-				{
-					Command = Message.substr( 1, PayloadStart - 1 );
-					Payload = Message.substr( PayloadStart + 1 );
-				}
-				else
-					Command = Message.substr( 1 );
-
-				string response = (*i)->ProcessCommand(m_ConsoleUser, Command, Payload, Type);
-			
-				if( !response.empty() ) {
-					CONSOLE_Print(response);
-				}
-			} else {
-					(*i)->QueueChatCommand(Message);
-			}
-		}
+		boost::mutex::scoped_lock lock( m_InputMutex );
+		m_InputMessage = Message;
+		lock.unlock( );
 	}
 }
 

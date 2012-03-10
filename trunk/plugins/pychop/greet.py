@@ -18,6 +18,7 @@ maxAccess = 10
 # end settings
 
 import host
+import time
 
 def init():
 	host.registerHandler('UserJoined', onJoin)
@@ -30,7 +31,11 @@ def deinit():
 def onJoin(bnet, user, isShow):
 	# need correct access; also only show this when a user actually joins, not just when we join
 	if user.getAccess() >= minAccess and user.getAccess() <= maxAccess and not isShow and greetMessage != "" and bnet.getOutPacketsQueued() < 3:
-		bnet.queueChatCommand(greetMessage, user.getName(), True)
+		personalMessage = greetMessage
+		personalMessage = personalMessage.replace("#n", user.getName())
+		personalMessage = personalMessage.replace("#t", time.asctime(time.localtime(time.time())));
+		personalMessage = personalMessage.replace("#d", time.strftime("%B %d, %Y", time.localtime(time.time())));
+		bnet.queueChatCommand(personalMessage, user.getName(), True)
 
 def onCommand(bnet, user, command, payload, nType):
 	global greetMessage
