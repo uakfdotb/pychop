@@ -63,21 +63,26 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 	string UserName = User->GetName( );
 
 	// are commands in whisperes interpreted ? (can be set in chop.cfg)
-	if( Whisper && !m_ChOP->m_WhisperAllowed && Access > 0 )
-		return m_ChOP->m_Language->WhisperCommandsDisabled( );
+	if( Whisper && !m_ChOP->m_WhisperAllowed )
+	{
+		if( Access > 0 )
+			return m_ChOP->m_Language->WhisperCommandsDisabled( );
+		else
+			return "";
+	}
 	//put at beginning or someone else might return something...
 	EXECUTE_HANDLER("ProcessCommand", false, boost::ref(this), boost::ref(User), command, payload, type)
 	
 	int i = m_CFG.GetInt( command, -1 );
 
-	if( i > 10 )
+	if( i > 11 )
 	{
-		// fix invalid access level
-		CommandAccess = 10;
+		// fix invalid access level; 11 means that it cannot be used
+		CommandAccess = 11;
 	}
 	else if( i < 0 )
 	{
-		// unknown command, ignore
+		// unknown command, ignore (cannot be used)
 		return "";
 	}
 	else
@@ -87,7 +92,7 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 	if( Access < CommandAccess )
 	{
 		// only return a message if the user has access at all
-		if( Access > 0 )
+		if( Access > 0 && m_ChOP->m_DisplayNoAccess )
 			return m_ChOP->m_Language->YouDontHaveAccessToThatCommand( );
 		else
 			return "";
