@@ -582,7 +582,6 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 		if( !m_OutPackets.empty( ) && GetTicks( ) >= m_LastOutPacketTicks + WaitTicks )
 		{
-			CONSOLE_Print("WaitTicks at " + UTIL_ToString(WaitTicks));
 			if( m_OutPackets.size( ) > 7 )
 				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] packet queue warning - there are " + UTIL_ToString( m_OutPackets.size( ) ) + " packets waiting to be sent" );
 
