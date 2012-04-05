@@ -568,13 +568,13 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		if( m_LastOutPacketSize < 10 )
 			WaitTicks = 1300;
 		else if( m_LastOutPacketSize < 30 )
-			WaitTicks = 3200;
-		else if( m_LastOutPacketSize < 50 )
 			WaitTicks = 3400;
+		else if( m_LastOutPacketSize < 50 )
+			WaitTicks = 3600;
 		else if( m_LastOutPacketSize < 100 )
-			WaitTicks = 3700;
+			WaitTicks = 3900;
 		else
-			WaitTicks = 5000;
+			WaitTicks = 5200;
 		
 		// add on frequency delay
 		
@@ -592,7 +592,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 			// reset frequency delay (or increment it)
 			
-			if( m_FrequencyDelayTimes >= 30 || GetTicks( ) > m_LastOutPacketTicks + WaitTicks + 100 )
+			if( m_FrequencyDelayTimes >= 100 || GetTicks( ) > m_LastOutPacketTicks + WaitTicks + 500 )
 				m_FrequencyDelayTimes = 0;
 			else
 				m_FrequencyDelayTimes++;
