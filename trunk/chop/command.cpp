@@ -598,6 +598,11 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 	if( command == "owner" )
 		return m_ChOP->m_Language->BotOwner( m_RootAdmin );
 
+	if( command == "clear" )
+	{
+		while( m_OutPackets.size( ) > 0 )
+			m_OutPackets.pop( );
+	}
 
 	// stats commands
 
