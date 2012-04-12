@@ -106,7 +106,7 @@ def onUpdate(chop):
 			
 			if gqGamelist:
 				# make sure user doesn't already have game
-				pdb.execute("SELECT COUNT(*) FROM games WHERE ownername = %s OR creatorname = %s", (username.lower(), username.lower()))
+				pdb.execute("SELECT COUNT(*) FROM gamelist WHERE ownername = %s OR creatorname = %s", (username.lower(), username.lower()))
 				row = pdb.getCursor().fetchone()
 				
 				if row[0] > 0:
@@ -131,6 +131,7 @@ def onUpdate(chop):
 def onCommand(bnet, user, command, payload, nType):
 	global gqBnet
 	gqBnet = bnet
+	whisper = nType == 1
 
 	lowername = user.getName().lower()
 	
@@ -149,11 +150,11 @@ def onCommand(bnet, user, command, payload, nType):
 				
 				if not duplicate:
 					hostQueue.append((lowername, command, mapname, gamename,))
-					bnet.queueChatCommand("Your game has been queued (your position: " + str(len(hostQueue)) + ")")
+					bnet.queueChatCommand("Your game has been queued (your position: " + str(len(hostQueue)) + ")", user.getName(), whisper)
 				else:
-					bnet.queueChatCommand("Error: you have a game in queue already; use !unhost to unqueue that game first")
+					bnet.queueChatCommand("Error: you have a game in queue already; use !unhost to unqueue that game first", user.getName(), whisper)
 			else:
-				bnet.queueChatCommand("Error: you do not have any map file loaded!")
+				bnet.queueChatCommand("Error: you do not have any map file loaded!", user.getName(), whisper)
 		elif command == "unhost":
 			foundEntry = 0
 			for entry in hostQueue:
@@ -191,20 +192,20 @@ def onCommand(bnet, user, command, payload, nType):
 								foundMatches += ", " + fname
 				
 				if countMatches == 0:
-					bnet.queueChatCommand("No maps found with that name.")
+					bnet.queueChatCommand("No maps found with that name.", user.getName(), whisper)
 				elif countMatches == 1:
-					bnet.queueChatCommand("Loading map file [" + lastMatch + "].")
+					bnet.queueChatCommand("Loading map file [" + lastMatch + "].", user.getName(), whisper)
 					userMaps[lowername] = lastMatch
 				else:
-					bnet.queueChatCommand("Maps found: " + foundMatches)
+					bnet.queueChatCommand("Maps found: " + foundMatches, user.getName(), whisper)
 			else:
 				if lowername in userMaps.keys():
-					bnet.queueChatCommand("Your currently loaded map file is [" + userMaps[lowername] + "].")
+					bnet.queueChatCommand("Your currently loaded map file is [" + userMaps[lowername] + "].", user.getName(), whisper)
 				else:
-					bnet.queueChatCommand("You currently do not have any map file loaded.")
+					bnet.queueChatCommand("You currently do not have any map file loaded.", user.getName(), whisper)
 		elif command == "gamequeue" and payload == "refresh":
 			refreshMaps()
-			bnet.queueChatCommand("Refreshed internal maps list")
+			bnet.queueChatCommand("Refreshed internal maps list", user.getName(), whisper)
 		elif user.getAccess() == 10 and command == "gamequeue" and payload == "print":
 			print("[GAMEQUEUE] Printing loaded maps")
 			
