@@ -35,8 +35,9 @@ def onCommand(bnet, user, command, payload, nType):
 		
 		for row in result_set:
 			if row[0] != "":
-				result_string += str(row[0]) + " (" + str(row[1]) + "/" + str(row[2]) + "), "
-				num_games += 1
+				if payload == "" or payload.lower() in str(row[0]).lower():
+					result_string += str(row[0]) + " (" + str(row[1]) + "/" + str(row[2]) + "), "
+					num_games += 1
 		
 		if num_games > 0:
 			result_string = result_string[:-2]
