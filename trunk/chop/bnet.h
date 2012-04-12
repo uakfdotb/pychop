@@ -193,6 +193,7 @@ public:
 	CUser *GetUserByName( string name );
 	void UpdateSeen( string user );
 	uint32_t NumPackets( ); //get number of outgoing packets in queue
+	int64_t DelayTime( );
 	
 	uint32_t GetNumClanMembers( ) { return m_Clans.size( ); }
 	uint32_t GetNumFriends( ) { return m_Friends.size( ); }

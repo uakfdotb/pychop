@@ -11,25 +11,24 @@ import host
 import MySQLdb
 from plugindb import PluginDB
 
-cursor = 0
 pdb = 0
 	
 def init():
-	global pdb, cursor
+	global pdb
 
 	host.registerHandler('ProcessCommand', onCommand, True)
 	
 	pdb = PluginDB()
 	print("[GETGAMES] Connecting to database...")
-	cursor = pdb.dbconnect()
+	pdb.dbconnect()
 	
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand, True)
 
 def onCommand(bnet, user, command, payload, nType):
 	if command in commands and bnet.getOutPacketsQueued() < 4:
-		cursor.execute("SELECT gamename, slotstaken, slotstotal FROM gamelist");
-		result_set = cursor.fetchall()
+		pdb.execute("SELECT gamename, slotstaken, slotstotal FROM gamelist");
+		result_set = pdb.getCursor().fetchall()
 		result_string = "Current games: "
 		
 		num_games = 0

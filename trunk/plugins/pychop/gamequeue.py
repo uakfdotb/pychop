@@ -22,9 +22,8 @@ gqMapPath = "/home/ghost/maps"
 
 ### end settings
 
-# plugin db instance and cursor if gqGamelist is enabled
+# plugin db instance if gqGamelist is enabled
 pdb = 0
-cursor = 0
 
 # last time that we tried to host a game
 lastTime = 0
@@ -50,12 +49,6 @@ import os
 import time
 from plugindb import PluginDB
 
-def dbConnect():
-        global cursor
-
-        print("[GAMEQUEUE] Connecting to database...")
-        cursor = pdb.dbconnect()
-
 def init():
 	global pdb
 	host.registerHandler('ProcessCommand', onCommand)
@@ -63,7 +56,7 @@ def init():
 
 	if gqGamelist:
                 pdb = PluginDB()
-                dbConnect()
+                pdb.dbconnect()
 	
 	refreshMaps()
 
@@ -94,13 +87,9 @@ def onUpdate(chop):
 		
 		if gqGamelist:
 			# now, delete remaining bots that have a game in gamelist
-			try:
-				cursor.execute("SELECT gamename, botid FROM gamelist");
-			except (MySQLdb.OperationalError):
-				dbConnect();
-				cursor.execute("SELECT gamename, botid FROM gamelist");
+			pdb.execute("SELECT gamename, botid FROM gamelist");
 			
-			result_set = cursor.fetchall()
+			result_set = pdb.getCursor().fetchall()
 			
 			for row in result_set:
 				botid = int(row[1])
