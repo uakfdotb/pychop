@@ -83,7 +83,6 @@ def tryConnection(connection, message):
 	socketError = False
 
 	try:
-		print("[QUEUE] Debug: state=" + str(message))
 		if message == 0: # send request for client's delay
 			connection.sendall(struct.pack('>IB', 5, 0))
 		elif message == 1: # read client's delay response
@@ -97,7 +96,7 @@ def tryConnection(connection, message):
 				# receive a signed long, representing needed delay
 				# negative delay measures time since no delay
 				data = struct.unpack('>q', data)[0]
-				print("q: " + str(best_delay) + " lol " + str(data))
+				
 				# check whether or not this client has the minimum delay
 				if best_delay == -1 or data < best_delay:
 					best_delay = data
