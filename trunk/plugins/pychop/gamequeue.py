@@ -97,26 +97,35 @@ def onUpdate(chop):
 				if row[0] != "" and botid in potentialBots.keys():
 					del potentialBots[botid]
 			
-			if len(potentialBots) > 0:
-				firstEntry = hostQueue.popleft()
-				username = firstEntry[0]
-				command = firstEntry[1] # either pub or priv
-				mapname = firstEntry[2]
-				gamename = firstEntry[3]
+		if len(potentialBots) > 0:
+			firstEntry = hostQueue.popleft()
+			username = firstEntry[0]
+			command = firstEntry[1] # either pub or priv
+			mapname = firstEntry[2]
+			gamename = firstEntry[3]
+			
+			if gqGamelist:
+				# make sure user doesn't already have game
+				pdb.execute("SELECT COUNT(*) FROM games WHERE ownername = %s OR creatorname = %s", (username.lower(), username.lower()))
+				row = pdb.getCursor().fetchone()
+				
+				if row[0] > 0:
+					gqBnet.queueChatCommand("/w " + username + " You already have a game in lobby!")
+					return
 
-				# select a bot at random from the remaining list
-				randIndex = random.choice(potentialBots.keys())
-				botName = potentialBots[randIndex][0]
-				botTrigger = potentialBots[randIndex][1]
-				
-				if command == "priv" and not gqGamelist:
-					command = "pub"
-				
-				targetString = command + "by " + username + " " + gamename
-				
-				gqBnet.queueChatCommand("/w " + botName + " " + botTrigger + "map " + mapname)
-				gqBnet.queueChatCommand("/w " + botName + " " + botTrigger + targetString)
-				gqBnet.queueChatCommand("/w " + username + " Your game [" + gamename + "] should now be hosted on [" + botName + "]!")
+			# select a bot at random from the remaining list
+			randIndex = random.choice(potentialBots.keys())
+			botName = potentialBots[randIndex][0]
+			botTrigger = potentialBots[randIndex][1]
+			
+			if command == "priv" and not gqGamelist:
+				command = "pub"
+			
+			targetString = command + "by " + username + " " + gamename
+			
+			gqBnet.queueChatCommand("/w " + botName + " " + botTrigger + "map " + mapname)
+			gqBnet.queueChatCommand("/w " + botName + " " + botTrigger + targetString)
+			gqBnet.queueChatCommand("/w " + username + " Your game [" + gamename + "] should now be hosted on [" + botName + "]!")
 
 
 def onCommand(bnet, user, command, payload, nType):
@@ -140,6 +149,7 @@ def onCommand(bnet, user, command, payload, nType):
 				
 				if not duplicate:
 					hostQueue.append((lowername, command, mapname, gamename,))
+					bnet.queueChatCommand("Your game has been queued (your position: " + str(len(hostQueue)) + ")")
 				else:
 					bnet.queueChatCommand("Error: you have a game in queue already; use !unhost to unqueue that game first")
 			else:
