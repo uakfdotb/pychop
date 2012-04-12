@@ -559,28 +559,10 @@ bool CBNET :: Update( void *fd, void *send_fd )
 					m_OutPackets.push( m_Protocol->SEND_SID_WARDEN( WardenResponse ) );
 			}
 		}
-
-		// check if at least one packet is waiting to be sent and if we've waited long enough to prevent flooding
-		// this formula has changed many times but currently we wait 1 second if the last packet was "small", 3.2 seconds if it was "medium", and 4 seconds if it was "big"
-
-		uint32_t WaitTicks = 0;
-
-		if( m_LastOutPacketSize < 10 )
-			WaitTicks = 1300;
-		else if( m_LastOutPacketSize < 30 )
-			WaitTicks = 3400;
-		else if( m_LastOutPacketSize < 50 )
-			WaitTicks = 3600;
-		else if( m_LastOutPacketSize < 100 )
-			WaitTicks = 3900;
-		else
-			WaitTicks = 5200;
 		
-		// add on frequency delay
-		
-		WaitTicks += m_FrequencyDelayTimes * 60;
+		int64_t RemainingWait = DelayTime( );
 
-		if( !m_OutPackets.empty( ) && GetTicks( ) >= m_LastOutPacketTicks + WaitTicks )
+		if( !m_OutPackets.empty( ) && RemainingWait <= 0 )
 		{
 			if( m_OutPackets.size( ) > 7 )
 				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] packet queue warning - there are " + UTIL_ToString( m_OutPackets.size( ) ) + " packets waiting to be sent" );
@@ -591,7 +573,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 			// reset frequency delay (or increment it)
 			
-			if( m_FrequencyDelayTimes >= 100 || GetTicks( ) > m_LastOutPacketTicks + WaitTicks + 500 )
+			if( m_FrequencyDelayTimes >= 100 || RemainingWait <= -500 )
 				m_FrequencyDelayTimes = 0;
 			else
 				m_FrequencyDelayTimes++;
@@ -1667,6 +1649,31 @@ uint32_t CBNET :: NumPackets( )
 	return m_OutPackets.size( );
 }
 
+int64_t CBNET :: DelayTime( )
+{
+	// check if at least one packet is waiting to be sent and if we've waited long enough to prevent flooding
+	// this formula has changed many times but currently we wait 1 second if the last packet was "small", 3.2 seconds if it was "medium", and 4 seconds if it was "big"
+
+	uint32_t WaitTicks = 0;
+
+	if( m_LastOutPacketSize < 10 )
+		WaitTicks = 1300;
+	else if( m_LastOutPacketSize < 30 )
+		WaitTicks = 3400;
+	else if( m_LastOutPacketSize < 50 )
+		WaitTicks = 3600;
+	else if( m_LastOutPacketSize < 100 )
+		WaitTicks = 3900;
+	else
+		WaitTicks = 5200;
+
+	// add on frequency delay
+
+	WaitTicks += m_FrequencyDelayTimes * 60;
+	int64_t RemainingWait = (int64_t) m_LastOutPacketTicks + (int64_t) WaitTicks - (int64_t) GetTicks( );
+	return RemainingWait;
+}
+
 vector<string> CBNET :: GetChannelNameList( )
 {
 	vector<string> channelNameList;
@@ -1713,7 +1720,7 @@ void CBNET :: RegisterPythonClass( )
 	
 	class_<std::vector<std::string> >("STD_String")
 		.def(vector_indexing_suite<std::vector<std::string> >())
-		;
+	;
 
 	class_<CBNET>("BNET", no_init)
 		.def_readonly("ChOP", &CBNET::m_ChOP)
@@ -1810,6 +1817,7 @@ void CBNET :: RegisterPythonClass( )
 		.def("getUserByName", &CBNET::GetUserByName, return_internal_reference<>())
 		.def("updateSeen", &CBNET::UpdateSeen)
 		.def("numPackets", &CBNET::NumPackets)
+		.def("delayTime", &CBNET::DelayTime)
 		
 		.def("getUserNameList", &CBNET::GetUserNameList)
 		.def("getChannelNameList", &CBNET::GetChannelNameList)

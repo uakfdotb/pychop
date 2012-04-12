@@ -13,14 +13,7 @@ import MySQLdb
 from plugindb import PluginDB
 import time
 
-cursor = 0
 pdb = 0
-
-def dbReady():
-	global cursor
-	
-	print("[INACTIVE] Connecting to database...")
-	cursor = pdb.dbconnect()
 	
 def init():
 	global pdb
@@ -28,7 +21,7 @@ def init():
 	host.registerHandler('ProcessCommand', onCommand, True)
 	
 	pdb = PluginDB()
-	pdb.notifyReady(dbReady)
+	pdb.dbconnect()
 	
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand, True)
@@ -41,8 +34,8 @@ def onCommand(bnet, user, command, payload, nType):
 		# now identify gettime() at timeMillis in the past
 		timeTarget = host.GetTicks() - timeMillis;
 		
-		cursor.execute("SELECT name, seen FROM users");
-		result_set = cursor.fetchall()
+		pdb.execute("SELECT name, seen FROM users");
+		result_set = pdb.getCursor().fetchall()
 		result_string = "Inactive users: "
 		
 		# this list will be used for determining clan members who have never been seen

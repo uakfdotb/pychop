@@ -18,6 +18,7 @@
 */
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include "chop.h"
 #include "util.h"
 #include "crc32.h"
@@ -947,6 +948,11 @@ void CChOP :: EventBNETConnectTimedOut( CBNET *bnet )
 void CChOP :: RegisterPythonClass( )
 {
 	using namespace boost::python;
+
+	
+	class_<std::vector<CBNET *> >("VECT_BNET")
+		.def(vector_indexing_suite<std::vector<CBNET *> >())
+		;
 
 	class_<CChOP>("CChOP", no_init)
 		.def_readwrite("CRC", &CChOP::m_CRC)

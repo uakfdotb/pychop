@@ -31,14 +31,7 @@ import host
 import MySQLdb
 from plugindb import PluginDB
 
-cursor = 0
 pdb = 0
-
-def dbReady():
-	global cursor
-	
-	print("[DBSTATS] Connecting to database...")
-	cursor = pdb.dbconnect()
 
 def init():
 	global pdb
@@ -46,7 +39,7 @@ def init():
 	host.registerHandler('ProcessCommand', onCommand)
 	
 	pdb = PluginDB()
-	pdb.notifyReady(dbReady)
+	pdb.dbconnect()
 
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand)
@@ -55,28 +48,28 @@ def onCommand(bnet, user, command, payload, nType):
 	whisper = nType == 1
 	
 	if command in commands and bnet.getOutPacketsQueued() < 4:
-		cursor.execute("SELECT COUNT(DISTINCT plugin) FROM plugindb")
-		result = cursor.fetchone()
+		pdb.execute("SELECT COUNT(DISTINCT plugin) FROM plugindb")
+		result = pdb.getCursor().fetchone()
 		numPlugins = result[0]
 		
-		cursor.execute("SELECT COUNT(*) FROM plugindb")
-		result = cursor.fetchone()
+		pdb.execute("SELECT COUNT(*) FROM plugindb")
+		result = pdb.getCursor().fetchone()
 		numPDB = result[0]
 		
-		cursor.execute("SELECT COUNT(*) FROM users")
-		result = cursor.fetchone()
+		pdb.execute("SELECT COUNT(*) FROM users")
+		result = pdb.getCursor().fetchone()
 		numUsers = result[0]
 		
-		cursor.execute("SELECT COUNT(*) FROM admins")
-		result = cursor.fetchone()
+		pdb.execute("SELECT COUNT(*) FROM admins")
+		result = pdb.getCursor().fetchone()
 		numAdmins = result[0]
 		
-		cursor.execute("SELECT COUNT(*) FROM bans")
-		result = cursor.fetchone()
+		pdb.execute("SELECT COUNT(*) FROM bans")
+		result = pdb.getCursor().fetchone()
 		numBans = result[0]
 		
-		cursor.execute("SELECT COUNT(*) FROM users WHERE access>'1'")
-		result = cursor.fetchone()
+		pdb.execute("SELECT COUNT(*) FROM users WHERE access>'1'")
+		result = pdb.getCursor().fetchone()
 		numAccessUsers = result[0]
 		
 		bnet.queueChatCommand("#plugins: " + str(numPlugins) + "; #pdbrows: " + str(numPDB) + "; #users: " + str(numUsers) + "; #admins: " + str(numAdmins) + "; #bans: " + str(numBans) + "; #users with access: " + str(numAccessUsers), user.getName(), whisper)

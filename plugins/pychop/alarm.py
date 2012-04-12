@@ -22,20 +22,12 @@ from plugindb import PluginDB
 # PluginDB instance
 pdb = 0
 
-# MySQL cursor instance
-cursor = 0
-
 alarms = []
 
 # bnet instance to send alarms too
 alarm_bnet = 0
 
-def dbReady():
-	global cursor
-	
-	print("[ALARM] Connecting to database...")
-	cursor = pdb.dbconnect()
-	
+def dbList():
 	print("[ALARM] Getting list of alarms...")
 	dbAlarmList = pdb.dbGetAll()
 	
@@ -53,7 +45,8 @@ def init():
 	
 	pdb = PluginDB()
 	pdb.setPluginName("alarm")
-	pdb.notifyReady(dbReady)
+	pdb.dbconnect()
+	dbList()
 
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand)

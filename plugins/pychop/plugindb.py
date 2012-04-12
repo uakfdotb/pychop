@@ -47,6 +47,9 @@ class PluginDB:
 		self.cursor.execute("CREATE TABLE IF NOT EXISTS plugindb (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, plugin VARCHAR(16), k VARCHAR(128), val VARCHAR(128))")
 	
 		return self.cursor
+	
+	def getCursor(self):
+		return self.cursor
 
 	def close(self):
 		if self.cursor != 0:
@@ -59,10 +62,17 @@ class PluginDB:
 
 	def escape(self, nStr):
 		return self.conn.escape_string(nStr)
+	
+	def execute(self, arg1, arg2 = ()):
+		try:
+			self.cursor.execute(arg1, arg2)
+		except (MySQLdb.OperationalError):
+			self.dbconnect()
+			self.cursor.execute(arg1, arg2) # hopefully it doesn't fail a second time, but definitely don't enter an infinite loop
 
 	# from plugin table, retrieve (key's value (string), id) or return -1
 	def dbGet(self, name, key):
-		self.cursor.execute("SELECT val,id FROM plugindb WHERE plugin=%s AND k=%s", (name,key,))
+		self.execute("SELECT val,id FROM plugindb WHERE plugin=%s AND k=%s", (name,key,))
 		result = self.cursor.fetchone()
 	
 		if result == None:
@@ -71,21 +81,21 @@ class PluginDB:
 			return (str(result[0]), int(result[1]),)
 
 	def dbSet(self, key, value):
-		self.cursor.execute("UPDATE plugindb SET val=%s WHERE plugin=%s AND k=%s", (value,self.pluginName,key,))
+		self.execute("UPDATE plugindb SET val=%s WHERE plugin=%s AND k=%s", (value,self.pluginName,key,))
 
 	def dbFastSet(self, i, value):
-		self.cursor.execute("UPDATE plugindb SET val=%s WHERE id=%s", (value,i,))
+		self.execute("UPDATE plugindb SET val=%s WHERE id=%s", (value,i,))
 
 	def dbAdd(self, key, value):
-		self.cursor.execute("INSERT INTO plugindb (plugin,k,val) VALUES(%s, %s, %s)", (self.pluginName,key,value,))
+		self.execute("INSERT INTO plugindb (plugin,k,val) VALUES(%s, %s, %s)", (self.pluginName,key,value,))
 		return self.cursor.lastrowid
 
 	def dbRemove(self, key):
-		self.cursor.execute("DELETE FROM plugindb WHERE plugin=%s AND k=%s", (self.pluginName,key,))
+		self.execute("DELETE FROM plugindb WHERE plugin=%s AND k=%s", (self.pluginName,key,))
 
 	# returns array with tuples (key, value, dbID)
 	def dbGetAll(self):
-		self.cursor.execute("SELECT k,val,id FROM plugindb WHERE plugin=%s", (self.pluginName,))
+		self.execute("SELECT k,val,id FROM plugindb WHERE plugin=%s", (self.pluginName,))
 		result_set = self.cursor.fetchall()
 		result_list = []
 	
@@ -95,7 +105,7 @@ class PluginDB:
 		return result_list
 
 	def dbClear(self):
-		self.cursor.execute("DELETE FROM plugindb WHERE plugin=%s", (self.pluginName,))
+		self.execute("DELETE FROM plugindb WHERE plugin=%s", (self.pluginName,))
 
 	# gets tuple(dictionary of key->score, dictionary of userid->score)
 	# score functions later will use this tuple (scoreTuple)

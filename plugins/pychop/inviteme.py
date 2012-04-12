@@ -20,25 +20,12 @@ floodDelay = 10000
 
 import host
 import time
-import MySQLdb
-from plugindb import PluginDB
-
-# PluginDB instance
-pdb = 0
-
-# MySQL cursor instance
-cursor = 0
 
 # last time used
 lastInvite = 0
 
 def init():
-	global pdb, cursor
-
 	host.registerHandler('ProcessCommand', onCommand)
-	
-	pdb = PluginDB()
-	cursor = pdb.dbconnect()
 
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand)
@@ -49,7 +36,7 @@ def onCommand(bnet, user, command, payload, nType):
 	if command in commands and gettime() - lastInvite > floodDelay:
 		lastInvite = gettime()
 		bnet.sendClanInvitation(user.getName())
-		print("Invited " + user.getName() + " to the clan (#games=" + str(row[0]) + ")")
+		print("Invited " + user.getName() + " to the clan")
 
 def gettime():
 	return int(round(time.time() * 1000))
