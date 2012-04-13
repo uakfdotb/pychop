@@ -1847,6 +1847,7 @@ void CBNET :: RegisterPythonClass( )
 		.def("updateSeen", &CBNET::UpdateSeen)
 		.def("numPackets", &CBNET::NumPackets)
 		.def("delayTime", &CBNET::DelayTime)
+		.def("totalDelayTime", &CBNET::TotalDelayTime)
 		
 		.def("getUserNameList", &CBNET::GetUserNameList)
 		.def("getChannelNameList", &CBNET::GetChannelNameList)
