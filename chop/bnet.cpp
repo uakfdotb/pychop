@@ -1649,29 +1649,58 @@ uint32_t CBNET :: NumPackets( )
 	return m_OutPackets.size( );
 }
 
-int64_t CBNET :: DelayTime( )
+int64_t CBNET :: PacketDelayTime( uint32_t PacketSize, uint32_t FrequencyDelayTimes )
 {
 	// check if at least one packet is waiting to be sent and if we've waited long enough to prevent flooding
 	// this formula has changed many times but currently we wait 1 second if the last packet was "small", 3.2 seconds if it was "medium", and 4 seconds if it was "big"
 
 	uint32_t WaitTicks = 0;
 
-	if( m_LastOutPacketSize < 10 )
+	if( PacketSize < 10 )
 		WaitTicks = 1300;
-	else if( m_LastOutPacketSize < 30 )
+	else if( PacketSize < 30 )
 		WaitTicks = 3400;
-	else if( m_LastOutPacketSize < 50 )
+	else if( PacketSize < 50 )
 		WaitTicks = 3600;
-	else if( m_LastOutPacketSize < 100 )
+	else if( PacketSize < 100 )
 		WaitTicks = 3900;
 	else
 		WaitTicks = 5200;
 
 	// add on frequency delay
 
-	WaitTicks += m_FrequencyDelayTimes * 60;
+	WaitTicks += FrequencyDelayTimes * 60;
 	int64_t RemainingWait = (int64_t) m_LastOutPacketTicks + (int64_t) WaitTicks - (int64_t) GetTicks( );
 	return RemainingWait;
+}
+
+int64_t CBNET :: DelayTime( )
+{
+	return PacketDelayTime( m_LastOutPacketSize, m_FrequencyDelayTimes );
+}
+
+int64_t CBNET :: TotalDelayTime( )
+{
+	// checks unsent packets, in addition to last packet's delay time
+
+	int64_t TotalDelayTime = DelayTime( );
+	uint32_t VirtualFrequencyDelayTimes = m_FrequencyDelayTimes;
+	
+	queue<BYTEARRAY> OutPackets = m_OutPackets;
+	
+	while( OutPackets.size( ) > 0 )
+	{
+		TotalDelayTime += PacketDelayTime( OutPackets.front( ).size( ), VirtualFrequencyDelayTimes );
+		
+		if( VirtualFrequencyDelayTimes >= 100 )
+			VirtualFrequencyDelayTimes = 0;
+		else
+			VirtualFrequencyDelayTimes++;
+		
+		OutPackets.pop( );
+	}
+	
+	return TotalDelayTime;
 }
 
 vector<string> CBNET :: GetChannelNameList( )
