@@ -128,7 +128,7 @@ def onQueue(bnet, command):
 	global best_connection, best_delay
 	
 	# first check to see if we can reply directly, if our queue is empty (or if no connections to use)
-	remainingWait = bnet.delayTime()
+	remainingWait = bnet.totalDelayTime()
 	
 	if remainingWait <= 0 or len(connections) == 0:
 		return True
@@ -140,9 +140,11 @@ def onQueue(bnet, command):
 	connections[:] = [connection for connection in connections if tryConnection(connection, 0)]
 	connections[:] = [connection for connection in connections if tryConnection(connection, 1)]
 	
-	if best_connection != 0:
+	if best_connection != 0 and best_delay > remainingWait:
 		print("[QUEUE] Forwarding to " + str(connection.getpeername()))
 		tryConnection(best_connection, command)
+	else:
+		return True
 	
 	return False
 
@@ -201,7 +203,7 @@ def onUpdate(chop):
 							if bnet.getOutPacketsQueued() > 0:
 								mainSocket.sendall(struct.pack('>q', bnet.getOutPacketsQueued() * 5000))
 							else:
-								mainSocket.sendall(struct.pack('>q', bnet.delayTime()))
+								mainSocket.sendall(struct.pack('>q', bnet.totalDelayTime()))
 						elif packet_type == 1: # server is telling us to send a message
 							print("[QUEUE] Accepting message from server")
 							message = packet[0:]
