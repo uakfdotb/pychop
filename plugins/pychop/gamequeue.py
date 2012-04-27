@@ -226,9 +226,24 @@ def onCommand(bnet, user, command, payload, nType):
 					bnet.queueChatCommand("Maps found: " + foundMatches, user.getName(), whisper)
 			else:
 				if lowername in userMaps.keys():
-					bnet.queueChatCommand("Your currently loaded map file is [" + userMaps[lowername][0] + "].", user.getName(), whisper)
+					bnet.queueChatCommand("Your currently loaded map file is [" + userMaps[lowername][1] + "].", user.getName(), whisper)
 				else:
 					bnet.queueChatCommand("You currently do not have any map file loaded.", user.getName(), whisper)
+		elif command == "gamequeue" and payload == "pos":
+			# find user's position in the hosting queue
+			counter = 0
+			found = 0
+			
+			for entry in hostQueue:
+				counter = counter + 1
+				
+				if lowername == entry[0]:
+					bnet.queueChatCommand("Your position in queue: " + str(counter), user.getName(), whisper)
+					found = 1
+					break
+			
+			if found == 0:
+				bnet.queueChatCommand("You were not found in the queue.", user.getName(), whisper)
 		elif command == "gamequeue" and payload == "refresh":
 			refreshMaps()
 			bnet.queueChatCommand("Refreshed internal maps list", user.getName(), whisper)
@@ -244,7 +259,7 @@ def onCommand(bnet, user, command, payload, nType):
 			print("[GAMEQUEUE] Printing queue")
 			
 			for entry in hostQueue:
-				print("[GAMEQUEUE] " + hostQueue[0] + "  " + hostQueue[1] + "  " + hostQueue[2] + "  " + hostQueue[3] + "  " + hostQueue[4])
+				print("[GAMEQUEUE] " + entry[0] + "  " + entry[1] + "  " + entry[2] + "  " + entry[3] + "  " + entry[4])
 
 def gettime():
 	return int(round(time.time() * 1000))
