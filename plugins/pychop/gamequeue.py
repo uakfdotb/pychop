@@ -20,6 +20,9 @@ gqGamelist = True
 # path to maps
 gqMapPath = "/home/ghost/maps"
 
+# path to map configuration files
+gqCfgPath = "/home/ghost/mapcfgs"
+
 ### end settings
 
 # plugin db instance if gqGamelist is enabled
@@ -31,15 +34,21 @@ lastTime = 0
 # list of maps
 mapList = []
 
-# dictionary from username to loaded map
+# list of map configs
+cfgList = []
+
+# dictionary from username to tuple ("map" or "cfg", loaded map or cfg name)
 userMaps = {}
 
 # bnet to use
 gqBnet = 0
 
+# the last time that each bot was used
+gqBotTime = {}
+
 from collections import deque
 
-# queue containing tuples (username, command, mapname, gamename)
+# queue containing tuples (username, command, maptype (load or map), mapname, gamename)
 hostQueue = deque()
 
 import host
@@ -55,8 +64,8 @@ def init():
 	host.registerHandler('Update', onUpdate)
 
 	if gqGamelist:
-                pdb = PluginDB()
-                pdb.dbconnect()
+		pdb = PluginDB()
+		pdb.dbconnect()
 	
 	refreshMaps()
 
@@ -65,13 +74,14 @@ def deinit():
 	host.unregisterHandler('Update', onUpdate)
 
 def refreshMaps():
-	global mapList
+	global mapList, cfgList
 	
 	print("[GAMEQUEUE] Refreshing internal map list...")
 	mapList = os.listdir(gqMapPath)
+	cfgList = os.listdir(gqCfgPath)
 
 def onUpdate(chop):
-	global lastTime
+	global lastTime, gqBotTime
 
 	if gettime() - lastTime > 3000 and hostQueue and gqBnet != 0:
 		lastTime = gettime()
@@ -83,6 +93,11 @@ def onUpdate(chop):
 		
 		for key in potentialBots.keys():
 			if not potentialBots[key][0].lower() in channelUsers:
+				del potentialBots[key]
+		
+		# remove bots that have been used too recently
+		for key in potentialBots.keys():
+			if gettime() - gqBotTime.get(key, 0) < 10000:
 				del potentialBots[key]
 		
 		if gqGamelist:
@@ -101,8 +116,9 @@ def onUpdate(chop):
 			firstEntry = hostQueue.popleft()
 			username = firstEntry[0]
 			command = firstEntry[1] # either pub or priv
-			mapname = firstEntry[2]
-			gamename = firstEntry[3]
+			maptype = firstEntry[2]
+			mapname = firstEntry[3]
+			gamename = firstEntry[4]
 			
 			if gqGamelist:
 				# make sure user doesn't already have game
@@ -118,12 +134,15 @@ def onUpdate(chop):
 			botName = potentialBots[randIndex][0]
 			botTrigger = potentialBots[randIndex][1]
 			
+			# update the time that this bot was used
+			gqBotTime[randIndex] = gettime()
+			
 			if command == "priv" and not gqGamelist:
 				command = "pub"
 			
 			targetString = command + "by " + username + " " + gamename
 			
-			gqBnet.queueChatCommand("/w " + botName + " " + botTrigger + "map " + mapname)
+			gqBnet.queueChatCommand("/w " + botName + " " + botTrigger + maptype + " " + mapname) # !load or !map the map
 			gqBnet.queueChatCommand("/w " + botName + " " + botTrigger + targetString)
 			gqBnet.queueChatCommand("/w " + username + " Your game [" + gamename + "] should now be hosted on [" + botName + "]!")
 
@@ -138,7 +157,7 @@ def onCommand(bnet, user, command, payload, nType):
 	if user.getAccess() >= gqAccess:
 		if command == "priv" or command == "pub":
 			if lowername in userMaps.keys():
-				mapname = userMaps[lowername]
+				mapinfo = userMaps[lowername]
 				gamename = payload
 				
 				# make sure this user hasn't hosted already
@@ -149,7 +168,7 @@ def onCommand(bnet, user, command, payload, nType):
 						break
 				
 				if not duplicate:
-					hostQueue.append((lowername, command, mapname, gamename,))
+					hostQueue.append((lowername, command, mapinfo[0], mapinfo[1], gamename,))
 					bnet.queueChatCommand("Your game has been queued (your position: " + str(len(hostQueue)) + ")", user.getName(), whisper)
 				else:
 					bnet.queueChatCommand("Error: you have a game in queue already; use !unhost to unqueue that game first", user.getName(), whisper)
@@ -164,14 +183,18 @@ def onCommand(bnet, user, command, payload, nType):
 			
 			if foundEntry != 0:
 				hostQueue.remove(foundEntry)
-		elif command == "map":
+		elif command == "map" or command == "load":
 			if payload != "":
 				payload = payload.lower() # case insensitive search
 				lastMatch = ""
 				foundMatches = ""
 				countMatches = 0
 				
-				for fname in mapList:
+				targetList = mapList
+				if command == "load":
+					targetList = cfgList
+				
+				for fname in targetList:
 					fname_lower = fname.lower()
 					
 					# extract stem for exact stem match
@@ -192,15 +215,18 @@ def onCommand(bnet, user, command, payload, nType):
 								foundMatches += ", " + fname
 				
 				if countMatches == 0:
-					bnet.queueChatCommand("No maps found with that name.", user.getName(), whisper)
+					if command == "map":
+						bnet.queueChatCommand("No maps found with that name.", user.getName(), whisper)
+					else:
+						bnet.queueChatCommand("No map configuration found with that name. Use !map for normal map files.", user.getName(), whisper)
 				elif countMatches == 1:
 					bnet.queueChatCommand("Loading map file [" + lastMatch + "].", user.getName(), whisper)
-					userMaps[lowername] = lastMatch
+					userMaps[lowername] = (command, lastMatch,)
 				else:
 					bnet.queueChatCommand("Maps found: " + foundMatches, user.getName(), whisper)
 			else:
 				if lowername in userMaps.keys():
-					bnet.queueChatCommand("Your currently loaded map file is [" + userMaps[lowername] + "].", user.getName(), whisper)
+					bnet.queueChatCommand("Your currently loaded map file is [" + userMaps[lowername][0] + "].", user.getName(), whisper)
 				else:
 					bnet.queueChatCommand("You currently do not have any map file loaded.", user.getName(), whisper)
 		elif command == "gamequeue" and payload == "refresh":
@@ -208,14 +234,17 @@ def onCommand(bnet, user, command, payload, nType):
 			bnet.queueChatCommand("Refreshed internal maps list", user.getName(), whisper)
 		elif user.getAccess() == 10 and command == "gamequeue" and payload == "print":
 			print("[GAMEQUEUE] Printing loaded maps")
-			
 			for fname in mapList:
+				print("[GAMEQUEUE] " + fname)
+			
+			print("[GAMEQUEUE] Printing loaded map configs")
+			for fname in cfgList:
 				print("[GAMEQUEUE] " + fname)
 		elif user.getAccess() == 10 and command == "gamequeue" and payload == "queue":
 			print("[GAMEQUEUE] Printing queue")
 			
 			for entry in hostQueue:
-				print("[GAMEQUEUE] " + hostQueue[0] + "  " + hostQueue[1] + "  " + hostQueue[2] + "  " + hostQueue[3])
+				print("[GAMEQUEUE] " + hostQueue[0] + "  " + hostQueue[1] + "  " + hostQueue[2] + "  " + hostQueue[3] + "  " + hostQueue[4])
 
 def gettime():
 	return int(round(time.time() * 1000))
