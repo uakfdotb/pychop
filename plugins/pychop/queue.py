@@ -28,7 +28,7 @@ lastSocketCreate = 0
 
 # these are used in searching for connection with minimum delay
 best_connection = 0
-best_delay = -1
+best_delay = None
 
 def connect():
 	global mainSocket, lastSocketCreate
@@ -98,7 +98,7 @@ def tryConnection(connection, message):
 				data = struct.unpack('>q', data)[0]
 				
 				# check whether or not this client has the minimum delay
-				if best_delay == -1 or data < best_delay:
+				if best_delay == None or data < best_delay:
 					best_delay = data
 					best_connection = connection
 		else: # send message to client
@@ -135,12 +135,12 @@ def onQueue(bnet, command):
 
 	# try to contact each connection and get the one with minimum remainingWait, or any with remainingWait <= 0
 	best_connection = 0
-	best_delay = -1
+	best_delay = None
 	
 	connections[:] = [connection for connection in connections if tryConnection(connection, 0)]
 	connections[:] = [connection for connection in connections if tryConnection(connection, 1)]
 	
-	if best_connection != 0 and best_delay > remainingWait:
+	if best_connection != 0 and best_delay < remainingWait:
 		print("[QUEUE] Forwarding to " + str(connection.getpeername()))
 		tryConnection(best_connection, command)
 	else:
@@ -200,10 +200,7 @@ def onUpdate(chop):
 						bnet = chop.BNETs[0]
 						
 						if packet_type == 0: # server is requesting to get our delay
-							if bnet.getOutPacketsQueued() > 0:
-								mainSocket.sendall(struct.pack('>q', bnet.getOutPacketsQueued() * 5000))
-							else:
-								mainSocket.sendall(struct.pack('>q', bnet.totalDelayTime()))
+							mainSocket.sendall(struct.pack('>q', bnet.totalDelayTime()))
 						elif packet_type == 1: # server is telling us to send a message
 							print("[QUEUE] Accepting message from server")
 							message = packet[0:]
