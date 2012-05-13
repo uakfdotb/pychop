@@ -364,6 +364,19 @@ int main( int argc, char **argv )
 						"sys.stdout = Logger('stdout')									\n"
 						"sys.stderr = Logger('stderr')									\n",
 						global, global);
+						
+	string PluginPath = CFG.GetString( "bot_pluginpath", "." );
+	string AppendCode = "import sys\nsys.path.append('" + PluginPath + "')";
+
+	try
+	{
+		boost::python::exec(AppendCode.c_str(), global, global);
+	}
+	catch(...)
+	{
+		PyErr_Print();
+		throw;
+	}
 
 	CChOP::RegisterPythonClass( );
 	CBNLSProtocol::RegisterPythonClass( );
