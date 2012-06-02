@@ -177,8 +177,9 @@ public:
 	// other functions
 
 	bool IsRootAdmin( string name );
-	CDBBan *IsBannedName( string name );
-	CDBBan *IsBannedIP( string ip );
+	bool IsBannedName( string name );
+	bool IsBannedIP( string ip );
+	CDBBan *GetBannedInfo( string name );
 	void AddBan( string name, string ip, string gamename, string admin, string reason );
 	void AddUser( string name, uint32_t access );
 	void RemoveBan( string name );

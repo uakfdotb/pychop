@@ -270,7 +270,7 @@ string CBNET :: ProcessCommand( CUser *User, string command, string payload, uin
 		if( payload.empty( ) )
 			return "";
 
-		CDBBan *Ban = IsBannedName( payload );
+		CDBBan *Ban = GetBannedInfo( payload );
 
 		if( Ban )
 			return m_ChOP->m_Language->UserWasBannedOnByBecause( m_Server, payload, Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) );

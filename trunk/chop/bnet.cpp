@@ -1171,9 +1171,9 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		string lowerUser = User;
 		transform( lowerUser.begin( ), lowerUser.end( ), lowerUser.begin( ), (int(*)(int))tolower );
 
-		CDBBan *Ban = IsBannedName( User );
+		bool Banned = IsBannedName( User );
 
-		if( Ban )
+		if( Banned && m_IsOperator && m_ChOP->m_BanlistChannel )
 			QueueChatCommand( "/ban " + User + " banlist" );
 		else
 		{
@@ -1416,7 +1416,7 @@ bool CBNET :: IsRootAdmin( string name )
 	return name == m_RootAdmin;
 }
 
-CDBBan *CBNET :: IsBannedName( string name )
+bool CBNET :: IsBannedName( string name )
 {
 	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
 
@@ -1425,19 +1425,34 @@ CDBBan *CBNET :: IsBannedName( string name )
 	for( vector<CDBBan *> :: iterator i = m_Bans.begin( ); i != m_Bans.end( ); i++ )
 	{
 		if( (*i)->GetName( ) == name )
-			return *i;
+			return true;
 	}
 
-	return NULL;
+	return false;
 }
 
-CDBBan *CBNET :: IsBannedIP( string ip )
+bool CBNET :: IsBannedIP( string ip )
 {
 	// todotodo: optimize this - maybe use a map?
 
 	for( vector<CDBBan *> :: iterator i = m_Bans.begin( ); i != m_Bans.end( ); i++ )
 	{
 		if( (*i)->GetIP( ) == ip )
+			return true;
+	}
+
+	return false;
+}
+
+CDBBan *CBNET :: GetBannedInfo( string name )
+{
+	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
+
+	// todotodo: optimize this - maybe use a map?
+
+	for( vector<CDBBan *> :: iterator i = m_Bans.begin( ); i != m_Bans.end( ); i++ )
+	{
+		if( (*i)->GetName( ) == name )
 			return *i;
 	}
 
@@ -1830,8 +1845,8 @@ void CBNET :: RegisterPythonClass( )
 		.def("sendClanSetMOTD", &CBNET::SendClanSetMOTD)
 
 		.def("isRootAdmin", &CBNET::IsRootAdmin)
-		.def("isBannedName", &CBNET::IsBannedName, return_internal_reference<>())
-		.def("isBannedIP", &CBNET::IsBannedIP, return_internal_reference<>())
+		.def("isBannedName", &CBNET::IsBannedName)
+		.def("isBannedIP", &CBNET::IsBannedIP)
 		.def("addUser", &CBNET::AddUser)
 		.def("addBan", &CBNET::AddBan)
 		.def("removeUser", &CBNET::RemoveUser)
