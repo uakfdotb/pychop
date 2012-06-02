@@ -137,6 +137,7 @@ public:
 	
 	bool m_DisablePublic;					// config value: disable commands for users with no access?
 	bool m_DisplayNoAccess;					// config value: show no access messages?
+	bool m_BanlistChannel;					// config value: ban banlisted users from the channel?
 
 	string m_CFGPath;						// path to txt files
 
