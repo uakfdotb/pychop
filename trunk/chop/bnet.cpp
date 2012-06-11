@@ -1084,85 +1084,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			}
 			else
 			{
-				uint32_t kick = 0;
-
-				// AntiSpam
-
-				if( m_ChOP->m_AntiSpam )
-				{
-					string message = Message + ";" + User;
-
-					if( m_SpamCache.size( ) == m_ChOP->m_SpamCacheSize )
-						m_SpamCache.erase( m_SpamCache.begin( ) );
-
-					m_SpamCache.push_back( message );
-
-					if(	user->GetAccess( ) == 0 )
-					{
-						int matches = 0;
-
-						for( vector<string> :: iterator i = m_SpamCache.begin( ); i != m_SpamCache.end( ); i++ )
-							if( (*i) == message )
-								matches++;
-
-						if( matches > 2 || ( message.length( ) > 3 && matches > 1 ) )
-							kick = 1;
-					}
-				}
-
-				// AntiYell
-
-				if( !kick && m_ChOP->m_AntiYell && user->GetAccess( ) == 0 )
-				{
-					int charCount = 0;
-
-					for( int i = 0; i != Message.length( ); i++ )
-					{
-						if( isalpha( Message[i] ) )
-							charCount++;
-					}
-
-					if( charCount > 3 && charCount >= Message.length( ) / 2 )
-					{
-						string upperMessage = Message;
-						transform( upperMessage.begin( ), upperMessage.end( ), upperMessage.begin( ), (int(*)(int))toupper );
-
-						if(	Message == upperMessage )
-							kick = 2;
-					}
-				}
-
-				// PhraseKick
-
-				if( !kick && m_ChOP->m_PhraseKick && user->GetAccess( ) == 0 )
-				{
-					string message = Message;
-					transform( message.begin( ), message.end( ), message.begin( ), (int(*)(int))tolower );
-
-					for( vector<string> :: iterator i = m_ChOP->m_Phrases.begin( ); i != m_ChOP->m_Phrases.end( ); i++ )
-					{
-						if( message.find( *i ) != string :: npos )
-							kick = 3;
-					}
-				}
-
-				// kick ?
-				if( kick )
-				{
-					switch( kick )
-					{
-					case 1:
-						QueueChatCommand( "/kick " + User + " " + m_ChOP->m_Language->KickSpam( ) );
-						break;
-					case 2:
-						QueueChatCommand( "/kick " + User + " " + m_ChOP->m_Language->KickYell( ) );
-						break;
-					case 3:
-						QueueChatCommand( "/kick " + User + " " + m_ChOP->m_Language->KickPhrase( ) );
-						break;
-					}
-				}
-
+				ProcessCorePlugins( user, Message );
 			}
 		}
 	}
@@ -1277,7 +1199,102 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 	else if( Event == CBNETProtocol :: EID_EMOTE ) {
 		EXECUTE_HANDLER("EmoteReceived", false, boost::ref(this), User, Message)
 		
+		string lowerUser = User;
+		transform( lowerUser.begin( ), lowerUser.end( ), lowerUser.begin( ), (int(*)(int))tolower );
+		
+		CUser *user = GetUserByName( User );
+
+		if( !user ) {
+			user = new CUser( User, 0 );
+			m_Users[lowerUser] = user;
+		}
+			
+		ProcessCorePlugins( user, Message );
+		
 		CONSOLE_Print( "[EMOTE: " + m_ServerAlias + "] [" + User + "] " + Message );
+	}
+}
+
+void CBNET :: ProcessCorePlugins( CUser *user, string Message )
+{
+	uint32_t kick = 0;
+	string User = user->GetName( );
+
+	// AntiSpam
+
+	if( m_ChOP->m_AntiSpam )
+	{
+		string message = Message + ";" + User;
+
+		if( m_SpamCache.size( ) == m_ChOP->m_SpamCacheSize )
+			m_SpamCache.erase( m_SpamCache.begin( ) );
+
+		m_SpamCache.push_back( message );
+
+		if(	user->GetAccess( ) == 0 )
+		{
+			int matches = 0;
+
+			for( vector<string> :: iterator i = m_SpamCache.begin( ); i != m_SpamCache.end( ); i++ )
+				if( (*i) == message )
+					matches++;
+
+			if( matches > 2 || ( message.length( ) > 3 && matches > 1 ) )
+				kick = 1;
+		}
+	}
+
+	// AntiYell
+
+	if( !kick && m_ChOP->m_AntiYell && user->GetAccess( ) == 0 )
+	{
+		int charCount = 0;
+
+		for( int i = 0; i != Message.length( ); i++ )
+		{
+			if( isalpha( Message[i] ) )
+				charCount++;
+		}
+
+		if( charCount > 3 && charCount >= Message.length( ) / 2 )
+		{
+			string upperMessage = Message;
+			transform( upperMessage.begin( ), upperMessage.end( ), upperMessage.begin( ), (int(*)(int))toupper );
+
+			if(	Message == upperMessage )
+				kick = 2;
+		}
+	}
+
+	// PhraseKick
+
+	if( !kick && m_ChOP->m_PhraseKick && user->GetAccess( ) == 0 )
+	{
+		string message = Message;
+		transform( message.begin( ), message.end( ), message.begin( ), (int(*)(int))tolower );
+
+		for( vector<string> :: iterator i = m_ChOP->m_Phrases.begin( ); i != m_ChOP->m_Phrases.end( ); i++ )
+		{
+			if( message.find( *i ) != string :: npos )
+				kick = 3;
+		}
+	}
+
+	// kick ?
+	if( kick )
+	{
+		switch( kick )
+		{
+		case 1:
+			QueueChatCommand( "/kick " + User + " " + m_ChOP->m_Language->KickSpam( ) );
+			break;
+		case 2:
+			QueueChatCommand( "/kick " + User + " " + m_ChOP->m_Language->KickYell( ) );
+			break;
+		case 3:
+			QueueChatCommand( "/kick " + User + " " + m_ChOP->m_Language->KickPhrase( ) );
+			break;
+		}
 	}
 }
 
@@ -1680,12 +1697,14 @@ int64_t CBNET :: PacketDelayTime( uint32_t PacketSize, uint32_t FrequencyDelayTi
 	else if( PacketSize < 100 )
 		WaitTicks = 3900;
 	else
-		WaitTicks = 5200;
+		WaitTicks = 5500;
 
 	// add on frequency delay
 
 	WaitTicks += FrequencyDelayTimes * 60;
-	int64_t RemainingWait = (int64_t) m_LastOutPacketTicks + (int64_t) WaitTicks - (int64_t) GetTicks( );
+	
+	uint32_t ElapsedTime = GetTicks( ) - m_LastOutPacketTicks;
+	int64_t RemainingWait = (int64_t) WaitTicks - (int64_t) ElapsedTime;
 	return RemainingWait;
 }
 

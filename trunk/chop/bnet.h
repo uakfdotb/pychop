@@ -156,6 +156,7 @@ public:
 	void ExtractPackets( );
 	void ProcessPackets( );
 	void ProcessChatEvent( CIncomingChatEvent *chatEvent );
+	void ProcessCorePlugins( CUser *user, string Message );
 	string ProcessCommand( CUser *user, string command, string payload, uint32_t type );
 
 	// functions to send packets to battle.net

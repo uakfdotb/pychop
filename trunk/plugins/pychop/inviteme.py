@@ -10,9 +10,6 @@
 # strings to identify this command
 commands = ("plugins/pychop/inviteme", "inviteme")
 
-# minimum number of games played to use this
-minGames = 15
-
 # flood control - no usage within the last floodDelay ms to use
 floodDelay = 10000
 
