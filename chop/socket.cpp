@@ -1,5 +1,6 @@
 /*
-   Copyright [2008]  Spoof.3D (Michael Höferle) & jampe (Daniel Jampen)
+
+   Copyright [2008] [Trevor Hogan]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -13,8 +14,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   This code is a heavily modified derivative from GHost++:	http://forum.codelain.com
-   GHost++ is a port from the original GHost project:		http://ghost.pwner.org
+   CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
+
 */
 
 #include "chop.h"
@@ -31,20 +32,14 @@
 // CSocket
 //
 
-CSocket :: CSocket( )
+CSocket :: CSocket( ) :  m_Socket( INVALID_SOCKET ), m_HasError( false ), m_Error( 0 )
 {
-	m_Socket = INVALID_SOCKET;
-	memset( &m_SIN, 0, sizeof( m_SIN ) );
-	m_HasError = false;
-	m_Error = 0;
+        memset( &m_SIN, 0, sizeof( m_SIN ) );
 }
 
-CSocket :: CSocket( SOCKET nSocket, struct sockaddr_in nSIN )
+CSocket :: CSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : m_Socket( nSocket ), m_SIN( nSIN ), m_HasError( false ), m_Error( 0 )
 {
-	m_Socket = nSocket;
-	m_SIN = nSIN;
-	m_HasError = false;
-	m_Error = 0;
+
 }
 
 CSocket :: ~CSocket( )
@@ -158,12 +153,9 @@ void CSocket :: Reset( )
 // CTCPSocket
 //
 
-CTCPSocket :: CTCPSocket( ) : CSocket( )
+CTCPSocket :: CTCPSocket( ) : CSocket( ), m_Connected( false ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
 {
 	Allocate( SOCK_STREAM );
-	m_Connected = false;
-	m_LastRecv = GetTime( );
-	m_LastSend = GetTime( );
 
 	// make socket non blocking
 
@@ -173,11 +165,6 @@ CTCPSocket :: CTCPSocket( ) : CSocket( )
 #else
 	fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
 #endif
-
-	// disable Nagle's algorithm for better performance
-
-	/* int OptVal = 1;
-	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&OptVal, sizeof( int ) ); */
 }
 
 CTCPSocket :: CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : CSocket( nSocket, nSIN )
@@ -194,11 +181,6 @@ CTCPSocket :: CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : CSocket( n
 #else
 	fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
 #endif
-
-	// disable Nagle's algorithm for better performance
-
-	/* int OptVal = 1;
-	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&OptVal, sizeof( int ) ); */
 }
 
 CTCPSocket :: ~CTCPSocket( )
@@ -226,10 +208,17 @@ void CTCPSocket :: Reset( )
 	fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
 #endif
 
-	// disable Nagle's algorithm for better performance
+	if( !m_LogFile.empty( ) )
+	{
+		ofstream Log;
+		Log.open( m_LogFile.c_str( ), ios :: app );
 
-	/* int OptVal = 1;
-	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&OptVal, sizeof( int ) ); */
+		if( !Log.fail( ) )
+		{
+			Log << "----------RESET----------" << endl;
+			Log.close( );
+		}
+	}
 }
 
 void CTCPSocket :: PutBytes( string bytes )
@@ -253,8 +242,27 @@ void CTCPSocket :: DoRecv( fd_set *fd )
 
 		char buffer[1024];
 		int c = recv( m_Socket, buffer, 1024, 0 );
+		
+		if( c > 0 )
+		{
+			// success! add the received data to the buffer
 
-		if( c == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
+			if( !m_LogFile.empty( ) )
+			{
+				ofstream Log;
+				Log.open( m_LogFile.c_str( ), ios :: app );
+
+				if( !Log.fail( ) )
+				{
+					Log << "					RECEIVE <<< " << UTIL_ByteArrayToHexString( UTIL_CreateByteArray( (unsigned char *)buffer, c ) ) << endl;
+					Log.close( );
+				}
+			}
+
+			m_RecvBuffer += string( buffer, c );
+			m_LastRecv = GetTime( );
+		}
+		else if( c == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
 		{
 			// receive error
 
@@ -270,13 +278,6 @@ void CTCPSocket :: DoRecv( fd_set *fd )
 			CONSOLE_Print( "[TCPSOCKET] closed by remote host" );
 			m_Connected = false;
 		}
-		else if( c > 0 )
-		{
-			// success! add the received data to the buffer
-
-			m_RecvBuffer += string( buffer, c );
-			m_LastRecv = GetTime( );
-		}
 	}
 }
 
@@ -290,8 +291,27 @@ void CTCPSocket :: DoSend( fd_set *send_fd )
 		// socket is ready, send it
 
 		int s = send( m_Socket, m_SendBuffer.c_str( ), (int)m_SendBuffer.size( ), MSG_NOSIGNAL );
+		
+		if( s > 0 )
+		{
+			// success! only some of the data may have been sent, remove it from the buffer
 
-		if( s == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
+			if( !m_LogFile.empty( ) )
+			{
+				ofstream Log;
+				Log.open( m_LogFile.c_str( ), ios :: app );
+
+				if( !Log.fail( ) )
+				{
+					Log << "SEND >>> " << UTIL_ByteArrayToHexString( BYTEARRAY( m_SendBuffer.begin( ), m_SendBuffer.begin( ) + s ) ) << endl;
+					Log.close( );
+				}
+			}
+
+			m_SendBuffer = m_SendBuffer.substr( s );
+			m_LastSend = GetTime( );
+		}
+		else if( s == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
 		{
 			// send error
 
@@ -299,13 +319,6 @@ void CTCPSocket :: DoSend( fd_set *send_fd )
 			m_Error = GetLastError( );
 			CONSOLE_Print( "[TCPSOCKET] error (send) - " + GetErrorString( ) );
 			return;
-		}
-		else if( s > 0 )
-		{
-			// success! only some of the data may have been sent, remove it from the buffer
-
-			m_SendBuffer = m_SendBuffer.substr( s );
-			m_LastSend = GetTime( );
 		}
 	}
 }
@@ -318,13 +331,23 @@ void CTCPSocket :: Disconnect( )
 	m_Connected = false;
 }
 
+void CTCPSocket :: SetNoDelay( bool noDelay )
+{
+	int OptVal = 0;
+
+	if( noDelay )
+		OptVal = 1;
+
+	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&OptVal, sizeof( int ) );
+}
+
 //
 // CTCPClient
 //
 
-CTCPClient :: CTCPClient( ) : CTCPSocket( )
+CTCPClient :: CTCPClient( ) : CTCPSocket( ), m_Connecting( false )
 {
-	m_Connecting = false;
+
 }
 
 CTCPClient :: ~CTCPClient( )
@@ -619,27 +642,41 @@ bool CUDPSocket :: Broadcast( uint16_t port, BYTEARRAY message )
 	return true;
 }
 
-bool CUDPSocket :: SetBroadcastTarget( string subnet )
+void CUDPSocket :: SetBroadcastTarget( string subnet )
 {
-	// this function does not check whether the given subnet is a valid subnet the user is on
-	// convert string representation of ip/subnet to in_addr
-	m_BroadcastTarget.s_addr = inet_addr( subnet.c_str( ) );
-	// if conversion fails, inet_addr( ) returns INADDR_NONE
-	if( m_BroadcastTarget.s_addr == INADDR_NONE )
+	if( subnet.empty( ) )
 	{
+		CONSOLE_Print( "[UDPSOCKET] using default broadcast target" );
 		m_BroadcastTarget.s_addr = INADDR_BROADCAST;
-		return false;
 	}
-	return true;
+	else
+	{
+		// this function does not check whether the given subnet is a valid subnet the user is on
+		// convert string representation of ip/subnet to in_addr
+
+		CONSOLE_Print( "[UDPSOCKET] using broadcast target [" + subnet + "]" );
+		m_BroadcastTarget.s_addr = inet_addr( subnet.c_str( ) );
+
+		// if conversion fails, inet_addr( ) returns INADDR_NONE
+
+		if( m_BroadcastTarget.s_addr == INADDR_NONE )
+		{
+			CONSOLE_Print( "[UDPSOCKET] invalid broadcast target, using default broadcast target" );
+			m_BroadcastTarget.s_addr = INADDR_BROADCAST;
+		}
+	}
 }
 
 void CUDPSocket :: SetDontRoute( bool dontRoute )
 {
 	int OptVal = 0;
+
 	if( dontRoute )
 		OptVal = 1;
+
 	// don't route packets; make them ignore routes set by routing table and send them to the interface
 	// belonging to the target address directly
+
 	setsockopt( m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char *)&OptVal, sizeof( int ) );
 }
 
@@ -733,19 +770,19 @@ void CUDPServer :: RecvFrom( fd_set *fd, struct sockaddr_in *sin, string *messag
 		int c = recvfrom( m_Socket, buffer, 1024, 0, (struct sockaddr *)sin, (socklen_t *)&AddrLen );
 #endif
 
-		if( c == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
+		if( c > 0 )
+		{
+			// success!
+
+			*message = string( buffer, c );
+		}
+		else if( c == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
 		{
 			// receive error
 
 			m_HasError = true;
 			m_Error = GetLastError( );
 			CONSOLE_Print( "[UDPSERVER] error (recvfrom) - " + GetErrorString( ) );
-		}
-		else if( c > 0 )
-		{
-			// success!
-
-			*message = string( buffer, c );
 		}
 	}
 }

@@ -1,5 +1,6 @@
 /*
-   Copyright [2008]  Spoof.3D (Michael Höferle) & jampe (Daniel Jampen)
+
+   Copyright [2008] [Trevor Hogan]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -13,15 +14,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   This code is a heavily modified derivative from GHost++:	http://forum.codelain.com
-   GHost++ is a port from the original GHost project:		http://ghost.pwner.org
+   CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
+
 */
 
 #ifndef SOCKET_H
 #define SOCKET_H
 
 #ifdef WIN32
- #include <winsock.h>
+ #include <winsock2.h>
  #include <errno.h>
 
  #define EADDRINUSE WSAEADDRINUSE
@@ -66,6 +67,7 @@
  #include <fcntl.h>
  #include <netdb.h>
  #include <netinet/in.h>
+ #include <netinet/tcp.h>
  #include <sys/ioctl.h>
  #include <sys/socket.h>
  #include <sys/types.h>
@@ -129,6 +131,7 @@ class CTCPSocket : public CSocket
 {
 protected:
 	bool m_Connected;
+	string m_LogFile;
 
 private:
 	string m_RecvBuffer;
@@ -146,11 +149,15 @@ public:
 	virtual string *GetBytes( )					{ return &m_RecvBuffer; }
 	virtual void PutBytes( string bytes );
 	virtual void PutBytes( BYTEARRAY bytes );
+	virtual void ClearRecvBuffer( )				{ m_RecvBuffer.clear( ); }
+	virtual void ClearSendBuffer( )				{ m_SendBuffer.clear( ); }
 	virtual uint32_t GetLastRecv( )				{ return m_LastRecv; }
 	virtual uint32_t GetLastSend( )				{ return m_LastSend; }
 	virtual void DoRecv( fd_set *fd );
 	virtual void DoSend( fd_set *send_fd );
 	virtual void Disconnect( );
+	virtual void SetNoDelay( bool noDelay );
+	virtual void SetLogFile( string nLogFile )	{ m_LogFile = nLogFile; }
 };
 
 //
@@ -202,7 +209,7 @@ public:
 	virtual bool SendTo( struct sockaddr_in sin, BYTEARRAY message );
 	virtual bool SendTo( string address, uint16_t port, BYTEARRAY message );
 	virtual bool Broadcast( uint16_t port, BYTEARRAY message );
-	virtual bool SetBroadcastTarget( string subnet );
+	virtual void SetBroadcastTarget( string subnet );
 	virtual void SetDontRoute( bool dontRoute );
 };
 
