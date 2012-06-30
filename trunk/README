@@ -17,10 +17,11 @@ Currently, the core is capable of, among other things, managing clans and automa
 
 To connect to the official battle.net servers, you need a Blizzard game cd key. So far, pychop only supports Warcraft III: Reign of Chaos keys. Other options should follow by time.
 
+
 Installation
 ============
 
-To install pychop, simple unzip the ZIP download. Alternatively, you can checkout the latest SVN revision:
+To install pychop, simply unzip the ZIP download. Alternatively, you can checkout the latest SVN revision:
 
 svn checkout http://pychop.googlecode.com/svn/trunk/ pychop
 
@@ -31,6 +32,13 @@ The SVN includes all plugins, while plugins are separated in the main ZIP downlo
 - libboost
 - libbncutil
 - StormLib
+
+To install most of these on Debian:
+	apt-get install libboost-dev python2.7-dev
+
+PluginDB, which is used to connect plugins with the MySQL database, also requires:
+	apt-get install python-mysqldb
+
 
 Configuration
 =============
@@ -47,13 +55,13 @@ Database setup
 
 pychop requires a MySQL database or it will fail upon startup. Support for additional database systems is not planned.
 
-All MySQL connection information must be filled in chop.cfg. To create the needed tables on your MySQL server simply use 'mysql_create_users.sql'. Both 'mysql_create_users.sql' and 'mysql_upgrade_ghost.sql' can be used to upgrade your existing GHost++ database without any data loss.
+All MySQL connection information must be filled in chop.cfg. To create the needed tables on your MySQL server simply use 'mysql_create_users.sql'. Both 'mysql_create_users.sql' and 'mysql_upgrade_ghost.sql' can be used to upgrade your existing GHost++ database without any data loss (mysql_upgrade_ghost.sql will attempt to create GHost tables, but only if they do not already exist).
 
 
 Users
 =====
 
-pychop has a hierachical access system. To be able to execute any core command you need a specific access level defined in 'command.txt' (in 'bot_cfgpath'). Plugin command access levels are individually setup.
+pychop has a hierachical access system. To be able to execute any core command you need a specific access level defined in 'command.txt' (this file is located in 'bot_cfgpath'). Plugin command access levels are individually setup.
 
 Access levels range from 0 (default access) to 10 (full access) and are saved to the database together with some other user data. Both the root admin and the console user always have an access of 10.
 
@@ -62,13 +70,13 @@ To grant other users access:
 To delete a user from the database use:
 	!del [user]
 
-To remove access from a user, it is recommended to set the access to 0: deleting the user will clear other data.
+To remove access from a user, it is recommended to set the access to 0: deleting the user will clear other data that you may want to keep (for example, when they were last seen).
 
 
 Automated scripts: core
 =======================
 
-pychop includes three scripts that can be individually enabled or disabled with the corresponding config value. No new scripts will be added now that the plugin system has been implemented.
+pychop includes three scripts that can be individually enabled or disabled with the corresponding config value. These are from the original ChOP++ project; no new scripts will be added now that the plugin system has been implemented.
 
 AntiSpam: a basic anti-spam implementation trying to keep the channel clean. If enabled it will cache the last channel messages from all users in the current channel (bot commands are ignored and not saved to the cache; this may be revised). The amount of cached messages is set with op_spam_cachesize. When a single user with access 0 fills up the chat cache, that user will be kicked.
 
@@ -97,6 +105,8 @@ copycat: copies everything that users say in the channel.
 
 dbstats: displays some statistics about your MySQL database.
 
+gamequeue: can be used to implement a public hosting system.
+
 getgames: if you have the MySQL gamelist modification installed (http://www.codelain.com/forum/index.php?topic=18076.0), then you can use the getgames plugin to display the list of games. getgames relies on plugindb.
 
 getmap: downloads a map from a URL and stores in in a preset directory.
@@ -107,19 +117,29 @@ greet: automatically sends a message when a user joins the channel.
 
 inactive: keeps track of inactive users in the clan based on channel activity.
 
+inviteme: allows users to type !inviteme to receive a clan invitation.
+
 lottery: a lottery game where channel users can bet on a number.
 
 matchmake: a plugin to randomly create teams for matches.
 
 plugindb: a library that takes database configuration values from pychop and allows plugins to access it. Also supports access to a plugindb table where key/value pairs can be recorded, and automatic score management.
 
+pluginman: the pychop plugin manager
+
+pounce: send a message when a target user joins the channel
+
+queue: chat queue system; if you have multiple pychop instances, you can have a central pychop instance queue chat commands to the other ones to increase your chatting bandwidth.
+
 rand: a simple plugin to display randomly generated numbers.
 
-randkick: kicks a random user from the channel
+randkick: kicks a random user from the channel (pretty fun).
 
 randspeed: a simple game. pychop will display a string to the channel, and the first user to type it out wins. Stats are stored via plugindb.
 
 rroulette: a game where players are randomly kicked from the channel. Hope that you do not get kicked!
+
+security: the simplest security plugin ever created.
 
 test: a plugin to see if you correctly installed pychop.  Type !test and see if it works.
 
@@ -132,12 +152,20 @@ To submit a plugin, post it on the codelain.com forums in the pychop topic.
 Plugin management
 =================
 
-To install a plugin, copy the python (for example: plugin.py) file to /pychop/plugins/python/. Then, edit /pychop/plugins/python/__init__.py so that the plugin is imported and initiated. If the target plugin is called target.py, add:
+This section will assume that you have pychop installed in /pychop/ (i.e., chop.cfg and chop++ binary are both located in /pychop/).
+
+To install a plugin, copy the Python file (for example: plugin.py) to /pychop/plugins/pychop/.
+
+After installing a plugin, you will also need to load it. If you are using plugin manager, then you can load a plugin without restarting the bot using the "!pluginman load" command. To reload or unload a plugin, replace load with "reload" and "unload". If you unload and then load a plugin, it will not be updated; only reload updates the compiled Python file.
+
+You may also wish to load certain plugins on startup (especially the plugin manager). To do this, edit /pychop/plugins/pychop/__init__.py so that the plugin is imported and initiated. The comments in that file show the format of how to add a plugin. If the target plugin is called target.py, append to __init__.py:
 
 import target
 target.init()
 
 This can be repeated for loading multiple plugins. Note that plugins can do whatever they want, and you should only install plugins from sources you trust (i.e., if that source were to give you an executable file, you should be willing to use it). You can always, of course, look over the plugin's source and make sure it doesn't do anything nasty.
+
+If you add plugins to be loaded in this way, then you won't be able to unload or reload them with the plugin manager. If you want to use plugin manager functionality, you should use the plugin manager's startup load feature. To add a plugin to be loaded on startup with the plugin manager, look at "startupLoad" in /pychop/plugins/pychop/pluginman.py.
 
 Warden
 ======

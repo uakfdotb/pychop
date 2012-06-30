@@ -14,6 +14,9 @@ commands = ("plugins/pychop/pluginman", "pluginman")
 controlAccess = 10
 
 # plugins (python module strings) to load on startup
+# some examples:
+#    startupLoad = ('calc',)
+#    startupLoad = ('calc', 'gamequeue', 'getgames')
 startupLoad = ()
 
 ### end configuration
