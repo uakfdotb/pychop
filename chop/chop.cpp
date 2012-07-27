@@ -552,6 +552,7 @@ CChOP :: CChOP( CConfig *CFG )
 		string Server = CFG->GetString( Prefix + "server", string( ) );
 		string ServerAlias = CFG->GetString( Prefix + "serveralias", string( ) );
 		string CDKeyROC = CFG->GetString( Prefix + "cdkey_roc", string( ) );
+		string CDKeyTFT = CFG->GetString( Prefix + "cdkey_tft", string( ) );
 		string CountryAbbrev = CFG->GetString( Prefix + "countryabbrev", "USA" );
 		string Country = CFG->GetString( Prefix + "country", "United States" );
 		string UserName = CFG->GetString( Prefix + "username", string( ) );
@@ -571,6 +572,8 @@ CChOP :: CChOP( CConfig *CFG )
 		BYTEARRAY EXEVersionHash = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversionhash", string( ) ), 4 );
 		string PasswordHashType = CFG->GetString( Prefix + "custom_passwordhashtype", string( ) );
 		uint32_t MaxMessageLength = CFG->GetInt( Prefix + "custom_maxmessagelength", 200 );
+		
+		bool TFT = CFG->GetBool( Prefix + "tft", false );
 
 		if( Server.empty( ) )
 			break;
@@ -578,6 +581,12 @@ CChOP :: CChOP( CConfig *CFG )
 		if( CDKeyROC.empty( ) )
 		{
 			CONSOLE_Print( "[PYCHOP] missing " + Prefix + "cdkeyroc, skipping this battle.net connection" );
+			continue;
+		}
+
+		else if( TFT && CDKeyTFT.empty( ) )
+		{
+			CONSOLE_Print( "[PYCHOP] missing " + Prefix + "cdkeytft and TFT enabled, skipping this battle.net connection" );
 			continue;
 		}
 
@@ -594,7 +603,7 @@ CChOP :: CChOP( CConfig *CFG )
 		}
 
 		CONSOLE_Print( "[PYCHOP] found battle.net connection #" + UTIL_ToString( i ) + " for server [" + Server + "]" );
-		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, BNLSServer, (uint16_t)BNLSPort, (uint32_t)BNLSWardenCookie, CDKeyROC, CountryAbbrev, Country, UserName, UserPassword, FirstChannel, RootAdmin, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, MaxMessageLength ) );
+		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, BNLSServer, (uint16_t)BNLSPort, (uint32_t)BNLSWardenCookie, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, UserName, UserPassword, FirstChannel, RootAdmin, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, MaxMessageLength, TFT ) );
 	}
 
 	if( m_BNETs.empty( ) )

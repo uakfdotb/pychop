@@ -93,6 +93,8 @@ private:
 	uint16_t m_BNLSPort;								// BNLS port
 	uint32_t m_BNLSWardenCookie;						// BNLS warden cookie
 	string m_CDKeyROC;									// ROC CD key
+	string m_CDKeyTFT;									// TFT CD key
+	bool m_TFT;											// whether to login as TFT or ROC
 	string m_CountryAbbrev;								// country abbreviation
 	string m_Country;									// country
 	string m_UserName;									// battle.net username
@@ -128,7 +130,7 @@ private:
 	uint32_t m_ClanRank;									// ChannelBot's clan rank
 
 public:
-	CBNET( CChOP *nChOP, string nServer, string nServerAlias, string nBNLSServer, uint16_t nBNLSPort, uint32_t nBNLSWardenCookie, string nCDKeyROC, string nCountryAbbrev, string nCountry, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nMaxMessageLength );
+	CBNET( CChOP *nChOP, string nServer, string nServerAlias, string nBNLSServer, uint16_t nBNLSPort, uint32_t nBNLSWardenCookie, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nMaxMessageLength, bool nTFT );
 	~CBNET( );
 
 	bool GetExiting( )					{ return m_Exiting; }
