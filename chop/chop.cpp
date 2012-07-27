@@ -528,6 +528,7 @@ CChOP :: CChOP( CConfig *CFG )
 	m_SeenAllUsers = CFG->GetBool( "bot_seenallusers", true );
 	m_Follow = CFG->GetInt( "bot_follow", 1 );
 	m_DisablePublic = CFG->GetBool( "bot_disablepublic", false );
+	m_DisableBanned = CFG->GetBool( "bot_disablebanned", true );
 	m_DisplayNoAccess = CFG->GetBool( "bot_displaynoaccess", false );
 	m_BanlistChannel = CFG->GetBool( "bot_banlistchannel", false );
 
