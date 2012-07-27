@@ -4,7 +4,7 @@ C++ = g++
 CC = gcc
 DFLAGS = -Dchop_MYSQL
 OFLAGS = -O3
-LFLAGS = -L. -L../bncsutil/src/bncsutil/ -L../StormLib/stormlib/ -lbncsutil -lpthread -ldl -lz -lStorm -lmysqlclient_r -lboost_date_time -lboost_thread -lboost_system -lpython2.7 -lboost_python
+LFLAGS = -L. -L../bncsutil/src/bncsutil/ -L../StormLib/stormlib/ -lbncsutil -lpthread -ldl -lz -lStorm -lmysqlclient_r -lboost_date_time -lboost_thread -lboost_system -lpython2.7 -lboost_python -lgmp
 CFLAGS =
 
 ifeq ($(SYSTEM),Darwin)

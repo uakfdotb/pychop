@@ -42,7 +42,12 @@
 string CBNET :: ProcessCommand( CUser *User, string command, string payload, uint32_t type )
 {
 	// ignore user completely if no access and public commands disabled
-	if( User->GetAccess() == 0 && m_ChOP->m_DisablePublic ) {
+	if( User->GetAccess( ) == 0 && m_ChOP->m_DisablePublic ) {
+		return "";
+	}
+	
+	// also ignore user completely if banned and we ignore banned users
+	if( IsBannedName( User->GetName( ) ) && m_ChOP->m_DisableBanned ) {
 		return "";
 	}
 
