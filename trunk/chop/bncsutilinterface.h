@@ -32,6 +32,7 @@ private:
 	BYTEARRAY m_EXEVersionHash;		// set in HELP_SID_AUTH_CHECK
 	string m_EXEInfo;				// set in HELP_SID_AUTH_CHECK
 	BYTEARRAY m_KeyInfoROC;			// set in HELP_SID_AUTH_CHECK
+	BYTEARRAY m_KeyInfoTFT;			// set in HELP_SID_AUTH_CHECK
 	BYTEARRAY m_ClientKey;			// set in HELP_SID_AUTH_ACCOUNTLOGON
 	BYTEARRAY m_M1;					// set in HELP_SID_AUTH_ACCOUNTLOGONPROOF
 	BYTEARRAY m_PvPGNPasswordHash;	// set in HELP_PvPGNPasswordHash
@@ -44,6 +45,7 @@ public:
 	BYTEARRAY GetEXEVersionHash( )							{ return m_EXEVersionHash; }
 	string GetEXEInfo( )									{ return m_EXEInfo; }
 	BYTEARRAY GetKeyInfoROC( )								{ return m_KeyInfoROC; }
+	BYTEARRAY GetKeyInfoTFT( )								{ return m_KeyInfoTFT; }
 	BYTEARRAY GetClientKey( )								{ return m_ClientKey; }
 	BYTEARRAY GetM1( )										{ return m_M1; }
 	BYTEARRAY GetPvPGNPasswordHash( )						{ return m_PvPGNPasswordHash; }
@@ -53,7 +55,7 @@ public:
 
 	void Reset( string userName, string userPassword );
 
-	bool HELP_SID_AUTH_CHECK( string war3Path, string keyROC, string valueStringFormula, string mpqFileName, BYTEARRAY clientToken, BYTEARRAY serverToken );
+	bool HELP_SID_AUTH_CHECK( bool TFT, string war3Path, string keyROC, string keyTFT, string valueStringFormula, string mpqFileName, BYTEARRAY clientToken, BYTEARRAY serverToken );
 	bool HELP_SID_AUTH_ACCOUNTLOGON( );
 	bool HELP_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY salt, BYTEARRAY serverKey );
 	bool HELP_PvPGNPasswordHash( string userPassword );
