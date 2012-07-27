@@ -567,7 +567,7 @@ CChOP :: CChOP( CConfig *CFG )
 		string BNLSServer = CFG->GetString( Prefix + "bnls_server", string( ) );
 		int BNLSPort = CFG->GetInt( Prefix + "bnls_port", 9367 );
 		int BNLSWardenCookie = CFG->GetInt( Prefix + "bnls_wardencookie", 0 );
-		unsigned char War3Version = CFG->GetInt( Prefix + "custom_war3version", 23 );
+		unsigned char War3Version = CFG->GetInt( Prefix + "custom_war3version", 26 );
 		BYTEARRAY EXEVersion = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversion", string( ) ), 4 );
 		BYTEARRAY EXEVersionHash = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversionhash", string( ) ), 4 );
 		string PasswordHashType = CFG->GetString( Prefix + "custom_passwordhashtype", string( ) );
