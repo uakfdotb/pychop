@@ -22,6 +22,9 @@ commands = ["afk", "plugins/pychop/afk"]
 # whether or not to kick afk users
 afkKick = False
 
+# minimum access to be exempt from AFK kicking
+afkExempt = 11
+
 # end settings
 
 # dictionary maps username -> last user event (sent message, joined channel); last user event is -1 if this user has been registered as AFK
@@ -35,6 +38,9 @@ nextTime = 0
 
 # BNET to use for kicking
 afkBnet = 0
+
+# lists users exempt from AFK kicking
+afkExemptList = []
 
 import host
 import time
@@ -54,7 +60,9 @@ def deinit():
 	host.unregisterHandler('UserJoined', onJoin)
 
 def onTalk(bnet, username, message, isWhisper):
-	global nextTime, userAfkTime, afkUserList
+	global nextTime, userAfkTime, afkUserList, afkBnet
+	
+	afkBnet = bnet
 
 	if isWhisper:
 		return
@@ -89,13 +97,17 @@ def onLeave(bnet, username):
 		afkUserList.remove(lowername)
 	
 	# also clear from userAfkTime
-	print("leaving user " + username)
-	del userAfkTime[lowername]
-	print("deleted?: " + str(lowername in userAfkTime))
+	if lowername in userAfkTime:
+		del userAfkTime[lowername]
+	
+	# and exempt list
+	if lowername in afkExemptList:
+		afkExemptList.remove(lowername)
 
 def onJoin(bnet, user, isShow):
-	global nextTime
+	global nextTime, afkBnet
 
+	afkBnet = bnet
 	lowername = user.getName().lower()
 	
 	# update their AFK time
@@ -104,6 +116,9 @@ def onJoin(bnet, user, isShow):
 	# reset nextTime if needed (in the event that this is first user to enter channel)
 	if nextTime == 0:
 		nextTime = gettime() + afkTime
+	
+	if user.getAccess() >= afkExempt:
+		afkExemptList.append(lowername)
 
 def onUpdate(chop) :
 	global nextTime, userAfkTime, afkUserList
@@ -117,7 +132,7 @@ def onUpdate(chop) :
 				continue
 			elif gettime() - time > afkTime:
 				# this user is now afk...
-				if afkKick and bnet.getOutPacketsQueued() < 5:
+				if afkKick and afkBnet.getOutPacketsQueued() < 5 and not lowername in afkExemptList:
 					afkBnet.queueChatCommand("/kick " + user)
 					del userAfkTime[user]
 				else:
