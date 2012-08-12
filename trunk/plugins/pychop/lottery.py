@@ -164,7 +164,7 @@ def onCommand(bnet, user, command, payload, nType):
 				return
 			
 			# ensure selection is inside range
-			if lotteryMin < selection or lotteryMax > selection:
+			if lotteryMin > selection or lotteryMax < selection:
 				bnet.queueChatCommand(lowername + ": selection is out of bounds")
 				return
 			
