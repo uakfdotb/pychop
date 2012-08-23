@@ -132,7 +132,7 @@ def onUpdate(chop) :
 				continue
 			elif gettime() - time > afkTime:
 				# this user is now afk...
-				if afkKick and afkBnet.getOutPacketsQueued() < 5 and not lowername in afkExemptList:
+				if afkKick and afkBnet.getOutPacketsQueued() < 5 and not user.lower() in afkExemptList:
 					afkBnet.queueChatCommand("/kick " + user)
 					del userAfkTime[user]
 				else:
