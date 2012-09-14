@@ -134,6 +134,7 @@ public:
 	string m_Version;						// ChOP++ version string
 	string m_LanguageFile;					// config value: language file
 	string m_Warcraft3Path;					// config value: Warcraft 3 path
+	string m_BindAddress;					// config value: the address to host games on
 	
 	bool m_DisablePublic;					// config value: disable commands for users with no access?
 	bool m_DisableBanned;					// config value: disable commands from banned users?

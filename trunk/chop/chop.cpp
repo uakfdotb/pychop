@@ -522,6 +522,7 @@ CChOP :: CChOP( CConfig *CFG )
 	m_LanguageFile = CFG->GetString( "bot_language", "language.cfg" );
 	m_Language = new CLanguage( m_LanguageFile );
 	m_Warcraft3Path = CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" );
+	m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
 	m_CFGPath = CFG->GetString( "bot_cfgpath", "cfg\\" );
 	m_WhisperAllowed = CFG->GetBool( "bot_whisperallowed", true );
 	

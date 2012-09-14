@@ -643,10 +643,13 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] connecting to server [" + m_Server + "] on port 6112" );
 		m_ChOP->EventBNETConnecting( this );
+		
+		if( !m_ChOP->m_BindAddress.empty( ) )
+			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] attempting to bind to address [" + m_ChOP->m_BindAddress + "]" );
 
 		if( m_ServerIP.empty( ) )
 		{
-			m_Socket->Connect( string( ), m_Server, 6112 );
+			m_Socket->Connect( m_ChOP->m_BindAddress, m_Server, 6112 );
 
 			if( !m_Socket->HasError( ) )
 			{
@@ -659,7 +662,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			// use cached server IP address since resolving takes time and is blocking
 
 			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] using cached server IP address " + m_ServerIP );
-			m_Socket->Connect( string( ), m_ServerIP, 6112 );
+			m_Socket->Connect( m_ChOP->m_BindAddress, m_ServerIP, 6112 );
 		}
 
 		m_WaitingToConnect = false;
