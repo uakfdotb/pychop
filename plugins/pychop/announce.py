@@ -34,7 +34,7 @@ def deinit():
 def onUpdate(chop) :
 	global announceTime
 	
-	if announceEnabled and gettime() - announceTime > announceInterval * 1000:
+	if announceEnabled and gettime() - announceTime > announceInterval * 1000 and announceBnet != 0:
 		# announce
 		announceBnet.queueChatCommand(announceMessage)
 		announceTime = gettime()
