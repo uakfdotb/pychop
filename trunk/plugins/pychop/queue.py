@@ -200,7 +200,10 @@ def onUpdate(chop):
 						bnet = chop.BNETs[0]
 						
 						if packet_type == 0: # server is requesting to get our delay
-							mainSocket.sendall(struct.pack('>q', bnet.totalDelayTime()))
+							if bnet.getLoggedIn():
+								mainSocket.sendall(struct.pack('>q', bnet.totalDelayTime()))
+							else:
+								mainSocket.sendall(struct.pack('>q', 600000))
 						elif packet_type == 1: # server is telling us to send a message
 							print("[QUEUE] Accepting message from server")
 							message = packet[0:]
