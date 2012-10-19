@@ -1228,10 +1228,17 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			user = new CUser( User, 0 );
 			m_Users[lowerUser] = user;
 		}
-			
-		ProcessCorePlugins( user, Message );
 		
 		CONSOLE_Print( "[EMOTE: " + m_ServerAlias + "] [" + User + "] " + Message );
+		
+		//process core plugins, but only if this isn't our own emote
+		
+		BYTEARRAY UniqueName = m_Protocol->GetUniqueName( );
+		string lowerUniqueName = string( UniqueName.begin( ), UniqueName.end( ) );
+		transform( lowerUniqueName.begin( ), lowerUniqueName.end( ), lowerUniqueName.begin( ), (int(*)(int))tolower );
+		
+		if( lowerUser != lowerUniqueName )
+			ProcessCorePlugins( user, Message );
 	}
 }
 
