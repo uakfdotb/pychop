@@ -76,7 +76,7 @@ To remove access from a user, it is recommended to set the access to 0: deleting
 Automated scripts: core
 =======================
 
-pychop includes three scripts that can be individually enabled or disabled with the corresponding config value. These are from the original ChOP++ project; no new scripts will be added now that the plugin system has been implemented.
+pychop includes three scripts that can be individually enabled or disabled with the corresponding config value. These are from the original ChOP++ project; no new scripts will be added now that the plugin system has been implemented. Additionally, these scripts are no longer supported.
 
 AntiSpam: a basic anti-spam implementation trying to keep the channel clean. If enabled it will cache the last channel messages from all users in the current channel (bot commands are ignored and not saved to the cache; this may be revised). The amount of cached messages is set with op_spam_cachesize. When a single user with access 0 fills up the chat cache, that user will be kicked.
 
