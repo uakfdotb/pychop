@@ -763,6 +763,11 @@ void CChOP :: inputLoop( )
 		boost::mutex::scoped_lock lock( m_InputMutex );
 		m_InputMessage = Message;
 		lock.unlock( );
+		
+		// temporary fix: sometimes the above fails and will cause
+		//  a continuous infinite loop
+		// to prevent this, we sleep for a few milliseconds
+		MILLISLEEP( 50 );
 	}
 }
 
