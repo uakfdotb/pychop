@@ -4,6 +4,7 @@
 # fullname = plugins/pychop/snipe
 # description = Kicks a user after they join the channel.
 # help = Type !snipe <username> to add the user to the snipe list. Type !snipe <username> again to remove them.
+# config = access|Access needed to control the plugin
 
 # modify settings below
 
@@ -22,8 +23,14 @@ import random
 snipeList = []
 
 def init():
+	global snipeAccess
+	
 	host.registerHandler('UserJoined', onJoin)
 	host.registerHandler('ProcessCommand', onCommand)
+	
+	# configuration
+	config = host.config()
+	snipeAccess = config.getInt("p_snipe_access", snipeAccess)
 	
 def deinit():
 	host.unregisterHandler('UserJoined', onJoin)

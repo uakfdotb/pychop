@@ -4,6 +4,7 @@
 # fullname = plugins/pychop/greet
 # description = Greets users who join the channel.
 # help = Rejoin the channel! Also, use !greet <message> to set the greet message. Use !greet to disable greeting.
+# config = access|Access needed to set the greet message, minaccess|Minimum access needed to be greeted, maxaccess|Maximum access needed to be greeted
 
 # modify settings below
 
@@ -15,14 +16,25 @@ minAccess = 0
 # maximum user access will be greeted (if greet is for help information, admins probably don't need it)
 maxAccess = 10
 
+# access needed to set the greet message
+greetAccess = 10
+
 # end settings
 
 import host
 import time
 
 def init():
+	global minAccess, maxAccess, greetAccess
+	
 	host.registerHandler('UserJoined', onJoin)
 	host.registerHandler('ProcessCommand', onCommand)
+	
+	# configuration
+	config = host.config()
+	greetAccess = config.getInt("p_greet_access", greetAccess)
+	minAccess = config.getInt("p_greet_minaccess", minAccess)
+	maxAccess = config.getInt("p_greet_maxaccess", maxAccess)
 	
 def deinit():
 	host.unregisterHandler('UserJoined', onJoin)
@@ -40,5 +52,5 @@ def onJoin(bnet, user, isShow):
 def onCommand(bnet, user, command, payload, nType):
 	global greetMessage
 
-	if command == "greet":
+	if command == "greet" and user.getAccess() > greetAccess:
 		greetMessage = payload

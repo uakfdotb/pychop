@@ -2,7 +2,7 @@
 # version = 1.0
 # name = gamequeue
 # fullname = plugins/pychop/gamequeue
-# description = If you have multiple GHost instances, this is great.
+# description = If you have multiple GHost instances, this is great. It allows for a hosting system where users host games through the channel bot, and then channel bot forwards commands to host bots.
 
 ### modify settings below
 

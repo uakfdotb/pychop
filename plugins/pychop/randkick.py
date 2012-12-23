@@ -4,6 +4,7 @@
 # fullname = plugins/pychop/randkick
 # description = Randomly kicks users from the channel when the !randkick command is used. Anyone in the channel is at risk!
 # help = Type !randkick, and a random person will be kicked.
+# config = access|Access needed to use the plugin.
 
 # modify settings below
 
@@ -19,7 +20,12 @@ import host
 import random
 
 def init():
+	global randkickAccess
 	host.registerHandler('ProcessCommand', onCommand)
+	
+	# configuration
+	config = host.config()
+	randkickAccess = config.getInt("p_randkick_access", randkickAccess)
 	
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand)

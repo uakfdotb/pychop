@@ -4,6 +4,7 @@
 # fullname = plugins/pychop/accesskick
 # description = Automatically kicks users from the channel who do not have a certain access level on the bot.
 # help = See description. Use !accesskick to toggle enabled.
+# config = minaccess|Minimum access to not be automatically kicked, enabled|Whether to enable by default, ban|Whether to ban instead of kick
 
 # modify settings below
 
@@ -21,8 +22,16 @@ accessBan = False
 import host
 
 def init():
+	global minAccess, accessEnabled, accessBan
+	
 	host.registerHandler('UserJoined', onJoin)
 	host.registerHandler('ProcessCommand', onCommand)
+	
+	# configuration
+	config = host.config()
+	minAccess = config.getInt("p_accesskick_minaccess", minAccess)
+	accessEnabled = config.getBool("p_accesskick_enabled", accessEnabled)
+	accessBan = config.getBool("p_accesskick_ban", accessBan)
 	
 def deinit():
 	host.unregisterHandler('UserJoined', onJoin)

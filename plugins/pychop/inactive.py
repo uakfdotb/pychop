@@ -4,6 +4,7 @@
 # fullname = plugins/pychop/inactive
 # description = Identifies users who have been inactive for a certain period of time. Inactivity is based on presence in channel.
 # help = Use !inactive <time in hours> to get a list of inactive users.
+# config = access|Access needed to use the command.
 
 commands = ("inactive")
 commandAccess = 10
@@ -16,12 +17,16 @@ import time
 pdb = 0
 	
 def init():
-	global pdb
+	global pdb, commandAccess
 
 	host.registerHandler('ProcessCommand', onCommand, True)
 	
 	pdb = PluginDB()
 	pdb.dbconnect()
+	
+	# configuration
+	config = host.config()
+	commandAccess = config.getInt("p_inactive_access", commandAccess)
 	
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand, True)
