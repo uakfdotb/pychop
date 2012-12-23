@@ -4,6 +4,7 @@
 # fullname = plugins/pychop/announce
 # description = Announces a message at a set time interval.
 # help = Use !announce <x> <string> to say <string> every <x> seconds or !announce to disable announce message.
+# config = access|Access needed to control plugin
 
 ### begin configuration
 
@@ -24,8 +25,14 @@ import host
 import time
 
 def init():
+	global announceAccess
+	
 	host.registerHandler('ProcessCommand', onCommand)
 	host.registerHandler('Update', onUpdate)
+	
+	# configuration
+	config = host.config()
+	announceAccess = config.getInt("p_announce_access", announceAccess)
 	
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand)

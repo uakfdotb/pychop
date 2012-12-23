@@ -4,6 +4,7 @@
 # fullname = plugins/pychop/pluginman
 # description = A plugin management system. Can reload plugins during testing so that the bot does not have to be fully restarted.
 # help = Specify plugins to load on startup in the source file. Use the commands "!pluginman load", "!pluginman unload", and "!pluginman reload" to load, unload, and reload plugins, respectively. Note that reloading must be used if you wish to test a new version of a plugin as import is stored in unload. "!pluginman show" displays a list of loaded plugins.
+# config = access|Access needed to use the plugin, startupload|Space-separated list of plugins to load on startup (example: "trivia pounce")
 
 ### begin configuration
 
@@ -30,12 +31,25 @@ loadedPlugins = {}
 importedPlugins = {}
 
 def init():
+	global controlAccess
 	host.registerHandler('ProcessCommand', onCommand, True)
 	
 	for name in startupLoad:
 		importedPlugins[name] = __import__(name, globals(), locals(), [], -1)
 		loadedPlugins[name] = importedPlugins[name]
 		loadedPlugins[name].init()
+	
+	# configuration
+	config = host.config()
+	controlAccess = config.getInt("p_pluginman_access", controlAccess)
+	startupConfLoad = config.getString("p_pluginman_plugins", "").split(" ")
+	
+	for name in startupConfLoad:
+		if name.strip():
+			name = ''.join(ch for ch in name.strip() if ch.isalnum() or ch == "_" or ch == "-")
+			importedPlugins[name] = __import__(name, globals(), locals(), [], -1)
+			loadedPlugins[name] = importedPlugins[name]
+			loadedPlugins[name].init()
 
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand, True)
@@ -45,20 +59,21 @@ def onCommand(bnet, user, command, payload, nType):
 		parts = payload.split(" ", 1)
 		
 		if parts[0]=="load":
-			print("Loading plugin " + parts[1])
+			pname = ''.join(ch for ch in parts[1] if ch.isalnum() or ch == "_" or ch == "-")
+			print("Loading plugin " + pname)
 			
 			# make sure it's not already loaded
-			if parts[1] in loadedPlugins:
+			if pname in loadedPlugins:
 				print("Error: already loaded")
 				return
 			
 			# check if the plugin is imported; import if not
-			if not parts[1] in importedPlugins:
-				importedPlugins[parts[1]] = __import__(parts[1], globals(), locals(), [], -1)
-				print("Imported plugin: " + str(importedPlugins[parts[1]]))
+			if not pname in importedPlugins:
+				importedPlugins[pname] = __import__(pname, globals(), locals(), [], -1)
+				print("Imported plugin: " + str(importedPlugins[pname]))
 				
-			loadedPlugins[parts[1]] = importedPlugins[parts[1]]
-			loadedPlugins[parts[1]].init()
+			loadedPlugins[pname] = importedPlugins[pname]
+			loadedPlugins[pname].init()
 		elif parts[0]=="unload":
 			print("Unloading plugin " + parts[1])
 			

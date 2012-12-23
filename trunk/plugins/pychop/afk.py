@@ -4,6 +4,7 @@
 # fullname = plugins/pychop/afk
 # description = Stores an internal list of AFK users based on idle time and whether they said "afk". To be registered as AFK, a user only needs to say "afk" and nothing aftewards. To be unregistered, a user simply has to say something. Users who have not talked for a set number of minutes will also be registered as AFK.
 # help = Use !afk print to print the list of AFK users to the console. Use !afk clear to clear the list of AFK users and reset the AFK times for all channel users.
+# config = time|Time in seconds before user is considered AFK, access|Access needed to control plugin, kick|Whether to kick AFK users, exempt|Minimum access to be exempt from AFK kicking
 
 # modify settings below
 
@@ -46,12 +47,21 @@ import host
 import time
 
 def init():
+	global afkTime, afkAccess, afkKick, afkExempt
+	
 	host.registerHandler('ProcessCommand', onCommand)
 	host.registerHandler('ChatReceivedExtended', onTalk) # extended to distinguish between local chat and whispers
 	host.registerHandler('Update', onUpdate)
 	host.registerHandler('UserLeft', onLeave)
 	host.registerHandler('UserJoined', onJoin)
 	
+	# configuration
+	config = host.config()
+	afkTime = config.getInt("p_afk_time", afkTime / 1000) * 1000
+	afkAccess = config.getInt("p_afk_access", afkAccess)
+	afkKick = config.getBool("p_afk_kick", afkKick)
+	afkExempt = config.getInt("p_afk_exempt", afkExempt)
+
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand)
 	host.unregisterHandler('Update', onUpdate)

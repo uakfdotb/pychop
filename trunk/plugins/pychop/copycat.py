@@ -4,6 +4,7 @@
 # fullname = plugins/pychop/copycat
 # description = Copies everything that users say in the channel.
 # help = !copycat to toggle copycat.
+# config = access|Access needed to control plugin
 
 # modify settings below
 
@@ -21,8 +22,14 @@ copycatEnabled = False
 import host
 
 def init():
+	global controlAccess
+	
 	host.registerHandler('ProcessCommand', onCommand)
 	host.registerHandler('ChatReceivedExtended', onTalk) # extended to distinguish between local chat and whispers
+	
+	# configuration
+	config = host.config()
+	controlAccess = config.getInt("p_copycat_access", controlAccess)
 	
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand)

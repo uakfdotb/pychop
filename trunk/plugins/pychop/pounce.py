@@ -4,6 +4,7 @@
 # fullname = plugins/pychop/pounce
 # description = Display text in channel as soon as user joins.
 # help = Type !pounce <username> <message> to add a pounce. Type !pounce <username> to remove a pounce.
+# config = access|Access needed to use the plugin
 
 # modify settings below
 
@@ -22,8 +23,13 @@ import random
 pounceList = {}
 
 def init():
+	global pounceAccess
 	host.registerHandler('UserJoined', onJoin)
 	host.registerHandler('ProcessCommand', onCommand)
+	
+	# configuration
+	config = host.config()
+	pounceAccess = config.getInt("p_pounce_access", pounceAccess)
 	
 def deinit():
 	host.unregisterHandler('UserJoined', onJoin)

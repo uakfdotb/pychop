@@ -69,6 +69,8 @@ class PluginDB:
 		except (MySQLdb.OperationalError):
 			self.dbconnect()
 			self.cursor.execute(arg1, arg2) # hopefully it doesn't fail a second time, but definitely don't enter an infinite loop
+		
+		self.conn.commit()
 
 	# from plugin table, retrieve (key's value (string), id) or return -1
 	def dbGet(self, name, key):
