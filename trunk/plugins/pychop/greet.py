@@ -25,7 +25,7 @@ import host
 import time
 
 def init():
-	global minAccess, maxAccess, greetAccess
+	global minAccess, maxAccess, greetAccess, greetMessage
 	
 	host.registerHandler('UserJoined', onJoin)
 	host.registerHandler('ProcessCommand', onCommand)
@@ -35,6 +35,7 @@ def init():
 	greetAccess = config.getInt("p_greet_access", greetAccess)
 	minAccess = config.getInt("p_greet_minaccess", minAccess)
 	maxAccess = config.getInt("p_greet_maxaccess", maxAccess)
+	greetMessage = config.getString("p_greet_message", greetMessage)
 	
 def deinit():
 	host.unregisterHandler('UserJoined', onJoin)
