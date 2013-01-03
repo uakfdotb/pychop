@@ -1410,31 +1410,31 @@ void CBNET :: QueueChatCommand( string chatCommand, string user, bool whisper )
 void CBNET :: SendClanInvitation( string accountName )
 {
 	if( m_LoggedIn )
-		m_Socket->PutBytes( m_Protocol->SEND_SID_CLANINVITATION( accountName ) );
+		m_OutPackets.push( m_Protocol->SEND_SID_CLANINVITATION( accountName ) );
 }
 
 void CBNET :: SendClanRemove( string name )
 {
 	if( m_LoggedIn )
-		m_Socket->PutBytes( m_Protocol->SEND_SID_CLANREMOVE( name ) );
+		m_OutPackets.push( m_Protocol->SEND_SID_CLANREMOVE( name ) );
 }
 
 void CBNET :: SendClanChangeRank( string accountName, CBNETProtocol :: RankCode rank )
 {
 	if( m_LoggedIn )
-		m_Socket->PutBytes( m_Protocol->SEND_SID_CLANCHANGERANK( accountName, rank ) );
+		m_OutPackets.push( m_Protocol->SEND_SID_CLANCHANGERANK( accountName, rank ) );
 }
 
 void CBNET :: SendClanMakeChieftain( string accountName )
 {
 	if( m_LoggedIn )
-		m_Socket->PutBytes( m_Protocol->SEND_SID_CLANMAKECHIEFTAIN( accountName ) );
+		m_OutPackets.push( m_Protocol->SEND_SID_CLANMAKECHIEFTAIN( accountName ) );
 }
 
 void CBNET :: SendClanSetMOTD( string message )
 {
 	if( m_LoggedIn )
-		m_Socket->PutBytes( m_Protocol->SEND_SID_CLANSETMOTD( message ) );
+		m_OutPackets.push( m_Protocol->SEND_SID_CLANSETMOTD( message ) );
 }
 
 void CBNET :: SendClanAcceptInvite( bool accept )
@@ -1448,7 +1448,7 @@ void CBNET :: SendClanAcceptInvite( bool accept )
 			SendBytes = m_Protocol->SEND_SID_CLANINVITATIONRESPONSE( accept );
 		
 		if( SendBytes.size( ) != 0 )
-			m_Socket->PutBytes( SendBytes );
+			m_OutPackets.push( SendBytes );
 	}
 }
 
