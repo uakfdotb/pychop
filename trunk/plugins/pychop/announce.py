@@ -17,7 +17,7 @@ announceAccess = 10
 
 announceEnabled = False
 announceMessage = ""
-announceInterval = 1
+announceInterval = 60
 announceBnet = 0
 announceTime = 0
 
@@ -33,6 +33,12 @@ def init():
 	# configuration
 	config = host.config()
 	announceAccess = config.getInt("p_announce_access", announceAccess)
+	
+	announceMessage = config.getString("p_announce_message", announceMessage)
+	
+	if announceMessage:
+		announceEnabled = True
+		announceInterval = config.getInt("p_announce_interval", announceInterval)
 	
 def deinit():
 	host.unregisterHandler('ProcessCommand', onCommand)
