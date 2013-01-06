@@ -25,7 +25,7 @@ import host
 import time
 
 def init():
-	global announceAccess
+	global announceAccess, announceMessage, announceEnabled, announceInterval
 	
 	host.registerHandler('ProcessCommand', onCommand)
 	host.registerHandler('Update', onUpdate)
