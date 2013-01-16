@@ -26,7 +26,7 @@ import time
 
 def init():
 	global minAccess, maxAccess, greetAccess, greetMessage
-	
+
 	host.registerHandler('UserJoined', onJoin)
 	host.registerHandler('ProcessCommand', onCommand)
 	
@@ -48,7 +48,11 @@ def onJoin(bnet, user, isShow):
 		personalMessage = personalMessage.replace("#n", user.getName())
 		personalMessage = personalMessage.replace("#t", time.asctime(time.localtime(time.time())));
 		personalMessage = personalMessage.replace("#d", time.strftime("%B %d, %Y", time.localtime(time.time())));
-		bnet.queueChatCommand(personalMessage, user.getName(), True)
+		
+		if personalMessage and personalMessage[0] == ":":
+			bnet.queueChatCommand(personalMessage[1:])
+		else:
+			bnet.queueChatCommand(personalMessage, user.getName(), True)
 
 def onCommand(bnet, user, command, payload, nType):
 	global greetMessage
