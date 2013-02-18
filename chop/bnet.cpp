@@ -582,19 +582,19 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 			// reset frequency delay (or increment it)
 			
-			if( m_FrequencyDelayTimes >= 100 || RemainingWait <= -500 )
+			if( m_FrequencyDelayTimes >= 30 || RemainingWait <= -5000 )
 				m_FrequencyDelayTimes = 0;
 			else
 				m_FrequencyDelayTimes++;
 
-			m_LastOutPacketTicks = GetTicks( );			
+			m_LastOutPacketTicks = GetTicks( );
 		}
 
 		// send a null packet every 60 seconds to detect disconnects
 
 		if( GetTime( ) >= m_LastNullTime + 60 && GetTicks( ) >= m_LastOutPacketTicks + 60000 )
 		{
-			m_Socket->PutBytes( m_Protocol->SEND_SID_NULL( ) );
+			m_OutPackets.push( m_Protocol->SEND_SID_NULL( ) );
 			m_LastNullTime = GetTime( );
 		}
 
@@ -616,7 +616,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_INFO( m_War3Version, m_TFT, 1033, m_CountryAbbrev, m_Country ) );
 			m_Socket->DoSend( (fd_set *)send_fd );
 			m_LastNullTime = GetTime( );
-			m_LastOutPacketTicks = GetTicks( );
+			m_LastOutPacketTicks = GetTicks( ) + 4000;
 
 			while( !m_OutPackets.empty( ) )
 				m_OutPackets.pop( );
@@ -751,7 +751,7 @@ void CBNET :: ProcessPackets( )
 				{
 					CONSOLE_Print( "[BNET: " + m_ServerAlias + "] joining channel [" + m_FirstChannel + "]" );
 					m_InChat = true;
-					m_Socket->PutBytes( m_Protocol->SEND_SID_JOINCHANNEL( m_FirstChannel ) );
+					SendJoinChannel( m_FirstChannel );
 				}
 
 				break;
@@ -772,6 +772,7 @@ void CBNET :: ProcessPackets( )
 
 			case CBNETProtocol :: SID_PING:
 				m_Socket->PutBytes( m_Protocol->SEND_SID_PING( m_Protocol->RECEIVE_SID_PING( Packet->GetData( ) ) ) );
+				m_LastOutPacketTicks = GetTicks( ); //don't update packet size because previous packet was probably larger
 				break;
 
 			case CBNETProtocol :: SID_AUTH_INFO:
@@ -800,6 +801,7 @@ void CBNET :: ProcessPackets( )
 							CONSOLE_Print( "[BNET: " + m_ServerAlias + "] attempting to auth as Warcraft III: Reign of Chaos" );
 
 						m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_CHECK( m_TFT, m_Protocol->GetClientToken( ), m_BNCSUtil->GetEXEVersion( ), m_BNCSUtil->GetEXEVersionHash( ), m_BNCSUtil->GetKeyInfoROC( ), m_BNCSUtil->GetKeyInfoTFT( ), m_BNCSUtil->GetEXEInfo( ), "ChOP" ) );
+						m_LastOutPacketTicks = GetTicks( ) + 4000;
 
 						// the Warden seed is the first 4 bytes of the ROC key hash
 						// initialize the Warden handler
@@ -831,6 +833,7 @@ void CBNET :: ProcessPackets( )
 					CONSOLE_Print( "[BNET: " + m_ServerAlias + "] cd keys accepted" );
 					m_BNCSUtil->HELP_SID_AUTH_ACCOUNTLOGON( );
 					m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_ACCOUNTLOGON( m_BNCSUtil->GetClientKey( ), m_UserName ) );
+					m_LastOutPacketTicks = GetTicks( ) + 4000;
 				}
 				else
 				{
@@ -874,6 +877,7 @@ void CBNET :: ProcessPackets( )
 						CONSOLE_Print( "[BNET: " + m_ServerAlias + "] using pvpgn logon type (for pvpgn servers only)" );
 						m_BNCSUtil->HELP_PvPGNPasswordHash( m_UserPassword );
 						m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_ACCOUNTLOGONPROOF( m_BNCSUtil->GetPvPGNPasswordHash( ) ) );
+						m_LastOutPacketTicks = GetTicks( ) + 4000;
 					}
 					else
 					{
@@ -882,6 +886,7 @@ void CBNET :: ProcessPackets( )
 						CONSOLE_Print( "[BNET: " + m_ServerAlias + "] using battle.net logon type (for official battle.net servers only)" );
 						m_BNCSUtil->HELP_SID_AUTH_ACCOUNTLOGONPROOF( m_Protocol->GetSalt( ), m_Protocol->GetServerPublicKey( ) );
 						m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_ACCOUNTLOGONPROOF( m_BNCSUtil->GetM1( ) ) );
+						m_LastOutPacketTicks = GetTicks( ) + 4000;
 					}
 				}
 				else
@@ -906,6 +911,7 @@ void CBNET :: ProcessPackets( )
 					m_Socket->PutBytes( m_Protocol->SEND_SID_ENTERCHAT( ) );
 					m_Socket->PutBytes( m_Protocol->SEND_SID_FRIENDSLIST( ) );
 					m_Socket->PutBytes( m_Protocol->SEND_SID_CLANMEMBERLIST( ) );
+					m_LastOutPacketTicks = GetTicks( ) + 4000;
 				}
 				else
 				{
@@ -1328,19 +1334,19 @@ void CBNET :: ProcessCorePlugins( CUser *user, string Message )
 void CBNET :: SendJoinChannel( string channel )
 {
 	if( m_LoggedIn && m_InChat )
-		m_Socket->PutBytes( m_Protocol->SEND_SID_JOINCHANNEL( channel ) );
+		m_OutPackets.push( m_Protocol->SEND_SID_JOINCHANNEL( channel ) );
 }
 
 void CBNET :: SendGetFriendsList( )
 {
 	if( m_LoggedIn )
-		m_Socket->PutBytes( m_Protocol->SEND_SID_FRIENDSLIST( ) );
+		m_OutPackets.push( m_Protocol->SEND_SID_FRIENDSLIST( ) );
 }
 
 void CBNET :: SendGetClanList( )
 {
 	if( m_LoggedIn )
-		m_Socket->PutBytes( m_Protocol->SEND_SID_CLANMEMBERLIST( ) );
+		m_OutPackets.push( m_Protocol->SEND_SID_CLANMEMBERLIST( ) );
 }
 
 void CBNET :: QueueEnterChat( )
@@ -1716,19 +1722,25 @@ int64_t CBNET :: PacketDelayTime( uint32_t PacketSize, uint32_t FrequencyDelayTi
 	uint32_t WaitTicks = 0;
 
 	if( PacketSize < 10 )
-		WaitTicks = 1300;
+		WaitTicks = 1700;
 	else if( PacketSize < 30 )
-		WaitTicks = 3400;
+		WaitTicks = 4000;
 	else if( PacketSize < 50 )
-		WaitTicks = 3600;
+		WaitTicks = 4400;
+	else if( PacketSize < 70 )
+		WaitTicks = 5000;
 	else if( PacketSize < 100 )
-		WaitTicks = 3900;
+		WaitTicks = 6500;
+	else if( PacketSize < 150 )
+		WaitTicks = 7000;
+	else if( PacketSize < 200 )
+		WaitTicks = 7400;
 	else
-		WaitTicks = 5500;
+		WaitTicks = 7800;
 
 	// add on frequency delay
 
-	WaitTicks += FrequencyDelayTimes * 60;
+	WaitTicks += FrequencyDelayTimes * 160;
 	
 	uint32_t ElapsedTime = GetTicks( ) - m_LastOutPacketTicks;
 	int64_t RemainingWait = (int64_t) WaitTicks - (int64_t) ElapsedTime;
@@ -1753,7 +1765,7 @@ int64_t CBNET :: TotalDelayTime( )
 	{
 		TotalDelayTime += PacketDelayTime( OutPackets.front( ).size( ), VirtualFrequencyDelayTimes );
 		
-		if( VirtualFrequencyDelayTimes >= 100 )
+		if( VirtualFrequencyDelayTimes >= 30 )
 			VirtualFrequencyDelayTimes = 0;
 		else
 			VirtualFrequencyDelayTimes++;
