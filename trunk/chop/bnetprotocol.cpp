@@ -1208,7 +1208,6 @@ void CBNETProtocol :: RegisterPythonClass( )
 		.def("SEND_SID_CLANREMOVE", &CBNETProtocol::SEND_SID_CLANREMOVE)
 		.def("SEND_SID_CLANSETMOTD", &CBNETProtocol::SEND_SID_CLANSETMOTD)
 		.def("SEND_SID_CLANCHANGERANK", &CBNETProtocol::SEND_SID_CLANCHANGERANK)
-		.def("SEND_SID_PROFILE", &CBNETProtocol::SEND_SID_PROFILE)
 
 		.def("assignLength", &CBNETProtocol::AssignLength)
 		.def("validateLength", &CBNETProtocol::ValidateLength)
