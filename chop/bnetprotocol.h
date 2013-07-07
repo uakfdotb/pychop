@@ -185,7 +185,6 @@ public:
 	BYTEARRAY SEND_SID_CLANMAKECHIEFTAIN( string name );
 	BYTEARRAY SEND_SID_CLANCREATIONINVITATION( bool accept );
 	BYTEARRAY SEND_SID_CLANINVITATIONRESPONSE( bool accept );
-	BYTEARRAY SEND_SID_PROFILE( string name ) { };
 
 	// other functions
     static void RegisterPythonClass( );
